@@ -52,9 +52,10 @@ describe('UI Component Library', () => {
   });
 
   describe('Logo', () => {
-    it('renders SVG icon and brand wordmark', () => {
+    it('renders brand logo image and brand wordmark', () => {
       const html = renderToString(<Logo />);
-      expect(html).toContain('<svg');
+      expect(html).toContain('<img');
+      expect(html).toContain('src="/logo.png"');
       expect(html).toContain('Art');
       expect(html).toContain('Flow');
     });

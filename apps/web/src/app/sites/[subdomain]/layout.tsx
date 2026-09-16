@@ -66,14 +66,12 @@ export default async function SiteLayout({ children, params }: SiteLayoutProps) 
               color: 'inherit',
             }}
           >
-            {theme.logoUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={theme.logoUrl}
-                alt={site.name}
-                style={{ height: '28px', width: 'auto', borderRadius: '4px' }}
-              />
-            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={theme.logoUrl || '/logo.png'}
+              alt={site.name}
+              style={{ height: '28px', width: 'auto', borderRadius: '4px', objectFit: 'contain' }}
+            />
             <span
               style={{
                 fontSize: '18px',
