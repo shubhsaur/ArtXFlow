@@ -2,6 +2,7 @@ import React from 'react';
 import { headers } from 'next/headers';
 import { requireUser, bootstrapPersonalOrganization } from '@artxflow/auth';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Badge } from '@artxflow/ui';
+import { ConnectedPlatforms } from '../../../components/connected-platforms';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,6 +122,9 @@ export default async function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Connected Platforms & Publishers */}
+        <ConnectedPlatforms />
 
         {/* User Account Details */}
         <Card>
