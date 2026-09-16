@@ -302,74 +302,57 @@ The project should favor understandable architecture, documentation, and contrib
 
 ---
 
-## Repository Structure
+## Architecture
 
-The intended structure is approximately:
+- **Modular Monolith**: TypeScript monorepo orchestrated with pnpm workspaces and Turborepo.
+- **Web App**: Next.js App Router (`apps/web`).
+- **Background Worker**: Inngest background event-driven workflows (`apps/worker`).
+- **Database**: PostgreSQL (Neon-compatible) with Drizzle ORM (`packages/database`).
+- **Auth**: Better Auth (`packages/auth`).
+- **Publishing & Distribution**: Multi-destination publishing engine (`packages/publishing`, `packages/platform-adapters`).
+
+## Monorepo Structure
 
 ```text
 artxflow/
 ├── apps/
-│   ├── web/
-│   └── api/
-│
+│   ├── web/                     # Next.js web application
+│   └── worker/                  # Inngest background worker
 ├── packages/
-│   ├── content-core/
-│   ├── platform-adapters/
-│   │   ├── devto/
-│   │   ├── medium/
-│   │   ├── hashnode/
-│   │   ├── wordpress/
-│   │   └── ghost/
-│   ├── ui/
-│   ├── database/
-│   └── config/
-│
-├── docs/
-├── design.md
-├── README.md
-├── CONTRIBUTING.md
-├── CODE_OF_CONDUCT.md
-├── LICENSE
-└── ...
+│   ├── analytics/               # Normalized metrics and analytics ingestion
+│   ├── auth/                    # Authentication configuration and session helpers
+│   ├── config/                  # Typed environment configuration
+│   ├── content-core/            # Article and ArticleVersion domain models
+│   ├── database/                # Drizzle schema, migrations, and database client
+│   ├── design-system/           # Tokens, themes, and CSS variables
+│   ├── platform-adapters/       # Adapters for ArtXFlow blog, DEV.to, Medium, etc.
+│   ├── publishing/              # Publishing orchestration and state machine
+│   ├── storage/                 # Storage provider abstraction
+│   ├── transformations/         # Markdown transformations
+│   ├── types/                   # Cross-domain shared types
+│   └── ui/                      # Shared reusable UI components
+├── docs/                        # Architecture and implementation documentation
+└── AGENTS.md                    # Agent guidelines
 ```
-
-The structure may change as implementation progresses.
-
----
 
 ## Getting Started
 
-The project is currently in early development. Setup instructions will become more complete as the first application skeleton lands.
-
-### Prerequisites
-
-Recommended:
-
-- Node.js (current LTS)
-- pnpm
-- Git
-- PostgreSQL or a compatible managed database
-
-### Clone
-
 ```bash
-git clone https://github.com/<your-github-username>/artxflow.git
-cd artxflow
-```
-
-### Install dependencies
-
-```bash
+# Install dependencies
 pnpm install
-```
 
-### Start development
+# Run type checks
+pnpm typecheck
 
-```bash
+# Run linter
+pnpm lint
+
+# Build all packages and applications
+pnpm build
+
+# Start development servers
 pnpm dev
 ```
-
-> Replace commands above with the repository's actual scripts once the initial workspace is established.
 
 ---
 

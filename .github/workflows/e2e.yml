@@ -1,0 +1,67 @@
+name: End-to-End Tests
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run nightly at midnight UTC
+    - cron: '0 0 * * *'
+
+jobs:
+  e2e:
+    name: End-to-End Workflow Verification
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres_password
+          POSTGRES_DB: artxflow_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres_password@localhost:5432/artxflow_test
+      BETTER_AUTH_SECRET: test-better-auth-secret-minimum-32-characters-long
+      ENCRYPTION_KEY: test-encryption-key-minimum-32-characters-long
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.6.0
+          run_install: false
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Database Migrations
+        run: pnpm --filter @artxflow/database db:migrate
+
+      - name: Run End-to-End Suite
+        run: pnpm test apps/web/src/app/api/articles/publish-e2e.test.ts

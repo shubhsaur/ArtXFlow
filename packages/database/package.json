@@ -1,0 +1,48 @@
+{
+  "name": "@artxflow/database",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./schema": {
+      "import": "./src/schema/index.ts",
+      "types": "./src/schema/index.ts"
+    },
+    "./client": {
+      "import": "./src/client/index.ts",
+      "types": "./src/client/index.ts"
+    },
+    "./security": {
+      "import": "./src/security/index.ts",
+      "types": "./src/security/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/migrate.ts",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx src/seed/index.ts"
+  },
+  "dependencies": {
+    "@artxflow/config": "workspace:*",
+    "drizzle-orm": "^0.39.3",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7",
+    "drizzle-kit": "^0.30.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}

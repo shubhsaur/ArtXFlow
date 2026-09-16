@@ -1,0 +1,1 @@
+ALTER TYPE "public"."publication_status" ADD VALUE 'UNKNOWN_OUTCOME';

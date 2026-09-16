@@ -1,0 +1,1 @@
+ALTER TABLE "publications" ADD COLUMN "overrides" jsonb DEFAULT '{}'::jsonb NOT NULL;
