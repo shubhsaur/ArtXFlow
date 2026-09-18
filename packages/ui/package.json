@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@artxflow/design-system": "workspace:*",
+    "framer-motion": "^13.4.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1"
   },

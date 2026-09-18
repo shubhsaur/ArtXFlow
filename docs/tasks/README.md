@@ -54,6 +54,7 @@ Each task is intentionally scoped to a small, reviewable unit of work.
 | 028 | Implement provider analytics sync        | 026, 027      |
 | 029 | Implement AI transformation boundary     | 016, 018      |
 | 030 | Establish CI/CD + quality gates          | 002, 011      |
+| 031 | Medium companion extension (free path)   | 026           |
 
 ## Dependency graph
 

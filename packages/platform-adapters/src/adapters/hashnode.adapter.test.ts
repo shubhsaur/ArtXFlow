@@ -168,7 +168,7 @@ describe('HashnodeAdapter', () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       const [, options] = mockFetch.mock.calls[0];
-      expect(options.headers.Authorization).toBe('hashnode-token-123');
+      expect(options.headers.Authorization).toBe('Bearer hashnode-token-123');
       const body = JSON.parse(options.body);
       expect(body.variables.input.publicationId).toBe('pub-id-999');
       expect(body.variables.input.title).toBe('Modern Distributed Systems with Event Sourcing');

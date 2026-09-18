@@ -22,6 +22,7 @@
     "@artxflow/types": "workspace:*",
     "@artxflow/ui": "workspace:*",
     "@artxflow/worker": "workspace:*",
+    "framer-motion": "^13.4.0",
     "inngest": "^3.31.0",
     "next": "^15.1.7",
     "react": "^19.0.0",

@@ -91,6 +91,20 @@ interface HashnodeMePayload {
   };
 }
 
+interface HashnodeUserPublicationsPayload {
+  user?: {
+    publications?: {
+      edges?: Array<{
+        node: {
+          id: string;
+          title: string;
+          url: string;
+        };
+      }>;
+    };
+  };
+}
+
 /**
  * Hashnode platform adapter.
  * Handles article publishing and updates via Hashnode's GraphQL API (gql.hashnode.com),
@@ -103,7 +117,7 @@ export class HashnodeAdapter implements PlatformAdapter {
   private readonly fetchFn: typeof fetch;
 
   constructor(options: HashnodeAdapterOptions = {}) {
-    this.apiUrl = options.apiUrl ?? 'https://gql.hashnode.com';
+    this.apiUrl = options.apiUrl ?? 'https://gql-beta.hashnode.com';
     this.fetchFn = options.fetchFn ?? globalThis.fetch;
   }
 
@@ -195,10 +209,21 @@ export class HashnodeAdapter implements PlatformAdapter {
   async publish(input: PublishInput): Promise<PublishResult> {
     const token = this.extractToken(input.credentials);
 
-    const publicationId =
+    let publicationId =
       (input.destinationConfig?.publicationId as string | undefined) ||
       (input.credentials?.custom?.publicationId as string | undefined) ||
       (input.article.metadata?.publicationId as string | undefined);
+
+    if (!publicationId) {
+      try {
+        const profile = await this.verifyCredentials(token);
+        if (profile.publications?.[0]?.id) {
+          publicationId = profile.publications[0].id;
+        }
+      } catch {
+        // Fallback failed
+      }
+    }
 
     if (!publicationId) {
       throw new PlatformError({
@@ -443,13 +468,46 @@ export class HashnodeAdapter implements PlatformAdapter {
       });
     }
 
-    const publications: HashnodePublicationSummary[] = (me.publications?.edges || []).map(
+    let publications: HashnodePublicationSummary[] = (me.publications?.edges || []).map(
       (edge) => ({
         id: edge.node.id,
         title: edge.node.title,
         url: edge.node.url,
       }),
     );
+
+    if (publications.length === 0 && me.username) {
+      try {
+        const userPubQuery = `
+          query GetUserPublications($username: String!) {
+            user(username: $username) {
+              publications(first: 10) {
+                edges {
+                  node {
+                    id
+                    title
+                    url
+                  }
+                }
+              }
+            }
+          }
+        `;
+        const userPubResponse = await this.executeGraphQL<HashnodeUserPublicationsPayload>(
+          userPubQuery,
+          { username: me.username },
+          token.trim(),
+          'getUserPublications',
+        );
+        publications = (userPubResponse.user?.publications?.edges || []).map((edge) => ({
+          id: edge.node.id,
+          title: edge.node.title,
+          url: edge.node.url,
+        }));
+      } catch {
+        // Non-blocking fallback
+      }
+    }
 
     return {
       externalId: me.id,
@@ -479,12 +537,14 @@ export class HashnodeAdapter implements PlatformAdapter {
     token: string,
     operation: string,
   ): Promise<T> {
+    const authHeader = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+
     let res: Response;
     try {
       res = await this.fetchFn(this.apiUrl, {
         method: 'POST',
         headers: {
-          Authorization: token,
+          Authorization: authHeader,
           'Content-Type': 'application/json',
           'User-Agent': 'ArtXFlow/1.0',
         },
@@ -574,8 +634,8 @@ export class HashnodeAdapter implements PlatformAdapter {
       throw new PlatformError({
         provider: this.provider,
         code: 'PROVIDER_5XX',
-        message: `Hashnode returned non-JSON response (${res.status}): ${responseBody}`,
-        statusCode: res.status,
+        message: `Hashnode returned non-JSON response (${res.status}): ${responseBody.slice(0, 300)}`,
+        statusCode: res.status >= 400 ? res.status : 502,
         retryable: true,
         rawError: responseBody,
       });
@@ -588,12 +648,15 @@ export class HashnodeAdapter implements PlatformAdapter {
 
       if (
         code === 'UNAUTHENTICATED' ||
-        /unauthorized|unauthenticated|invalid token|access token/i.test(errorMessage)
+        /unauthorized|unauthenticated|invalid token|access token|must be logged in/i.test(
+          errorMessage,
+        )
       ) {
         throw new PlatformError({
           provider: this.provider,
           code: 'AUTHENTICATION_ERROR',
           message: `Hashnode GraphQL authentication error: ${errorMessage}`,
+          statusCode: 401,
           retryable: false,
           rawError: json.errors,
         });
@@ -604,6 +667,7 @@ export class HashnodeAdapter implements PlatformAdapter {
           provider: this.provider,
           code: 'AUTHORIZATION_ERROR',
           message: `Hashnode GraphQL authorization error: ${errorMessage}`,
+          statusCode: 403,
           retryable: false,
           rawError: json.errors,
         });
@@ -614,6 +678,7 @@ export class HashnodeAdapter implements PlatformAdapter {
           provider: this.provider,
           code: 'NOT_FOUND',
           message: `Hashnode resource not found: ${errorMessage}`,
+          statusCode: 404,
           retryable: false,
           rawError: json.errors,
         });
@@ -624,6 +689,7 @@ export class HashnodeAdapter implements PlatformAdapter {
           provider: this.provider,
           code: 'RATE_LIMITED',
           message: `Hashnode rate limit exceeded: ${errorMessage}`,
+          statusCode: 429,
           retryable: true,
           rawError: json.errors,
         });
@@ -638,6 +704,7 @@ export class HashnodeAdapter implements PlatformAdapter {
           provider: this.provider,
           code: 'VALIDATION_ERROR',
           message: `Hashnode GraphQL validation error: ${errorMessage}`,
+          statusCode: 400,
           retryable: false,
           rawError: json.errors,
         });

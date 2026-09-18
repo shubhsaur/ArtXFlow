@@ -1,0 +1,6 @@
+{
+  "name": "@artxflow/extension",
+  "version": "0.2.0",
+  "private": true,
+  "description": "ArtXFlow Chrome Companion Extension for free background platform publishing"
+}

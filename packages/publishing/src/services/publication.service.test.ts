@@ -245,6 +245,34 @@ describe('PublicationService', () => {
         DestinationNotFoundError,
       );
     });
+
+    it('shallow-merges destination config on update', async () => {
+      vi.mocked(mockDestinationRepo.findForOrganization).mockResolvedValue({
+        ...mockDestination,
+        config: { publicationId: 'pub-keep', tags: ['eng'] },
+      });
+      vi.mocked(mockDestinationRepo.update).mockResolvedValue({
+        ...mockDestination,
+        config: { publicationId: 'pub-keep', tags: ['eng'], hashnodePublishMode: 'extension' },
+      });
+
+      const result = await service.updateDestination(ctx, destId, {
+        config: { hashnodePublishMode: 'extension' },
+      });
+
+      expect(mockDestinationRepo.update).toHaveBeenCalledWith(
+        destId,
+        org1Id,
+        expect.objectContaining({
+          config: {
+            publicationId: 'pub-keep',
+            tags: ['eng'],
+            hashnodePublishMode: 'extension',
+          },
+        }),
+      );
+      expect(result.config.hashnodePublishMode).toBe('extension');
+    });
   });
 
   describe('Publication Creation & Uniqueness', () => {

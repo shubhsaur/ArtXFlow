@@ -15,6 +15,8 @@ export interface DistributionRequestedPayload {
   distributionId: string;
   organizationId: string;
   correlationId: string;
+  publicationIds?: string[];
+  destinationIds?: string[];
 }
 
 export interface PublicationRequestedPayload {

@@ -28,12 +28,14 @@ import type { DestinationOverrides } from '@artxflow/types';
 import type { JobQueue } from '../queue/job-queue';
 import { WorkflowJobQueue } from '../queue/workflow-job-queue';
 import type { CommandContext } from './publication.service';
+import { isClientManagedDestination } from '../utils/medium-publish-mode';
 
 export interface PublishArticleInput {
   articleId: string;
   destinationIds?: string[];
   articleVersionId?: string;
   destinationOverrides?: Record<string, DestinationOverrides>;
+  idempotencyKey?: string;
 }
 
 export interface PublishArticleResult {
@@ -181,10 +183,16 @@ export class PublishArticleService {
 
     // 5. Create or update publication records & log audit events
     const publications: Publication[] = [];
+    const workerDestinations: Destination[] = [];
 
     for (const dest of targetDestinations) {
       const overrides = input.destinationOverrides?.[dest.id] as
         Record<string, unknown> | undefined;
+      const clientManaged = isClientManagedDestination({
+        type: dest.type,
+        config: (dest.config as Record<string, unknown>) || {},
+      });
+      const nextStatus = clientManaged ? 'PENDING' : 'QUEUED';
 
       let pub = await this.publicationRepo.findByVersionAndDestination(
         ctx.organizationId,
@@ -195,19 +203,21 @@ export class PublishArticleService {
       if (pub) {
         if (pub.status !== 'PUBLISHED') {
           pub = await this.publicationRepo.updateStatus(pub.id, ctx.organizationId, {
-            status: 'QUEUED',
+            status: nextStatus,
             ...(overrides ? { overrides } : {}),
           });
           await this.publicationEventRepo.create({
             publicationId: pub.id,
-            eventType: 'QUEUED',
+            eventType: clientManaged ? 'CREATED' : 'QUEUED',
             correlationId,
             metadata: {
               articleId: article.id,
               articleVersionId: version.id,
               destinationId: dest.id,
               destinationType: dest.type,
-              reason: 'Republish queued',
+              reason: clientManaged
+                ? 'Client-managed publish pending'
+                : 'Republish queued',
             },
           });
         }
@@ -217,43 +227,83 @@ export class PublishArticleService {
           articleId: article.id,
           articleVersionId: version.id,
           destinationId: dest.id,
-          status: 'QUEUED',
+          status: nextStatus,
           overrides: overrides || {},
         });
 
         await this.publicationEventRepo.create({
           publicationId: pub.id,
-          eventType: 'QUEUED',
+          eventType: clientManaged ? 'CREATED' : 'QUEUED',
           correlationId,
           metadata: {
             articleId: article.id,
             articleVersionId: version.id,
             destinationId: dest.id,
             destinationType: dest.type,
+            clientManagedPublishMode: clientManaged
+              ? ((dest.config as Record<string, unknown>)?.hashnodePublishMode ??
+                (dest.config as Record<string, unknown>)?.mediumPublishMode ??
+                null)
+              : undefined,
           },
         });
       }
 
       publications.push(pub);
+      if (!clientManaged) {
+        workerDestinations.push(dest);
+      }
     }
 
+    const workerPublications = publications.filter((pub) =>
+      workerDestinations.some((dest) => dest.id === pub.destinationId),
+    );
+
     // 6. Create workflow job record & 7. Enqueue distribution workflow asynchronously
-    const idempotencyKey = `${ctx.organizationId}:${version.id}:distribute`;
-    const enqueueResult = await this.jobQueue.enqueue({
+    // Client-managed Hashnode/Medium modes (extension / web editor / manual URL) are
+    // completed in the browser and must not be sent to the platform API worker.
+    if (workerPublications.length === 0) {
+      return {
+        articleId: article.id,
+        articleVersionId: version.id,
+        publications: publications.map(toPublicationDto),
+      };
+    }
+
+    const workerPayload = {
+      distributionId: version.id,
+      articleId: article.id,
+      articleVersionId: version.id,
+      publicationIds: workerPublications.map((p) => p.id),
+      destinationIds: workerDestinations.map((d) => d.id),
+    };
+
+    const baseKey = input.idempotencyKey || `${ctx.organizationId}:${version.id}:distribute`;
+    let enqueueResult = await this.jobQueue.enqueue({
       type: 'DISTRIBUTE_ARTICLE',
       organizationId: ctx.organizationId,
       referenceType: 'ARTICLE_VERSION',
       referenceId: version.id,
-      idempotencyKey,
+      idempotencyKey: baseKey,
       correlationId,
-      payload: {
-        distributionId: version.id,
-        articleId: article.id,
-        articleVersionId: version.id,
-        publicationIds: publications.map((p) => p.id),
-        destinationIds: targetDestinations.map((d) => d.id),
-      },
+      payload: workerPayload,
     });
+
+    // If an earlier distribution run for this article version was already recorded in workflow_jobs,
+    // re-enqueue with a correlation-scoped run key so this subsequent publish or retry attempt
+    // generates a fresh durable workflow job and is dispatched to background workers.
+    if (enqueueResult.status === 'ALREADY_EXISTS' && !input.idempotencyKey) {
+      const runKey = `${baseKey}:${correlationId}`;
+      enqueueResult = await this.jobQueue.enqueue({
+        type: 'DISTRIBUTE_ARTICLE',
+        organizationId: ctx.organizationId,
+        referenceType: 'ARTICLE_VERSION',
+        referenceId: version.id,
+        idempotencyKey: runKey,
+        correlationId,
+        payload: workerPayload,
+      });
+    }
 
     return {
       articleId: article.id,

@@ -45,6 +45,8 @@ export class InngestJobDispatcher implements JobDispatcher {
             job.id,
           organizationId: job.organizationId,
           correlationId,
+          publicationIds: job.payload.publicationIds as string[] | undefined,
+          destinationIds: job.payload.destinationIds as string[] | undefined,
         },
       });
       return ids[0];

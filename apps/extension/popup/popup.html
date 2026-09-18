@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArtXFlow Companion</title>
+  <style>
+    :root {
+      --bg: #0B111A;
+      --surface: #131E2F;
+      --border: #1C2A3A;
+      --text: #F5F7FA;
+      --text-muted: #AAB5C4;
+      --primary: #3B82F6;
+      --primary-hover: #2563EB;
+      --success: #10B981;
+      --warning: #F59E0B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 16px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: white;
+    }
+
+    .title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+
+    .version {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .status-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+    }
+
+    .badge.checking {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
+
+    .desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      background-color: var(--primary);
+      color: white;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">A</div>
+    <div class="title">ArtXFlow</div>
+    <div class="version">v0.2.0</div>
+  </div>
+
+  <div class="card">
+    <div class="status-row">
+      <span style="color: var(--text-muted);">Companion Status</span>
+      <span class="badge">
+        <span class="dot"></span>
+        Ready
+      </span>
+    </div>
+    <div class="status-row" style="margin-top: 10px;">
+      <span style="color: var(--text-muted);">Hashnode Automation</span>
+      <span class="badge" id="hashnodeStatus">
+        <span class="dot"></span>
+        Enabled
+      </span>
+    </div>
+    <div class="status-row" style="margin-top: 10px;">
+      <span style="color: var(--text-muted);">Medium Automation</span>
+      <span class="badge" id="mediumStatus">
+        <span class="dot"></span>
+        Enabled
+      </span>
+    </div>
+  </div>
+
+  <div class="desc">
+    Enables free, automated background publishing to Hashnode and Medium directly from your ArtXFlow dashboard without needing paid API tokens or subscriptions.
+  </div>
+
+  <button class="btn" id="openArtXFlow">Open ArtXFlow Editor</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>

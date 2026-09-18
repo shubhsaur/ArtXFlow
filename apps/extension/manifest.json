@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "ArtXFlow Publisher Companion",
+  "version": "0.2.0",
+  "description": "Browser companion for ArtXFlow to publish articles to Hashnode, Medium, and platforms without API paywalls.",
+  "permissions": [
+    "tabs",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.hashnode.com/*",
+    "https://hashnode.com/*",
+    "https://*.hashnode.dev/*",
+    "https://hashnode.dev/*",
+    "https://hn.new/*",
+    "https://hshno.de/*",
+    "https://*.medium.com/*",
+    "https://medium.com/*",
+    "https://story.new/*",
+    "http://localhost:3002/*",
+    "http://localhost:3000/*",
+    "https://*.artxflow.com/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:3002/*",
+        "http://localhost:3000/*",
+        "https://*.artxflow.com/*"
+      ],
+      "js": ["artxflow-bridge.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "ArtXFlow Companion"
+  }
+}

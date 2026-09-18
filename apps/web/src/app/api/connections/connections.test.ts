@@ -1,8 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GET, POST } from './route';
+import { GET, POST, PATCH } from './route';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
-import { platformConnectionService } from '@artxflow/publishing';
-import { devtoAdapter, PlatformError } from '@artxflow/platform-adapters';
+import { platformConnectionService, PublicationService } from '@artxflow/publishing';
+import {
+  devtoAdapter,
+  hashnodeAdapter,
+  mediumAdapter,
+  PlatformError,
+} from '@artxflow/platform-adapters';
 
 vi.mock('next/headers', () => ({
   headers: vi.fn().mockResolvedValue(new Headers()),
@@ -83,11 +88,17 @@ describe('/api/connections Route Handler', () => {
       ];
 
       vi.spyOn(platformConnectionService, 'listConnections').mockResolvedValue(mockList);
+      vi.spyOn(platformConnectionService, 'listAccounts').mockResolvedValue([]);
 
       const res = await GET();
       expect(res.status).toBe(200);
       const json = await res.json();
-      expect(json.connections).toEqual(mockList);
+      expect(json.connections).toEqual([
+        {
+          ...mockList[0],
+          accounts: [],
+        },
+      ]);
     });
   });
 
@@ -205,6 +216,304 @@ describe('/api/connections Route Handler', () => {
       expect(res.status).toBe(401);
       const json = await res.json();
       expect(json.code).toBe('AUTHENTICATION_ERROR');
+    });
+
+    it('stores the selected Hashnode publish mode on the connection and destination', async () => {
+      vi.spyOn(hashnodeAdapter, 'verifyCredentials').mockResolvedValue({
+        externalId: 'hn-1',
+        username: 'alice',
+        displayName: 'Alice',
+        avatarUrl: null,
+        publications: [{ id: 'hn-pub-1', title: 'Alice Blog', url: 'https://alice.hashnode.dev' }],
+      });
+
+      const mockCreated = {
+        connection: {
+          id: 'conn-hn-1',
+          organizationId: mockOrg.id,
+          provider: 'hashnode',
+          status: 'CONNECTED',
+          tokenMetadata: { hashnodePublishMode: 'hn_new' },
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:00Z',
+        },
+        accounts: [],
+      };
+
+      vi.spyOn(platformConnectionService, 'createConnection').mockResolvedValue(mockCreated);
+      const createDestination = vi
+        .spyOn(PublicationService.prototype, 'createDestination')
+        .mockResolvedValue({
+          id: 'dest-hn-1',
+          organizationId: mockOrg.id,
+          type: 'hashnode',
+          name: 'Hashnode (@alice)',
+          connectionId: 'conn-hn-1',
+          config: { hashnodePublishMode: 'hn_new', publicationId: 'hn-pub-1' },
+          status: 'ACTIVE',
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:00Z',
+        });
+      vi.spyOn(PublicationService.prototype, 'listDestinations').mockResolvedValue([]);
+
+      const req = new Request('http://localhost/api/connections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: 'hashnode',
+          secret: 'hn-pat',
+          hashnodePublishMode: 'hn_new',
+        }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(201);
+      expect(platformConnectionService.createConnection).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          provider: 'hashnode',
+          tokenMetadata: { hashnodePublishMode: 'hn_new' },
+        }),
+      );
+      expect(createDestination).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          type: 'hashnode',
+          config: expect.objectContaining({
+            hashnodePublishMode: 'hn_new',
+            publicationId: 'hn-pub-1',
+          }),
+        }),
+      );
+    });
+
+    it('rejects an invalid Hashnode publish mode', async () => {
+      const req = new Request('http://localhost/api/connections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: 'hashnode',
+          secret: 'hn-pat',
+          hashnodePublishMode: 'telepathy',
+        }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(400);
+    });
+
+    it('connects Medium without a token when using a client-managed publish mode', async () => {
+      const mockCreated = {
+        connection: {
+          id: 'conn-med-1',
+          organizationId: mockOrg.id,
+          provider: 'medium',
+          status: 'CONNECTED',
+          tokenMetadata: { mediumPublishMode: 'extension', clientManaged: true },
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:00Z',
+        },
+        accounts: [],
+      };
+
+      vi.spyOn(platformConnectionService, 'createConnection').mockResolvedValue(mockCreated);
+      vi.spyOn(PublicationService.prototype, 'listDestinations').mockResolvedValue([]);
+      vi.spyOn(PublicationService.prototype, 'createDestination').mockResolvedValue({
+        id: 'dest-med-1',
+        organizationId: mockOrg.id,
+        type: 'medium',
+        name: 'Medium (browser session)',
+        connectionId: 'conn-med-1',
+        config: { mediumPublishMode: 'extension', clientManaged: true },
+        status: 'ACTIVE',
+        createdAt: '2026-01-01T00:00:00Z',
+        updatedAt: '2026-01-01T00:00:00Z',
+      });
+      const verifySpy = vi.spyOn(mediumAdapter, 'verifyCredentials');
+
+      const req = new Request('http://localhost/api/connections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: 'medium',
+          mediumPublishMode: 'extension',
+        }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(201);
+      expect(verifySpy).not.toHaveBeenCalled();
+      expect(platformConnectionService.createConnection).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          provider: 'medium',
+          secret: '__artxflow_client_managed__',
+          tokenMetadata: expect.objectContaining({
+            mediumPublishMode: 'extension',
+            clientManaged: true,
+          }),
+        }),
+      );
+    });
+
+    it('rejects Medium API mode without a token', async () => {
+      const req = new Request('http://localhost/api/connections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: 'medium',
+          mediumPublishMode: 'api',
+        }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(400);
+    });
+  });
+
+  describe('PATCH /api/connections', () => {
+    it('returns 401 if unauthenticated', async () => {
+      vi.mocked(getSession).mockResolvedValueOnce(null);
+
+      const req = new Request('http://localhost/api/connections', {
+        method: 'PATCH',
+        body: JSON.stringify({ id: 'conn-1', hashnodePublishMode: 'manual' }),
+      });
+
+      const res = await PATCH(req);
+      expect(res.status).toBe(401);
+    });
+
+    it('updates Hashnode publish mode on the connection and matching destination', async () => {
+      vi.spyOn(platformConnectionService, 'getConnection').mockResolvedValue({
+        id: 'conn-hn-1',
+        organizationId: mockOrg.id,
+        provider: 'hashnode',
+        status: 'CONNECTED',
+        tokenMetadata: { hashnodePublishMode: 'extension' },
+        createdAt: '2026-01-01T00:00:00Z',
+        updatedAt: '2026-01-01T00:00:00Z',
+      });
+      vi.spyOn(platformConnectionService, 'updateTokenMetadata').mockResolvedValue({
+        id: 'conn-hn-1',
+        organizationId: mockOrg.id,
+        provider: 'hashnode',
+        status: 'CONNECTED',
+        tokenMetadata: { hashnodePublishMode: 'manual' },
+        createdAt: '2026-01-01T00:00:00Z',
+        updatedAt: '2026-01-02T00:00:00Z',
+      });
+      vi.spyOn(PublicationService.prototype, 'listDestinations').mockResolvedValue([
+        {
+          id: 'dest-hn-1',
+          organizationId: mockOrg.id,
+          type: 'hashnode',
+          name: 'Hashnode',
+          connectionId: 'conn-hn-1',
+          config: { hashnodePublishMode: 'extension' },
+          status: 'ACTIVE',
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:00Z',
+        },
+      ]);
+      const updateDestination = vi
+        .spyOn(PublicationService.prototype, 'updateDestination')
+        .mockResolvedValue({
+          id: 'dest-hn-1',
+          organizationId: mockOrg.id,
+          type: 'hashnode',
+          name: 'Hashnode',
+          connectionId: 'conn-hn-1',
+          config: { hashnodePublishMode: 'manual' },
+          status: 'ACTIVE',
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-02T00:00:00Z',
+        });
+
+      const req = new Request('http://localhost/api/connections', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: 'conn-hn-1', hashnodePublishMode: 'manual' }),
+      });
+
+      const res = await PATCH(req);
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.connection.tokenMetadata.hashnodePublishMode).toBe('manual');
+      expect(platformConnectionService.updateTokenMetadata).toHaveBeenCalledWith(
+        expect.anything(),
+        'conn-hn-1',
+        { tokenMetadata: { hashnodePublishMode: 'manual' } },
+      );
+      expect(updateDestination).toHaveBeenCalledWith(expect.anything(), 'dest-hn-1', {
+        config: { hashnodePublishMode: 'manual' },
+      });
+    });
+
+    it('updates Medium publish mode on the connection and matching destination', async () => {
+      vi.spyOn(platformConnectionService, 'getConnection').mockResolvedValue({
+        id: 'conn-med-1',
+        organizationId: mockOrg.id,
+        provider: 'medium',
+        status: 'CONNECTED',
+        tokenMetadata: { mediumPublishMode: 'extension', clientManaged: true },
+        createdAt: '2026-01-01T00:00:00Z',
+        updatedAt: '2026-01-01T00:00:00Z',
+      });
+      vi.spyOn(platformConnectionService, 'updateTokenMetadata').mockResolvedValue({
+        id: 'conn-med-1',
+        organizationId: mockOrg.id,
+        provider: 'medium',
+        status: 'CONNECTED',
+        tokenMetadata: { mediumPublishMode: 'medium_new', clientManaged: true },
+        createdAt: '2026-01-01T00:00:00Z',
+        updatedAt: '2026-01-02T00:00:00Z',
+      });
+      vi.spyOn(PublicationService.prototype, 'listDestinations').mockResolvedValue([
+        {
+          id: 'dest-med-1',
+          organizationId: mockOrg.id,
+          type: 'medium',
+          name: 'Medium',
+          connectionId: 'conn-med-1',
+          config: { mediumPublishMode: 'extension', clientManaged: true },
+          status: 'ACTIVE',
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:00Z',
+        },
+      ]);
+      const updateDestination = vi
+        .spyOn(PublicationService.prototype, 'updateDestination')
+        .mockResolvedValue({
+          id: 'dest-med-1',
+          organizationId: mockOrg.id,
+          type: 'medium',
+          name: 'Medium',
+          connectionId: 'conn-med-1',
+          config: { mediumPublishMode: 'medium_new', clientManaged: true },
+          status: 'ACTIVE',
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-02T00:00:00Z',
+        });
+
+      const req = new Request('http://localhost/api/connections', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: 'conn-med-1', mediumPublishMode: 'medium_new' }),
+      });
+
+      const res = await PATCH(req);
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.connection.tokenMetadata.mediumPublishMode).toBe('medium_new');
+      expect(platformConnectionService.updateTokenMetadata).toHaveBeenCalledWith(
+        expect.anything(),
+        'conn-med-1',
+        { tokenMetadata: { mediumPublishMode: 'medium_new' } },
+      );
+      expect(updateDestination).toHaveBeenCalledWith(expect.anything(), 'dest-med-1', {
+        config: { mediumPublishMode: 'medium_new' },
+      });
     });
   });
 });

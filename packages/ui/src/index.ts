@@ -10,3 +10,4 @@ export * from './components/badge';
 export * from './components/logo';
 export * from './components/article-renderer';
 export * from './components/article-preview';
+export * from './components/toaster';

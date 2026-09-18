@@ -55,6 +55,12 @@ export interface CreateDestinationInput {
   status?: DestinationStatus;
 }
 
+export interface UpdateDestinationInput {
+  name?: string;
+  config?: Record<string, unknown>;
+  status?: DestinationStatus;
+}
+
 export interface CreatePublicationInput {
   articleId: string;
   articleVersionId: string;
@@ -136,6 +142,26 @@ export class PublicationService {
     });
 
     return toDestinationDto(created);
+  }
+
+  /**
+   * Updates destination attributes within tenant boundaries.
+   * Config is shallow-merged so unrelated destination keys are preserved.
+   */
+  async updateDestination(
+    ctx: CommandContext,
+    destinationId: string,
+    input: UpdateDestinationInput,
+  ): Promise<DestinationDto> {
+    const existing = await this.getDestination(ctx, destinationId);
+
+    const updated = await this.destinationRepo.update(destinationId, ctx.organizationId, {
+      ...(input.name !== undefined ? { name: input.name.trim() } : {}),
+      ...(input.status !== undefined ? { status: input.status } : {}),
+      ...(input.config !== undefined ? { config: { ...existing.config, ...input.config } } : {}),
+    });
+
+    return toDestinationDto(updated);
   }
 
   /**

@@ -8,7 +8,7 @@ import {
   articleVersionRepository,
   articleRepository,
 } from '@artxflow/database';
-import { platformConnectionService } from '@artxflow/publishing';
+import { platformConnectionService, isClientManagedDestination } from '@artxflow/publishing';
 import {
   platformAdapterRegistry,
   PlatformError,
@@ -46,8 +46,20 @@ export const publicationRequested = inngest.createFunction(
 
       // Idempotency guard: If already published or external resource is already registered, skip further remote mutation
       const isAlreadyPublished = pub.status === 'PUBLISHED' || Boolean(pub.externalResourceId);
+      const destination = await destinationRepository.findForOrganization(
+        organizationId,
+        pub.destinationId,
+      );
+      const skipClientManaged = Boolean(
+        destination &&
+          isClientManagedDestination({
+            type: destination.type,
+            config: (destination.config as Record<string, unknown>) || {},
+          }),
+      );
       return {
-        skip: isAlreadyPublished,
+        skip: isAlreadyPublished || skipClientManaged,
+        skipClientManaged,
         status: pub.status,
         articleId: pub.articleId,
         articleVersionId: pub.articleVersionId,
@@ -61,7 +73,9 @@ export const publicationRequested = inngest.createFunction(
 
     if (publication.skip) {
       return {
-        message: 'Publication is already published. Skipped duplicate execution.',
+        message: publication.skipClientManaged
+          ? 'Destination uses a client-managed publish mode. Skipped API publish.'
+          : 'Publication is already published. Skipped duplicate execution.',
         publicationId,
         externalUrl: publication.externalUrl,
         externalResourceId: publication.externalResourceId,

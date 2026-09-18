@@ -14,12 +14,23 @@ export const distributionRequested = inngest.createFunction(
   },
   { event: INNGEST_EVENTS.DISTRIBUTION_REQUESTED },
   async ({ event, step }) => {
-    const { distributionId, organizationId, correlationId } = event.data;
+    const { distributionId, organizationId, correlationId, publicationIds, destinationIds } =
+      event.data;
 
     // Load publications targeting this distribution
     const publications = await step.run('load-distribution-publications', async () => {
       // In ArtXFlow, a distributionId maps to an articleVersionId or distribution entity
-      return await publicationRepository.listByArticleVersion(organizationId, distributionId);
+      const allPubs = await publicationRepository.listByArticleVersion(
+        organizationId,
+        distributionId,
+      );
+      if (publicationIds && Array.isArray(publicationIds) && publicationIds.length > 0) {
+        return allPubs.filter((p) => publicationIds.includes(p.id));
+      }
+      if (destinationIds && Array.isArray(destinationIds) && destinationIds.length > 0) {
+        return allPubs.filter((p) => destinationIds.includes(p.destinationId));
+      }
+      return allPubs;
     });
 
     if (publications.length === 0) {
@@ -37,7 +48,7 @@ export const distributionRequested = inngest.createFunction(
         publicationId: pub.id,
         organizationId,
         correlationId,
-        idempotencyKey: `${organizationId}:${pub.articleVersionId}:${pub.destinationId}`,
+        idempotencyKey: `${organizationId}:${pub.articleVersionId}:${pub.destinationId}:${correlationId}`,
       },
     }));
 

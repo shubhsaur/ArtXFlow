@@ -300,4 +300,100 @@ describe('PublishArticleService', () => {
     expect(mockPubRepo.create).not.toHaveBeenCalled();
     expect(result.publications).toHaveLength(1);
   });
+
+  it('enqueues a fresh distribution job with correlation-scoped key when base idempotency key already exists', async () => {
+    // First publish succeeds with base key
+    const firstResult = await service.publishArticle(
+      { userId, organizationId: orgId },
+      { articleId, destinationIds: [destId] },
+    );
+    expect(firstResult.jobId).toBeDefined();
+    expect(memoryJobQueue.listJobs()).toHaveLength(1);
+    expect(memoryJobQueue.listJobs()[0]?.idempotencyKey).toBe(`${orgId}:${versionId}:distribute`);
+
+    // Second publish for the same version detects ALREADY_EXISTS and enqueues with run key
+    const correlationId = 'corr-unique-run-2';
+    const secondResult = await service.publishArticle(
+      { userId, organizationId: orgId, correlationId },
+      { articleId, destinationIds: [destId] },
+    );
+    expect(secondResult.jobId).toBeDefined();
+    expect(secondResult.jobId).not.toBe(firstResult.jobId);
+    expect(memoryJobQueue.listJobs()).toHaveLength(2);
+    expect(memoryJobQueue.listJobs()[1]?.idempotencyKey).toBe(
+      `${orgId}:${versionId}:distribute:${correlationId}`,
+    );
+  });
+
+  it('leaves client-managed Hashnode publications PENDING and does not enqueue a worker job', async () => {
+    mockDestination.type = 'hashnode';
+    mockDestination.config = { hashnodePublishMode: 'extension', publicationId: 'hn-pub' };
+
+    const result = await service.publishArticle(
+      { userId, organizationId: orgId },
+      { articleId, destinationIds: [destId] },
+    );
+
+    expect(result.publications).toHaveLength(1);
+    expect(result.publications[0]?.status).toBe('PENDING');
+    expect(result.jobId).toBeUndefined();
+    expect(memoryJobQueue.listJobs()).toHaveLength(0);
+    expect(mockPubRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        destinationId: destId,
+        status: 'PENDING',
+      }),
+    );
+    expect(mockPubEventRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'CREATED',
+      }),
+    );
+  });
+
+  it('enqueues only API destinations when Hashnode is configured for a client-managed mode', async () => {
+    const hashnodeDestId = '00000000-0000-0000-0000-000000000099';
+    const hashnodeDest: Destination = {
+      ...mockDestination,
+      id: hashnodeDestId,
+      type: 'hashnode',
+      name: 'Hashnode',
+      config: { hashnodePublishMode: 'hn_new' },
+    };
+
+    (mockDestRepo.findForOrganization as ReturnType<typeof vi.fn>).mockImplementation(
+      async (org: string, id: string) => {
+        if (org !== orgId) return null;
+        if (id === destId) return { ...mockDestination };
+        if (id === hashnodeDestId) return { ...hashnodeDest };
+        return null;
+      },
+    );
+
+    const result = await service.publishArticle(
+      { userId, organizationId: orgId },
+      { articleId, destinationIds: [destId, hashnodeDestId] },
+    );
+
+    expect(result.publications).toHaveLength(2);
+    expect(result.jobId).toBeDefined();
+    expect(memoryJobQueue.listJobs()).toHaveLength(1);
+    expect(memoryJobQueue.listJobs()[0]?.payload?.destinationIds).toEqual([destId]);
+    expect(memoryJobQueue.listJobs()[0]?.payload?.publicationIds).toHaveLength(1);
+  });
+
+  it('leaves client-managed Medium publications PENDING and does not enqueue a worker job', async () => {
+    mockDestination.type = 'medium';
+    mockDestination.config = { mediumPublishMode: 'extension' };
+
+    const result = await service.publishArticle(
+      { userId, organizationId: orgId },
+      { articleId, destinationIds: [destId] },
+    );
+
+    expect(result.publications).toHaveLength(1);
+    expect(result.publications[0]?.status).toBe('PENDING');
+    expect(result.jobId).toBeUndefined();
+    expect(memoryJobQueue.listJobs()).toHaveLength(0);
+  });
 });

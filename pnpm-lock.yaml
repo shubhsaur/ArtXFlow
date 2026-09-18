@@ -39,6 +39,8 @@ importers:
         specifier: ^3.0.5
         version: 3.2.7(@types/debug@4.1.13)(@types/node@22.20.2)(tsx@4.23.13)(yaml@2.9.1)
 
+  apps/extension: {}
+
   apps/web:
     dependencies:
       '@artxflow/auth':
@@ -71,6 +73,9 @@ importers:
       '@artxflow/worker':
         specifier: workspace:*
         version: link:../worker
+      framer-motion:
+        specifier: ^13.4.0
+        version: 13.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       inngest:
         specifier: ^3.31.0
         version: 3.54.2(@opentelemetry/core@2.11.0(@opentelemetry/api@1.9.1))(next@15.5.25(@opentelemetry/api@1.9.1)(@types/node@22.20.2))(typescript@5.9.3)(zod@4.6.2)
@@ -99,6 +104,9 @@ importers:
 
   apps/worker:
     dependencies:
+      '@artxflow/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@artxflow/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -217,9 +225,15 @@ importers:
 
   packages/publishing:
     dependencies:
+      '@artxflow/analytics':
+        specifier: workspace:*
+        version: link:../analytics
       '@artxflow/database':
         specifier: workspace:*
         version: link:../database
+      '@artxflow/platform-adapters':
+        specifier: workspace:*
+        version: link:../platform-adapters
       '@artxflow/types':
         specifier: workspace:*
         version: link:../types
@@ -235,6 +249,10 @@ importers:
         version: 5.9.3
 
   packages/transformations:
+    dependencies:
+      '@artxflow/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       typescript:
         specifier: ^5.7.3
@@ -251,6 +269,9 @@ importers:
       '@artxflow/design-system':
         specifier: workspace:*
         version: link:../design-system
+      framer-motion:
+        specifier: ^13.4.0
+        version: 13.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.3.0)(react@19.3.0)
@@ -2806,6 +2827,17 @@ packages:
   forwarded-parse@2.1.2:
     resolution: {integrity: sha512-alTFZZQDKMporBH77856pXgzhEzaUVmLCDk+egLgIgHst3Tpndzz8MnKe+GzRJRfvVdn69HhpW7cmXzvtLvJAw==}
 
+  framer-motion@13.4.0:
+    resolution: {integrity: sha512-HCpqKM9BTu6UYKtj0u6J1QNxojnnirNcghcSDZ+SkpiL3myxvtsgXPS3ZGEELC2eSma7YiA937rAEXtRyydSXQ==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
   fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
@@ -3411,6 +3443,12 @@ packages:
 
   module-details-from-path@1.0.4:
     resolution: {integrity: sha512-EGWKgxALGMgzvxYF1UyGTy0HXX/2vHLkw6+NvDKW2jypWbHpjQuj4UMcqQWXHERJhVGKikolT06G3bcKe4fi7w==}
+
+  motion-dom@13.3.0:
+    resolution: {integrity: sha512-AmAnB6pHdZ1vHGzWzuzteG6Q3j1lHKeX/lbST6jGlgm0cjvLUgaCk1xhOuPMOy5SgovN6wnnUdwFrkcsus7Ftg==}
+
+  motion-utils@13.3.0:
+    resolution: {integrity: sha512-sgSschQp7EseHInIlR7hBbMuvet3RA0bs28KPZAXJcGKGdxHGvh1ogpYDilY3bOMtl73EqPNmp75sAKHYPU5sg==}
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
@@ -6729,6 +6767,15 @@ snapshots:
 
   forwarded-parse@2.1.2: {}
 
+  framer-motion@13.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+    dependencies:
+      motion-dom: 13.3.0
+      motion-utils: 13.3.0
+      tslib: 2.8.1
+    optionalDependencies:
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
+
   fs.realpath@1.0.0: {}
 
   fsevents@2.3.3:
@@ -7588,6 +7635,12 @@ snapshots:
   minipass@7.1.3: {}
 
   module-details-from-path@1.0.4: {}
+
+  motion-dom@13.3.0:
+    dependencies:
+      motion-utils: 13.3.0
+
+  motion-utils@13.3.0: {}
 
   ms@2.1.3: {}
 

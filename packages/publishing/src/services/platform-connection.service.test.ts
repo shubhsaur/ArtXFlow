@@ -221,6 +221,42 @@ describe('PlatformConnectionService', () => {
     expect((updated as unknown as Record<string, unknown>).encryptedSecret).toBeUndefined();
   });
 
+  it('merges token metadata without requiring a new secret', async () => {
+    const originalConnection = {
+      ...mockConnectionEntity,
+      encryptedSecret: sampleEncryptedSecret,
+      tokenMetadata: { tokenType: 'api_key', keepMe: true },
+    };
+
+    const mockConnectionRepo = {
+      findForOrganization: vi.fn().mockResolvedValue(originalConnection),
+      update: vi.fn().mockImplementation(async (_id, _orgId, data) => ({
+        ...originalConnection,
+        ...data,
+        updatedAt: new Date('2026-01-02T00:00:00Z'),
+      })),
+    } as unknown as PlatformConnectionRepository;
+
+    const service = new PlatformConnectionService(
+      mockConnectionRepo,
+      {} as PlatformAccountRepository,
+    );
+
+    const updated = await service.updateTokenMetadata(ctx, connectionId, {
+      tokenMetadata: { hashnodePublishMode: 'hn_new' },
+    });
+
+    expect(mockConnectionRepo.update).toHaveBeenCalledWith(
+      connectionId,
+      orgId,
+      expect.objectContaining({
+        tokenMetadata: { tokenType: 'api_key', keepMe: true, hashnodePublishMode: 'hn_new' },
+      }),
+    );
+    expect(updated.tokenMetadata.hashnodePublishMode).toBe('hn_new');
+    expect((updated as unknown as Record<string, unknown>).encryptedSecret).toBeUndefined();
+  });
+
   it('revokes a connection', async () => {
     const originalConnection = { ...mockConnectionEntity, encryptedSecret: sampleEncryptedSecret };
     const mockConnectionRepo = {

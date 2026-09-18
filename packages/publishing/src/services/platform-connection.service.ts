@@ -34,6 +34,11 @@ export interface UpdatePlatformConnectionSecretInput {
   tokenMetadata?: Record<string, unknown>;
 }
 
+export interface UpdatePlatformConnectionMetadataInput {
+  tokenMetadata: Record<string, unknown>;
+  merge?: boolean;
+}
+
 export interface UpsertPlatformAccountInput {
   externalId: string;
   username: string;
@@ -141,6 +146,28 @@ export class PlatformConnectionService {
       encryptedSecret,
       status: 'CONNECTED',
       tokenMetadata: input.tokenMetadata,
+    });
+
+    return toPlatformConnectionDto(updated);
+  }
+
+  /**
+   * Updates non-secret token metadata (e.g. Hashnode publish-mode preference).
+   * Merges with existing metadata by default so unrelated keys are preserved.
+   */
+  async updateTokenMetadata(
+    ctx: CommandContext,
+    connectionId: string,
+    input: UpdatePlatformConnectionMetadataInput,
+  ): Promise<PlatformConnectionDto> {
+    const existing = await this.getConnection(ctx, connectionId);
+    const nextMetadata =
+      input.merge === false
+        ? input.tokenMetadata
+        : { ...existing.tokenMetadata, ...input.tokenMetadata };
+
+    const updated = await this.connectionRepo.update(connectionId, ctx.organizationId, {
+      tokenMetadata: nextMetadata,
     });
 
     return toPlatformConnectionDto(updated);
