@@ -7,6 +7,7 @@ export function ProfileDeleteAccount() {
   const router = useRouter();
   const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
   const handleDelete = async () => {
@@ -41,15 +42,18 @@ export function ProfileDeleteAccount() {
       <button
         type="button"
         onClick={() => setShowConfirm(true)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         style={{
           padding: '8px 16px',
           borderRadius: '6px',
-          backgroundColor: 'transparent',
+          backgroundColor: isHovered ? '#B91C1C' : 'var(--status-error, #D92D20)',
           border: '1px solid var(--status-error, #D92D20)',
-          color: 'var(--status-error, #D92D20)',
+          color: '#FFFFFF',
           fontSize: '13px',
           fontWeight: 600,
           cursor: 'pointer',
+          transition: 'all 0.15s ease',
         }}
       >
         Delete Account
