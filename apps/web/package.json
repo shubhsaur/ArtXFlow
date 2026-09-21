@@ -28,6 +28,7 @@
     "next": "^15.1.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-easy-crop": "^6.2.3",
     "sharp": "^0.35.4"
   },
   "devDependencies": {

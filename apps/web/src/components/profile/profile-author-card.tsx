@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import Cropper from 'react-easy-crop';
+import type { Point, Area } from 'react-easy-crop';
 import type { ProfileFormData } from './profile-types';
 
 interface ProfileAuthorCardProps {
@@ -20,6 +22,15 @@ export function ProfileAuthorCard({
 }: ProfileAuthorCardProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [cropModal, setCropModal] = useState<{
+    open: boolean;
+    imageUrl: string;
+    file: File;
+  } | null>(null);
+  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
   const initials = (formData.name || formData.email || '?')
     .split(' ')
     .map((w) => w[0])
@@ -30,9 +41,43 @@ export function ProfileAuthorCard({
 
   const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      onAvatarUpload(file);
-      e.target.value = '';
+    if (!file) return;
+
+    const imageUrl = URL.createObjectURL(file);
+    setCropModal({ open: true, imageUrl, file });
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleCropCancel = () => {
+    if (cropModal?.imageUrl) {
+      URL.revokeObjectURL(cropModal.imageUrl);
+    }
+    setCropModal(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+  };
+
+  const handleCropConfirm = async () => {
+    if (!cropModal || !croppedAreaPixels) return;
+
+    try {
+      const croppedFile = await getCroppedFile(
+        cropModal.imageUrl,
+        croppedAreaPixels,
+        cropModal.file.name,
+      );
+      URL.revokeObjectURL(cropModal.imageUrl);
+      setCropModal(null);
+      await onAvatarUpload(croppedFile);
+    } catch {
+      handleCropCancel();
     }
   };
 
@@ -198,6 +243,151 @@ export function ProfileAuthorCard({
         </div>
       </div>
 
+      {/* Crop Modal */}
+      {cropModal?.open && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backdropFilter: 'blur(8px)',
+          }}
+          onClick={handleCropCancel}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '480px',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              padding: '24px',
+              borderRadius: '16px',
+              backgroundColor: 'var(--surface-raised, #0D1420)',
+              border: '1px solid var(--border-default, #243447)',
+              boxShadow: '0 24px 48px rgba(0, 0, 0, 0.6)',
+            }}
+          >
+            <div>
+              <h3
+                style={{
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  color: 'var(--text-primary, #F5F7FA)',
+                  margin: 0,
+                }}
+              >
+                Position your avatar
+              </h3>
+              <p
+                style={{
+                  fontSize: '13px',
+                  color: 'var(--text-muted, #66768D)',
+                  margin: '4px 0 0 0',
+                }}
+              >
+                Drag and zoom to frame your profile picture.
+              </p>
+            </div>
+
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: '320px',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                backgroundColor: 'var(--surface-base, #070B12)',
+                border: '1px solid var(--border-default, #243447)',
+              }}
+            >
+              <Cropper
+                image={cropModal.imageUrl}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={(_, areaPixels) => setCroppedAreaPixels(areaPixels)}
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label
+                htmlFor="avatar-crop-zoom"
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-muted, #66768D)',
+                }}
+              >
+                Zoom
+              </label>
+              <input
+                id="avatar-crop-zoom"
+                type="range"
+                min={1}
+                max={3}
+                step={0.1}
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                style={{
+                  width: '100%',
+                  accentColor: 'var(--primary, #0B62F5)',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={handleCropCancel}
+                disabled={isUploadingAvatar}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--border-default, #243447)',
+                  color: 'var(--text-primary, #F5F7FA)',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  cursor: isUploadingAvatar ? 'not-allowed' : 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleCropConfirm}
+                disabled={isUploadingAvatar || !croppedAreaPixels}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--primary, #0B62F5)',
+                  border: '1px solid var(--primary, #0B62F5)',
+                  color: '#FFFFFF',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: isUploadingAvatar || !croppedAreaPixels ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {isUploadingAvatar ? 'Uploading...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Author Input Grid */}
       <div className="profile-grid-2col" style={{ paddingTop: '24px' }}>
         {/* Full Name */}
@@ -323,4 +513,61 @@ export function ProfileAuthorCard({
       </div>
     </div>
   );
+}
+
+async function getCroppedFile(
+  imageUrl: string,
+  croppedAreaPixels: Area,
+  originalName: string,
+): Promise<File> {
+  const image = await createImage(imageUrl);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    throw new Error('Failed to create canvas context');
+  }
+
+  canvas.width = croppedAreaPixels.width;
+  canvas.height = croppedAreaPixels.height;
+
+  ctx.drawImage(
+    image,
+    croppedAreaPixels.x,
+    croppedAreaPixels.y,
+    croppedAreaPixels.width,
+    croppedAreaPixels.height,
+    0,
+    0,
+    croppedAreaPixels.width,
+    croppedAreaPixels.height,
+  );
+
+  const blob = await getCanvasBlob(canvas);
+  const ext = originalName.split('.').pop() || 'png';
+  const fileName = `avatar-cropped.${ext === 'webp' ? 'png' : ext}`;
+
+  return new File([blob], fileName, { type: blob.type });
+}
+
+function createImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.addEventListener('load', () => resolve(img));
+    img.addEventListener('error', (err) => reject(err));
+    img.src = url;
+  });
+}
+
+function getCanvasBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error('Failed to create blob from canvas'));
+        return;
+      }
+      resolve(blob);
+    }, 'image/png');
+  });
 }
