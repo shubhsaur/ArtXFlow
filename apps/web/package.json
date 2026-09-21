@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3002",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
@@ -19,6 +19,7 @@
     "@artxflow/design-system": "workspace:*",
     "@artxflow/platform-adapters": "workspace:*",
     "@artxflow/publishing": "workspace:*",
+    "@artxflow/storage": "workspace:*",
     "@artxflow/types": "workspace:*",
     "@artxflow/ui": "workspace:*",
     "@artxflow/worker": "workspace:*",
@@ -26,7 +27,8 @@
     "inngest": "^3.31.0",
     "next": "^15.1.7",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",

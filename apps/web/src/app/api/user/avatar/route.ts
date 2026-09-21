@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import sharp from 'sharp';
 import { getSession } from '@artxflow/auth';
 import { profileRepository } from '@artxflow/database';
 import { getStorageClient } from '@artxflow/storage';
 
 export const dynamic = 'force-dynamic';
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+// Max upload size before processing. The final stored image will be much
+// smaller after resize + WebP compression.
+const MAX_UPLOAD_SIZE = 10 * 1024 * 1024; // 10MB
 
 const ALLOWED_AVATAR_MIME_TYPES = new Set([
   'image/jpeg',
@@ -18,6 +21,13 @@ const ALLOWED_AVATAR_MIME_TYPES = new Set([
 
 function getAvatarStorageKey(userId: string): string {
   return `users/${userId}/avatar/profile`;
+}
+
+async function processAvatarImage(input: Buffer): Promise<Buffer> {
+  return sharp(input)
+    .resize(400, 400, { fit: 'cover', position: 'centre' })
+    .webp({ quality: 80 })
+    .toBuffer();
 }
 
 export async function POST(request: Request) {
@@ -52,20 +62,22 @@ export async function POST(request: Request) {
         );
       }
 
-      if (file.size > MAX_FILE_SIZE) {
+      if (file.size > MAX_UPLOAD_SIZE) {
         return NextResponse.json(
-          { error: 'Avatar file size must be less than 2MB' },
+          { error: 'Avatar file size must be less than 10MB' },
           { status: 400 },
         );
       }
 
       const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
+      const rawBuffer = Buffer.from(arrayBuffer);
+      const processedBuffer = await processAvatarImage(rawBuffer);
+
       const storageKey = getAvatarStorageKey(session.user.id);
       const storageClient = getStorageClient();
 
-      imageUrl = await storageClient.upload(storageKey, buffer, {
-        contentType: file.type,
+      imageUrl = await storageClient.upload(storageKey, processedBuffer, {
+        contentType: 'image/webp',
         isPublic: true,
       });
     }

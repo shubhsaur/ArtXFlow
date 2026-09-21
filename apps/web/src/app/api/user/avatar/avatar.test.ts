@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import sharp from 'sharp';
 import { POST, DELETE } from './route';
 import { getSession } from '@artxflow/auth';
 import { profileRepository } from '@artxflow/database';
@@ -93,8 +94,8 @@ describe('Avatar API Route', () => {
       expect(json.error).toMatch(/Unsupported file type/);
     });
 
-    it('returns 400 if file size exceeds 2MB', async () => {
-      const largeBuffer = new Uint8Array(2 * 1024 * 1024 + 1);
+    it('returns 400 if file size exceeds 10MB', async () => {
+      const largeBuffer = new Uint8Array(10 * 1024 * 1024 + 1);
       const formData = new FormData();
       formData.append('file', new File([largeBuffer], 'large.png', { type: 'image/png' }));
 
@@ -106,13 +107,23 @@ describe('Avatar API Route', () => {
       const res = await POST(req);
       expect(res.status).toBe(400);
       const json = await res.json();
-      expect(json.error).toBe('Avatar file size must be less than 2MB');
+      expect(json.error).toBe('Avatar file size must be less than 10MB');
     });
 
-    it('uploads avatar to storage and updates user image', async () => {
-      const fileData = new Uint8Array([137, 80, 78, 71]); // PNG magic bytes
+    it('uploads processed avatar to storage and updates user image', async () => {
+      const rawBuffer = await sharp({
+        create: {
+          width: 800,
+          height: 800,
+          channels: 4,
+          background: { r: 0, g: 100, b: 200, alpha: 1 },
+        },
+      })
+        .png()
+        .toBuffer();
+
       const formData = new FormData();
-      formData.append('file', new File([fileData], 'avatar.png', { type: 'image/png' }));
+      formData.append('file', new File([rawBuffer], 'avatar.png', { type: 'image/png' }));
 
       const req = new Request('http://localhost/api/user/avatar', {
         method: 'POST',
@@ -124,6 +135,13 @@ describe('Avatar API Route', () => {
       const json = await res.json();
       expect(json.ok).toBe(true);
       expect(json.imageUrl).toBe(mockPublicUrl);
+
+      const storageClient = getStorageClient();
+      expect(storageClient.upload).toHaveBeenCalledWith(
+        `users/${mockUser.id}/avatar/profile`,
+        expect.any(Buffer),
+        { contentType: 'image/webp', isPublic: true },
+      );
 
       expect(profileRepository.updateUserBasic).toHaveBeenCalledWith(mockUser.id, {
         image: mockPublicUrl,
