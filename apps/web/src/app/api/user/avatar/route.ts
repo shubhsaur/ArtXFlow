@@ -7,10 +7,6 @@ import { getStorageClient } from '@artxflow/storage';
 
 export const dynamic = 'force-dynamic';
 
-// Max upload size before processing. The final stored image will be much
-// smaller after resize + WebP compression.
-const MAX_UPLOAD_SIZE = 10 * 1024 * 1024; // 10MB
-
 const ALLOWED_AVATAR_MIME_TYPES = new Set([
   'image/jpeg',
   'image/png',
@@ -58,13 +54,6 @@ export async function POST(request: Request) {
           {
             error: `Unsupported file type '${file.type}'. Allowed types: JPEG, PNG, WebP, GIF, SVG.`,
           },
-          { status: 400 },
-        );
-      }
-
-      if (file.size > MAX_UPLOAD_SIZE) {
-        return NextResponse.json(
-          { error: 'Avatar file size must be less than 10MB' },
           { status: 400 },
         );
       }

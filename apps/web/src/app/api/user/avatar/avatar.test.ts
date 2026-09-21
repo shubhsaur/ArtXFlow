@@ -94,22 +94,6 @@ describe('Avatar API Route', () => {
       expect(json.error).toMatch(/Unsupported file type/);
     });
 
-    it('returns 400 if file size exceeds 10MB', async () => {
-      const largeBuffer = new Uint8Array(10 * 1024 * 1024 + 1);
-      const formData = new FormData();
-      formData.append('file', new File([largeBuffer], 'large.png', { type: 'image/png' }));
-
-      const req = new Request('http://localhost/api/user/avatar', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const res = await POST(req);
-      expect(res.status).toBe(400);
-      const json = await res.json();
-      expect(json.error).toBe('Avatar file size must be less than 10MB');
-    });
-
     it('uploads processed avatar to storage and updates user image', async () => {
       const rawBuffer = await sharp({
         create: {
