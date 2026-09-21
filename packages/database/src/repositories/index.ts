@@ -22,3 +22,4 @@ export * from './transformation.repository';
 export * from './asset.repository';
 export * from './profile.repository';
 export * from './api-key.repository';
+export * from './user.repository';

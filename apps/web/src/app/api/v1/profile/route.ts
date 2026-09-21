@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { profileRepository } from '@artxflow/database';
+import { profileRepository, userRepository } from '@artxflow/database';
 import { authenticateApiKey, requireScope, forbiddenResponse } from '../../../../lib/api-key-auth';
 
 export const dynamic = 'force-dynamic';
@@ -12,12 +12,18 @@ export async function GET(request: Request) {
     return forbiddenResponse();
   }
 
-  const profile = await profileRepository.findByUserId(auth.userId);
+  const [profile, userRecord] = await Promise.all([
+    profileRepository.findByUserId(auth.userId),
+    userRepository.findById(auth.userId),
+  ]);
 
   return NextResponse.json({
     data: {
       userId: auth.userId,
       organizationId: auth.organizationId,
+      name: userRecord?.name || null,
+      email: userRecord?.email || null,
+      image: userRecord?.image || null,
       bio: profile?.bio || null,
       canonicalUrl: profile?.canonicalUrl || null,
       publicEmail: profile?.publicEmail || null,

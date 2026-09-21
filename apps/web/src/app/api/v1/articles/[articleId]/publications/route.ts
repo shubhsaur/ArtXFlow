@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { articleRepository, publicationRepository } from '@artxflow/database';
+import { articleRepository, publicationRepository, destinationRepository } from '@artxflow/database';
 import { authenticateApiKey, requireScope, forbiddenResponse } from '../../../../../../lib/api-key-auth';
 
 export const dynamic = 'force-dynamic';
@@ -23,19 +23,24 @@ export async function GET(
   }
 
   const publications = await publicationRepository.listByArticle(auth.organizationId, articleId);
+  const destinations = await destinationRepository.listByOrganization(auth.organizationId);
 
-  const platformMap: Record<string, { url: string | null; status: string; publishedAt: Date | null }> = {};
+  const destinationMap = new Map(destinations.map((d) => [d.id, d]));
+
+  const platformMap: Record<string, { url: string | null; status: string; publishedAt: Date | null; name: string }> = {};
 
   for (const publication of publications) {
     if (!publication.externalUrl) continue;
 
-    const destinationName = publication.destinationId.toLowerCase();
+    const destination = destinationMap.get(publication.destinationId);
+    const destinationName = (destination?.name || publication.destinationId).toLowerCase();
 
     if (!platformMap[destinationName] || publication.publishedAt) {
       platformMap[destinationName] = {
         url: publication.externalUrl,
         status: publication.status,
         publishedAt: publication.publishedAt,
+        name: destination?.name || destinationName,
       };
     }
   }
