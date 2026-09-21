@@ -21,3 +21,4 @@ export * from './analytics.repository';
 export * from './transformation.repository';
 export * from './asset.repository';
 export * from './profile.repository';
+export * from './api-key.repository';
