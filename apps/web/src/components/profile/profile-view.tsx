@@ -209,10 +209,7 @@ export function ProfileView({
                 isUploadingAvatar={isUploadingAvatar}
               />
 
-              {/* Section 2: API Keys */}
-              <ProfileApiKeysCard />
-
-              {/* Section 3: Security & Authentication */}
+              {/* Section 2: Security & Authentication */}
               <ProfileSecurityCard telemetry={telemetry} />
 
               {/* Sticky Bottom Save Bar */}
@@ -254,6 +251,8 @@ export function ProfileView({
               <ConnectedPlatforms />
             </div>
           )}
+
+          {activeTab === 'api-keys' && <ProfileApiKeysCard />}
 
           {activeTab === 'workspace' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

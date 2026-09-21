@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 
-export type SettingsTab = 'profile' | 'platforms' | 'workspace';
+export type SettingsTab = 'profile' | 'platforms' | 'workspace' | 'api-keys';
 
 interface ProfileNavRailProps {
   activeTab: SettingsTab;
@@ -46,6 +46,7 @@ export function ProfileNavRail({
       badgeVariant: 'blue',
     },
     { id: 'workspace', label: 'Workspace Details', icon: 'corporate_fare' },
+    { id: 'api-keys', label: 'API Keys', icon: 'key' },
   ];
 
   return (
