@@ -247,13 +247,13 @@ export function ProfileApiKeysCard() {
             alignSelf: 'flex-start',
             padding: '8px 16px',
             borderRadius: '6px',
-            backgroundColor: 'var(--primary, #0B62F5)',
-            border: '1px solid var(--primary, #0B62F5)',
-            color: '#FFFFFF',
+            backgroundColor: isCreating || !formName ? 'var(--surface-container, #1C2027)' : 'var(--primary, #0B62F5)',
+            border: isCreating || !formName ? '1px solid var(--border-default, #243447)' : '1px solid var(--primary, #0B62F5)',
+            color: isCreating || !formName ? 'var(--text-muted, #66768D)' : '#FFFFFF',
             fontSize: '13px',
             fontWeight: 600,
             cursor: isCreating || !formName ? 'not-allowed' : 'pointer',
-            opacity: isCreating ? 0.8 : 1,
+            opacity: isCreating || !formName ? 0.7 : 1,
           }}
         >
           {isCreating && <ButtonSpinner color="#FFFFFF" />}
