@@ -28,7 +28,7 @@ export function ProfileDeleteAccount() {
 
   return (
     <div className="profile-card" style={{ marginTop: '24px', borderColor: 'var(--status-error, #D92D20)' }}>
-      <div className="profile-card-header">
+      <div className="profile-card-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
         <div>
           <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--status-error, #D92D20)', margin: 0 }}>
             Delete Account
@@ -37,27 +37,28 @@ export function ProfileDeleteAccount() {
             Permanently delete your account and all associated data. This action cannot be undone.
           </p>
         </div>
-      </div>
 
-      <button
-        type="button"
-        onClick={() => setShowConfirm(true)}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          padding: '8px 16px',
-          borderRadius: '6px',
-          backgroundColor: isHovered ? '#B91C1C' : 'var(--status-error, #D92D20)',
-          border: '1px solid var(--status-error, #D92D20)',
-          color: '#FFFFFF',
-          fontSize: '13px',
-          fontWeight: 600,
-          cursor: 'pointer',
-          transition: 'all 0.15s ease',
-        }}
-      >
-        Delete Account
-      </button>
+        <button
+          type="button"
+          onClick={() => setShowConfirm(true)}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          style={{
+            flexShrink: 0,
+            padding: '8px 16px',
+            borderRadius: '6px',
+            backgroundColor: isHovered ? '#B91C1C' : 'var(--status-error, #D92D20)',
+            border: '1px solid var(--status-error, #D92D20)',
+            color: '#FFFFFF',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          Delete Account
+        </button>
+      </div>
 
       {showConfirm && (
         <div
