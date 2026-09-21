@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { ButtonSpinner } from '../button-spinner';
 
 const AVAILABLE_SCOPES = [
   { value: 'articles:read', label: 'Read articles list', description: 'GET /api/v1/articles' },
@@ -198,6 +199,9 @@ export function ProfileApiKeysCard() {
           type="submit"
           disabled={isCreating || !formName}
           style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
             alignSelf: 'flex-start',
             padding: '8px 16px',
             borderRadius: '6px',
@@ -207,9 +211,11 @@ export function ProfileApiKeysCard() {
             fontSize: '13px',
             fontWeight: 600,
             cursor: isCreating || !formName ? 'not-allowed' : 'pointer',
+            opacity: isCreating ? 0.8 : 1,
           }}
         >
-          {isCreating ? 'Creating...' : 'Generate API Key'}
+          {isCreating && <ButtonSpinner color="#FFFFFF" />}
+          <span>{isCreating ? 'Creating...' : 'Generate API Key'}</span>
         </button>
       </form>
 

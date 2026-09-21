@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ButtonSpinner } from '../button-spinner';
 import type { SecurityTelemetry } from './profile-types';
 
 interface ProfileSecurityCardProps {
@@ -295,6 +296,9 @@ export function ProfileSecurityCard({ telemetry }: ProfileSecurityCardProps) {
                   type="submit"
                   disabled={isUpdatingPassword}
                   style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
                     padding: '6px 16px',
                     borderRadius: '6px',
                     backgroundColor: 'var(--flow-blue, #0B87FE)',
@@ -303,9 +307,11 @@ export function ProfileSecurityCard({ telemetry }: ProfileSecurityCardProps) {
                     fontSize: '13px',
                     fontWeight: 600,
                     cursor: isUpdatingPassword ? 'not-allowed' : 'pointer',
+                    opacity: isUpdatingPassword ? 0.8 : 1,
                   }}
                 >
-                  {isUpdatingPassword ? 'Updating...' : 'Save Password'}
+                  {isUpdatingPassword && <ButtonSpinner color="#FFFFFF" />}
+                  <span>{isUpdatingPassword ? 'Updating...' : 'Save Password'}</span>
                 </button>
               </div>
             </form>

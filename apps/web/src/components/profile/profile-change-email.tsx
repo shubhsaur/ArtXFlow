@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ButtonSpinner } from '../button-spinner';
 
 interface ProfileChangeEmailProps {
   currentEmail: string;
@@ -154,6 +155,9 @@ export function ProfileChangeEmail({ currentEmail, onEmailChanged }: ProfileChan
                   type="submit"
                   disabled={isUpdating}
                   style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
                     padding: '6px 16px',
                     borderRadius: '6px',
                     backgroundColor: 'var(--primary, #0B62F5)',
@@ -162,9 +166,11 @@ export function ProfileChangeEmail({ currentEmail, onEmailChanged }: ProfileChan
                     fontSize: '13px',
                     fontWeight: 600,
                     cursor: isUpdating ? 'not-allowed' : 'pointer',
+                    opacity: isUpdating ? 0.8 : 1,
                   }}
                 >
-                  {isUpdating ? 'Updating...' : 'Update Email'}
+                  {isUpdating && <ButtonSpinner color="#FFFFFF" />}
+                  <span>{isUpdating ? 'Updating...' : 'Update Email'}</span>
                 </button>
               </div>
             </form>

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ButtonSpinner } from '../button-spinner';
 
 export function ProfileDeleteAccount() {
   const router = useRouter();
@@ -43,8 +44,12 @@ export function ProfileDeleteAccount() {
           onClick={() => setShowConfirm(true)}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          disabled={isDeleting}
           style={{
             flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
             padding: '8px 16px',
             borderRadius: '6px',
             backgroundColor: isHovered ? '#B91C1C' : 'var(--status-error, #D92D20)',
@@ -52,11 +57,13 @@ export function ProfileDeleteAccount() {
             color: '#FFFFFF',
             fontSize: '13px',
             fontWeight: 600,
-            cursor: 'pointer',
+            cursor: isDeleting ? 'not-allowed' : 'pointer',
             transition: 'all 0.15s ease',
+            opacity: isDeleting ? 0.8 : 1,
           }}
         >
-          Delete Account
+          {isDeleting && <ButtonSpinner color="#FFFFFF" />}
+          <span>Delete Account</span>
         </button>
       </div>
 
@@ -126,6 +133,9 @@ export function ProfileDeleteAccount() {
                 onClick={handleDelete}
                 disabled={isDeleting}
                 style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
                   padding: '6px 16px',
                   borderRadius: '6px',
                   backgroundColor: 'var(--status-error, #D92D20)',
@@ -134,9 +144,11 @@ export function ProfileDeleteAccount() {
                   fontSize: '13px',
                   fontWeight: 600,
                   cursor: isDeleting ? 'not-allowed' : 'pointer',
+                  opacity: isDeleting ? 0.8 : 1,
                 }}
               >
-                {isDeleting ? 'Deleting...' : 'Yes, Delete My Account'}
+                {isDeleting && <ButtonSpinner color="#FFFFFF" />}
+                <span>{isDeleting ? 'Deleting...' : 'Yes, Delete My Account'}</span>
               </button>
             </div>
           </div>
