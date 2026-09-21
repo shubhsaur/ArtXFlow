@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import type { ProfileFormData, SecurityTelemetry } from './profile-types';
 import { ProfileNavRail, type SettingsTab } from './profile-nav-rail';
 import { ProfileHeader } from './profile-header';
@@ -27,6 +28,7 @@ export function ProfileView({
   workspace,
   connectedPlatformCount,
 }: ProfileViewProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [initialData, setInitialData] = useState<ProfileFormData>(initialProfile);
   const [formData, setFormData] = useState<ProfileFormData>(initialProfile);
@@ -113,6 +115,7 @@ export function ProfileView({
       const data = await res.json();
       handleFieldChange('image', data.imageUrl);
       setInitialData((prev) => ({ ...prev, image: data.imageUrl }));
+      router.refresh();
       showToast('Avatar updated successfully.');
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : 'Failed to upload picture', 'error');
@@ -131,6 +134,7 @@ export function ProfileView({
       }
       handleFieldChange('image', null);
       setInitialData((prev) => ({ ...prev, image: null }));
+      router.refresh();
       showToast('Avatar removed.');
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : 'Failed to remove avatar', 'error');
