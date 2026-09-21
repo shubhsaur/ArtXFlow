@@ -3,6 +3,48 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ButtonSpinner } from '../button-spinner';
 
+function RevokeButton({ onRevoke }: { onRevoke: () => void }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isRevoking, setIsRevoking] = useState(false);
+
+  const handleClick = async () => {
+    setIsRevoking(true);
+    try {
+      await onRevoke();
+    } finally {
+      setIsRevoking(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      disabled={isRevoking}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        padding: '6px 12px',
+        borderRadius: '6px',
+        backgroundColor: isHovered ? '#B91C1C' : 'var(--status-error, #D92D20)',
+        border: '1px solid var(--status-error, #D92D20)',
+        color: '#FFFFFF',
+        fontSize: '13px',
+        fontWeight: 600,
+        cursor: isRevoking ? 'not-allowed' : 'pointer',
+        transition: 'all 0.15s ease',
+        opacity: isRevoking ? 0.8 : 1,
+      }}
+    >
+      {isRevoking && <ButtonSpinner color="#FFFFFF" />}
+      <span>{isRevoking ? 'Revoking...' : 'Revoke'}</span>
+    </button>
+  );
+}
+
 const AVAILABLE_SCOPES = [
   { value: 'articles:read', label: 'Read articles list', description: 'GET /api/v1/articles' },
   { value: 'articles:read:versions', label: 'Read article content', description: 'GET /api/v1/articles/:id' },
@@ -250,21 +292,7 @@ export function ProfileApiKeysCard() {
                 </div>
               </div>
               {!key.revokedAt && (
-                <button
-                  type="button"
-                  onClick={() => handleRevoke(key.id)}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    backgroundColor: 'transparent',
-                    border: '1px solid var(--border-default, #243447)',
-                    color: 'var(--status-error, #D92D20)',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Revoke
-                </button>
+                <RevokeButton onRevoke={() => handleRevoke(key.id)} />
               )}
             </div>
           ))}
