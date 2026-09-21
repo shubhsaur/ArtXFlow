@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import Cropper from 'react-easy-crop';
+import { ProfileChangeEmail } from './profile-change-email';
 import type { Point, Area } from 'react-easy-crop';
 import type { ProfileFormData } from './profile-types';
 
@@ -419,7 +420,10 @@ export function ProfileAuthorCard({
         {/* Primary Account Email */}
         <div className="profile-form-control">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <label className="profile-label">Account Email</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <label className="profile-label">Account Email</label>
+              <ProfileChangeEmail currentEmail={formData.email} />
+            </div>
             {formData.emailVerified ? (
               <span
                 style={{

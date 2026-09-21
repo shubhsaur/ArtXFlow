@@ -8,6 +8,7 @@ import { ProfileHeader } from './profile-header';
 import { ProfileAuthorCard } from './profile-author-card';
 import { ProfileApiKeysCard } from './profile-api-keys-card';
 import { ProfileSecurityCard } from './profile-security-card';
+import { ProfileDeleteAccount } from './profile-delete-account';
 import { ProfileStickyBar } from './profile-sticky-bar';
 import { ConnectedPlatforms } from '../connected-platforms';
 
@@ -211,6 +212,9 @@ export function ProfileView({
 
               {/* Section 2: Security & Authentication */}
               <ProfileSecurityCard telemetry={telemetry} />
+
+              {/* Section 3: Delete Account */}
+              <ProfileDeleteAccount />
 
               {/* Sticky Bottom Save Bar */}
               <ProfileStickyBar
