@@ -407,7 +407,9 @@ export function ProfileAuthorCard({
       <div className="profile-grid-2col" style={{ paddingTop: '24px' }}>
         {/* Full Name */}
         <div className="profile-form-control">
-          <label className="profile-label">Full Name</label>
+          <div style={{ display: 'flex', alignItems: 'center', minHeight: '22px' }}>
+            <label className="profile-label">Full Name</label>
+          </div>
           <input
             type="text"
             className="profile-input-field"
@@ -419,7 +421,7 @@ export function ProfileAuthorCard({
 
         {/* Primary Account Email */}
         <div className="profile-form-control">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: '22px' }}>
             <label className="profile-label">Account Email</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ProfileChangeEmail currentEmail={formData.email} />
