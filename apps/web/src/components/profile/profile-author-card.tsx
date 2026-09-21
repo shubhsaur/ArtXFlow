@@ -210,9 +210,23 @@ export function ProfileAuthorCard({
                 transition: 'all 0.15s ease',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
-                upload_file
-              </span>
+              {isUploadingAvatar ? (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    border: '2px solid var(--text-muted, #66768D)',
+                    borderTopColor: 'var(--text-primary, #F5F7FA)',
+                    animation: 'spin 0.8s linear infinite',
+                  }}
+                />
+              ) : (
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                  upload_file
+                </span>
+              )}
               <span>{isUploadingAvatar ? 'Uploading...' : 'Upload new picture'}</span>
             </button>
 
