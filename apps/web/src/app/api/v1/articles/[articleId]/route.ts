@@ -35,7 +35,7 @@ export async function GET(
   let contentFormat: string | null = null;
 
   if (requireScope(auth.scopes, 'articles:read:versions')) {
-    const latestVersion = await articleVersionRepository.getLatestVersion(articleId);
+    const latestVersion = await articleVersionRepository.getLatestVersion(article.id);
     if (latestVersion) {
       content = latestVersion.content;
       contentFormat = latestVersion.contentFormat;
