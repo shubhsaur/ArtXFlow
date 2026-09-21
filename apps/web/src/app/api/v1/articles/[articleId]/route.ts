@@ -16,7 +16,11 @@ export async function GET(
     return forbiddenResponse();
   }
 
-  const article = await articleRepository.findArticleForOrganization(auth.organizationId, articleId);
+  let article = await articleRepository.findArticleForOrganization(auth.organizationId, articleId);
+
+  if (!article) {
+    article = await articleRepository.findBySlug(auth.organizationId, articleId);
+  }
 
   if (!article) {
     return NextResponse.json({ error: 'Article not found' }, { status: 404 });
