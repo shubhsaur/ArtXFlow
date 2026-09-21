@@ -22,3 +22,5 @@ export * from './connections';
 export * from './publishing';
 export * from './analytics';
 export * from './transformations';
+export * from './assets';
+export * from './profiles';

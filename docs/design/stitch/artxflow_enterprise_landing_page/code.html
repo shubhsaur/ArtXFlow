@@ -1,0 +1,935 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>ArtXFlow — Deterministic Low-Latency Multi-Platform Content Distribution</title>
+<!-- Google Fonts: Geist & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "text-primary": "#F5F7FA",
+            "on-tertiary-fixed": "#1b0062",
+            "surface-container-highest": "#30353d",
+            "surface-container-high": "#252a32",
+            "status-error": "#D92D20",
+            "on-error-container": "#ffdad6",
+            "secondary-foreground-bright": "#FBBF24",
+            "surface-raised": "#0D1420",
+            "on-primary-container": "#eef0ff",
+            "surface": "#0f141b",
+            "on-secondary-container": "#5b3800",
+            "error": "#ffb4ab",
+            "outline-variant": "#424655",
+            "tertiary": "#cabeff",
+            "on-primary-fixed-variant": "#003fa5",
+            "on-primary": "#002a76",
+            "surface-container": "#1b2027",
+            "text-muted": "#66768D",
+            "text-secondary": "#AAB5C4",
+            "status-info": "#0B62F5",
+            "error-container": "#93000a",
+            "primary-container": "#0b62f5",
+            "surface-dim": "#0f141b",
+            "secondary-fixed-dim": "#ffb95f",
+            "border-highlight": "rgba(11, 98, 245, 0.35)",
+            "on-secondary": "#472a00",
+            "surface-container-lowest": "#090e15",
+            "primary-fixed": "#dbe1ff",
+            "on-secondary-fixed-variant": "#653e00",
+            "tertiary-fixed-dim": "#cabeff",
+            "inverse-surface": "#dee2ed",
+            "flow-cyan": "#19D7FE",
+            "outline": "#8c90a1",
+            "border-subtle": "#172333",
+            "secondary": "#ffb95f",
+            "secondary-container-deep": "#451A03",
+            "on-primary-fixed": "#00184a",
+            "on-tertiary-fixed-variant": "#4718c9",
+            "secondary-foreground": "#F59E0B",
+            "status-warning": "#F59E0B",
+            "surface-bright": "#353941",
+            "on-surface-variant": "#c2c6d8",
+            "status-success": "#12B76A",
+            "inverse-on-surface": "#2c3138",
+            "on-secondary-fixed": "#2a1700",
+            "on-error": "#690005",
+            "on-tertiary": "#30009b",
+            "surface-container-low": "#171c23",
+            "surface-base": "#070B12",
+            "tertiary-container": "#6f50f1",
+            "primary": "#b3c5ff",
+            "tertiary-fixed": "#e6deff",
+            "on-background": "#dee2ed",
+            "primary-fixed-dim": "#b3c5ff",
+            "secondary-container": "#ee9800",
+            "inverse-primary": "#0054d8",
+            "surface-tint": "#b3c5ff",
+            "on-surface": "#dee2ed",
+            "border-default": "#243447",
+            "secondary-fixed": "#ffddb8",
+            "on-tertiary-container": "#f5efff",
+            "background": "#0f141b",
+            "surface-variant": "#30353d",
+            "surface-overlay": "#111A28"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xl": "2rem",
+            "margin-lg": "2.5rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "gutter-lg": "1.5rem",
+            "margin-md": "1.5rem",
+            "space-sm": "0.5rem",
+            "space-xs": "0.25rem",
+            "gutter": "1rem",
+            "margin": "1rem"
+          },
+          "fontFamily": {
+            "label-sm": ["JetBrains Mono"],
+            "headline-md": ["Geist"],
+            "title-sm": ["Geist"],
+            "headline-sm": ["Geist"],
+            "display-mobile": ["Geist"],
+            "title-md": ["Geist"],
+            "display": ["Geist"],
+            "label-md": ["JetBrains Mono"],
+            "body-md": ["Geist"],
+            "body-lg": ["Geist"],
+            "headline-lg": ["Geist"],
+            "caption": ["Geist"],
+            "headline-lg-mobile": ["Geist"],
+            "body-sm": ["Geist"]
+          },
+          "fontSize": {
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-md": ["24px", { "lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "title-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "headline-sm": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "display-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "title-md": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "display": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "headline-lg": ["36px", { "lineHeight": "42px", "letterSpacing": "-0.025em", "fontWeight": "600" }],
+            "caption": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .brand-gradient-text {
+      background: linear-gradient(135deg, #00D2FF 0%, #0B62F5 50%, #A855F7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .glow-cobalt {
+      box-shadow: 0 0 32px -4px rgba(11, 98, 245, 0.28);
+    }
+    .glow-cyan-subtle {
+      box-shadow: 0 0 24px -2px rgba(25, 215, 254, 0.22);
+    }
+    .glow-amber-subtle {
+      box-shadow: 0 0 20px -3px rgba(245, 158, 11, 0.22);
+    }
+    .code-grid {
+      background-size: 24px 24px;
+      background-image: 
+        linear-gradient(to right, rgba(23, 35, 51, 0.4) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(23, 35, 51, 0.4) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-surface-base text-text-primary antialiased selection:bg-status-info selection:text-text-primary min-h-screen flex flex-col font-body-md text-body-md">
+<!-- ================= TOP NAV BAR (SHARED COMPONENT MATCHING JSON) ================= -->
+<header class="bg-surface-base dark:bg-surface-base border-b border-border-subtle dark:border-border-subtle sticky top-0 z-50 w-full">
+<div class="flex items-center justify-between w-full h-16 px-space-lg md:px-margin-lg max-w-[1440px] mx-auto">
+<!-- Brand Logo Group -->
+<a class="flex items-center gap-space-sm group" href="#">
+<img alt="ArtXFlow Logo Mark" class="h-7 w-auto object-contain transition-transform group-hover:scale-105 duration-150" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACEMc4U5zNyHTC9ZYudroyCrMPtB3RMgUPSoRf3ceiMoeCvsOCFN9J83TS-mZr6Fe4sVFdpGcTVMlT6i8ZRhgjiqJ_rHsLb4Gwd_RYUZVWwRWVgwVcY2Nrggwdp2tOiAO40QHcQUfhm_h3lJ9hfY51j9xC6LHelv_9e1YJFiuDo_zBwT-m1HPuQjFRb_a8lb0oaO20L35g1LLFDw0_DYSscbVXtF_tO0crZMRS3s2F6AzMmtYQ8jzL">
+<span class="text-title-md font-title-md font-bold text-text-primary dark:text-text-primary tracking-tight">
+          Art<span class="brand-gradient-text">X</span>Flow
+        </span>
+<span class="hidden sm:inline-flex items-center ml-space-xs px-1.5 py-0.5 rounded bg-surface-raised border border-border-subtle text-label-sm font-label-sm text-text-muted">
+          v2.4.0
+        </span>
+</a>
+<!-- Desktop Navigation Links -->
+<nav class="hidden md:flex items-center space-x-space-lg">
+<!-- Active link: Intent based (Home landing showcases Features) -->
+<a class="text-text-primary dark:text-text-primary font-medium text-body-sm font-body-sm hover:text-text-primary dark:hover:text-text-primary transition-colors duration-150" href="#features">
+          Features
+        </a>
+<a class="text-text-secondary dark:text-text-secondary font-medium text-body-sm font-body-sm hover:text-text-primary dark:hover:text-text-primary transition-colors duration-150" href="#adapters">
+          Adapters
+        </a>
+<a class="text-text-secondary dark:text-text-secondary font-medium text-body-sm font-body-sm hover:text-text-primary dark:hover:text-text-primary transition-colors duration-150" href="#compare">
+          Compare
+        </a>
+<a class="text-text-secondary dark:text-text-secondary font-medium text-body-sm font-body-sm hover:text-text-primary dark:hover:text-text-primary transition-colors duration-150" href="#docs">
+          Docs
+        </a>
+</nav>
+<!-- Trailing Action Cluster -->
+<div class="flex items-center gap-space-sm md:gap-space-md">
+<!-- Live GitHub Star Badge -->
+<a class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface-raised border border-border-default hover:border-status-info text-text-secondary hover:text-text-primary transition-all duration-150 active:scale-[0.98]" href="https://github.com/shubhsaur/ArtXFlow" rel="noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[16px] text-secondary-foreground" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm font-label-sm">Star</span>
+<span class="text-label-sm font-label-sm text-text-muted ml-0.5 font-mono">1.4k</span>
+</a>
+<!-- Sign In -->
+<a class="text-text-secondary dark:text-text-secondary font-medium text-label-md font-label-md hover:text-text-primary dark:hover:text-text-primary transition-colors duration-150" href="#">
+          Sign In
+        </a>
+<!-- Trailing Primary Action CTA -->
+<a class="inline-flex items-center gap-1.5 bg-status-info hover:bg-[#2675F7] text-text-primary px-3.5 py-1.5 rounded-xl text-label-md font-label-md font-semibold transition-all duration-150 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] glow-cobalt active:scale-[0.98]" href="#workspace">
+<span class="">Launch Workspace</span>
+<span class="material-symbols-outlined text-[15px]" data-icon="terminal">terminal</span>
+</a>
+</div>
+</div>
+</header>
+<!-- ================= HERO SECTION ================= -->
+<section class="relative overflow-hidden pt-12 md:pt-20 pb-16 md:pb-24 border-b border-border-subtle">
+<!-- Atmospheric Background Gradients -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[480px] pointer-events-none opacity-40">
+<div class="absolute -top-24 left-1/4 w-96 h-96 bg-status-info rounded-full filter blur-[120px]"></div>
+<div class="absolute top-10 right-1/4 w-80 h-80 bg-flow-cyan rounded-full filter blur-[140px] opacity-60"></div>
+</div>
+<div class="relative max-w-[1440px] mx-auto px-space-lg md:px-margin-lg flex flex-col items-center text-center">
+<!-- Eyebrow Pill -->
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-raised border border-border-default mb-6 hover:border-status-info transition-colors duration-150">
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-info opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-status-info"></span>
+</span>
+<span class="text-label-sm font-label-sm text-text-primary tracking-wide">
+          ArtXFlow v2.4.0 is Live • Multi-Platform Content Distribution Engine
+        </span>
+<span class="material-symbols-outlined text-[14px] text-text-muted" data-icon="arrow_forward">arrow_forward</span>
+</div>
+<!-- Main Headline -->
+<h1 class="text-headline-lg-mobile md:text-display font-display font-bold text-text-primary tracking-tight max-w-4xl leading-tight md:leading-[58px]">
+        Write Once. <br class="hidden sm:inline">
+<span class="brand-gradient-text">Flow Everywhere.</span>
+</h1>
+<!-- Subtitle -->
+<p class="mt-6 text-body-lg font-body-lg text-text-secondary max-w-2xl leading-relaxed">
+        The open-source content distribution engine for technical creators. Author markdown once, preserve canonical SEO attribution, and syndicate deterministically across DEV.to, Hashnode, Medium, GitHub, and custom blogs.
+      </p>
+<!-- Action Buttons + Quick CLI -->
+<div class="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-status-info hover:bg-[#2675F7] text-text-primary px-6 py-3 rounded-xl text-title-sm font-title-sm font-semibold transition-all duration-150 glow-cobalt active:scale-[0.98]" href="#workspace">
+<span class="">Get Started Free</span>
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-surface-raised hover:bg-surface-overlay border border-border-default hover:border-status-info text-text-primary px-5 py-3 rounded-xl text-title-sm font-title-sm font-medium transition-all duration-150 active:scale-[0.98]" href="https://github.com/shubhsaur/ArtXFlow" rel="noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[18px] text-text-secondary" data-icon="terminal">terminal</span>
+<span class="">Explore GitHub Repo</span>
+</a>
+</div>
+<!-- Quick Copy CLI Widget -->
+<div class="mt-6 inline-flex items-center gap-3 px-3.5 py-1.5 rounded-xl bg-surface-base border border-border-subtle text-label-sm font-label-sm font-mono text-text-secondary">
+<span class="text-status-info font-bold">$</span>
+<span class="text-text-primary" id="cliText">npx create-artxflow@latest</span>
+<button class="p-1 hover:text-text-primary transition-colors duration-150 flex items-center" onclick="navigator.clipboard.writeText('npx create-artxflow@latest'); this.innerHTML='&lt;span class=\'material-symbols-outlined text-[14px] text-status-success\'&gt;check&lt;/span&gt;'" title="Copy install command">
+<span class="material-symbols-outlined text-[15px]" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+<!-- Social Proof Bar -->
+<div class="mt-14 w-full max-w-4xl pt-8 border-t border-border-subtle/60 flex flex-col items-center">
+<p class="text-caption font-caption text-text-muted uppercase tracking-wider mb-6">
+          Architected for engineers, technical authors, and DevRel teams at modern tech companies
+        </p>
+<div class="flex flex-wrap items-center justify-center gap-8 md:gap-14 opacity-60">
+<div class="flex items-center gap-2 text-text-secondary font-title-sm font-semibold tracking-tight">
+<span class="material-symbols-outlined text-[20px]" data-icon="change_history">change_history</span> Vercel
+          </div>
+<div class="flex items-center gap-2 text-text-secondary font-title-sm font-semibold tracking-tight">
+<span class="material-symbols-outlined text-[20px]" data-icon="bolt">bolt</span> Supabase
+          </div>
+<div class="flex items-center gap-2 text-text-secondary font-title-sm font-semibold tracking-tight">
+<span class="material-symbols-outlined text-[20px]" data-icon="cloud">cloud</span> Cloudflare
+          </div>
+<div class="flex items-center gap-2 text-text-secondary font-title-sm font-semibold tracking-tight">
+<span class="material-symbols-outlined text-[20px]" data-icon="code">code</span> GitHub
+          </div>
+<div class="flex items-center gap-2 text-text-secondary font-title-sm font-semibold tracking-tight">
+<span class="material-symbols-outlined text-[20px]" data-icon="token">token</span> HashiCorp
+          </div>
+</div>
+</div>
+<!-- Hero Visual Asset Frame (IMG_46 embedded) -->
+<div class="mt-14 w-full max-w-5xl relative group">
+<div class="absolute -inset-1 rounded-2xl bg-gradient-to-r from-flow-cyan/30 via-status-info/40 to-secondary/30 blur-lg opacity-70 group-hover:opacity-90 transition duration-500"></div>
+<div class="relative rounded-xl border border-border-default bg-surface-raised overflow-hidden shadow-2xl">
+<!-- Mock Terminal / Window Title Bar -->
+<div class="flex items-center justify-between px-4 py-2.5 bg-surface-base border-b border-border-subtle text-caption font-caption text-text-muted">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-[#ff5f56]/80 inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-[#ffbd2e]/80 inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-[#27c93f]/80 inline-block"></span>
+<span class="ml-2 font-mono text-label-sm text-text-secondary">artxflow-core-dispatch.orchestrator</span>
+</div>
+<div class="flex items-center gap-3 font-mono text-label-sm">
+<span class="inline-flex items-center gap-1 text-status-success">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success animate-pulse"></span>
+                ACTIVE PIPELINE
+              </span>
+<span class="text-text-muted">NODE_ENV=production</span>
+</div>
+</div>
+<!-- Hero Image Component (DataStore placeholder) -->
+<div class="relative w-full bg-surface-base flex items-center justify-center overflow-hidden">
+<img alt="ArtXFlow - Technical Content Distribution Engine Workspace Mockup" class="w-full h-auto object-cover max-h-[560px]" data-alt="ArtXFlow - Technical Content Distribution Engine Workspace Mockup" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuDVvwM6JF-lHMnf3Wncet5OhTQAh0kNhxWlAXYvlk7kV5m5LzTtK17eZR9Lbq6A2Wv5ApNrVJNKppfOb7iUoD1QQsDwFmFqx5vgPNxHOetpBHxR6slS2jEm8jV-lnZaBM88oQq7JmQwmzMoQIZ53g-tdRd-Qekyof7L126_bgsh_RM2d26CzvgG7u8srkiBZJWYLZBZ0HT_AIcoPJEk-_BBQ7QugmPLcWXpJd_V8">
+<!-- Floating Telemetry Chips & Overlays -->
+<div class="absolute top-4 left-4 flex flex-wrap gap-2 pointer-events-none">
+<div class="px-3 py-1 rounded-xl bg-surface-overlay/90 backdrop-blur border border-border-highlight flex items-center gap-2 text-label-sm font-label-sm text-text-primary shadow-lg">
+<span class="material-symbols-outlined text-[15px] text-flow-cyan" data-icon="bolt">bolt</span>
+<span class="">⚡ 120ms Fan-out Dispatch</span>
+</div>
+<div class="px-3 py-1 rounded-xl bg-surface-overlay/90 backdrop-blur border border-border-default flex items-center gap-2 text-label-sm font-label-sm text-status-success shadow-lg">
+<span class="material-symbols-outlined text-[15px]" data-icon="verified_user">verified_user</span>
+<span class="">🔒 rel=canonical Enforced</span>
+</div>
+</div>
+<div class="absolute bottom-4 right-4 pointer-events-none">
+<div class="px-3 py-1.5 rounded-xl bg-surface-overlay/95 backdrop-blur border border-secondary-foreground/40 flex items-center gap-2 text-label-sm font-label-sm text-secondary-foreground-bright shadow-lg">
+<span class="w-2 h-2 rounded-full bg-secondary-foreground animate-ping"></span>
+<span class="">📦 5 Platforms Synced • 0 Schema Errors</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= PROBLEM VS SOLUTION ARCHITECTURE ================= -->
+<section class="py-20 bg-surface-base border-b border-border-subtle" id="features">
+<div class="max-w-[1440px] mx-auto px-space-lg md:px-margin-lg">
+<div class="text-center max-w-3xl mx-auto mb-16">
+<span class="text-label-sm font-label-sm uppercase tracking-wider text-status-info mb-2 block">
+          Deterministic Infrastructure
+        </span>
+<h2 class="text-headline-md md:text-headline-lg font-headline-lg text-text-primary tracking-tight">
+          The High Cost of Manual Syndication vs. Canonical Flow
+        </h2>
+<p class="mt-3 text-body-md font-body-md text-text-secondary">
+          Writing is only 40% of technical publishing. The rest is wasted on manual re-formatting, broken syntax blocks, missing canonical tags, and fractured revision drift.
+        </p>
+</div>
+<!-- Problem vs Solution Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- The Broken Manual Method -->
+<div class="rounded-xl border border-status-error/30 bg-surface-raised p-6 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-status-error/60"></div>
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2 text-status-error font-title-sm font-title-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="cancel">cancel</span>
+<span class="">The Fragile Manual Cross-Posting Loop</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-status-error/10 border border-status-error/20 text-label-sm font-label-sm text-status-error">
+              ~45 mins / post
+            </span>
+</div>
+<p class="text-body-sm font-body-sm text-text-secondary mb-4">
+            Copying rich markdown across disparate platform editors introduces catastrophic SEO regression and format decay:
+          </p>
+<ul class="space-y-3 font-mono text-label-sm text-text-muted">
+<li class="flex items-start gap-2 bg-surface-base/80 p-2.5 rounded border border-border-subtle">
+<span class="text-status-error font-bold">✗</span>
+<span class="">Missing <code class="text-text-primary">rel="canonical"</code> headers triggers Google duplicate penalties</span>
+</li>
+<li class="flex items-start gap-2 bg-surface-base/80 p-2.5 rounded border border-border-subtle">
+<span class="text-status-error font-bold">✗</span>
+<span class="">Broken code block syntax highlighting &amp; stripped LaTeX math notations</span>
+</li>
+<li class="flex items-start gap-2 bg-surface-base/80 p-2.5 rounded border border-border-subtle">
+<span class="text-status-error font-bold">✗</span>
+<span class="">Unsynced post-publish errata: typos fixed on blog remain live on DEV &amp; Medium</span>
+</li>
+</ul>
+</div>
+<!-- The ArtXFlow Canonical Engine -->
+<div class="rounded-xl border border-status-info/40 bg-surface-raised p-6 relative overflow-hidden glow-cobalt">
+<div class="absolute top-0 left-0 w-full h-1 bg-status-info"></div>
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2 text-flow-cyan font-title-sm font-title-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="check_circle">check_circle</span>
+<span class="">The ArtXFlow Canonical Distribution Engine</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-status-info/20 border border-status-info/40 text-label-sm font-label-sm text-primary">
+              120ms Fan-out
+            </span>
+</div>
+<p class="text-body-sm font-body-sm text-text-secondary mb-4">
+            Treat your raw Git Markdown file as the immutable single source of truth. Automated AST transforms handle target requirements natively:
+          </p>
+<ul class="space-y-3 font-mono text-label-sm text-text-secondary">
+<li class="flex items-start gap-2 bg-surface-base/90 p-2.5 rounded border border-status-info/20">
+<span class="text-status-success font-bold">✓</span>
+<span class="">Guaranteed <code class="text-flow-cyan">canonical_url</code> metadata injected across every platform API</span>
+</li>
+<li class="flex items-start gap-2 bg-surface-base/90 p-2.5 rounded border border-status-info/20">
+<span class="text-status-success font-bold">✓</span>
+<span class="">Abstract Syntax Tree (AST) rewrites Markdown for DEV, Hashnode &amp; Medium schemas</span>
+</li>
+<li class="flex items-start gap-2 bg-surface-base/90 p-2.5 rounded border border-status-info/20">
+<span class="text-status-success font-bold">✓</span>
+<span class="">Single Git push trigger propagates updates and errata everywhere idempotently</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- 5-Stage Architecture Pipeline Pipeline Bar -->
+<div class="mt-16 p-6 rounded-xl border border-border-default bg-surface-raised">
+<div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+<div>
+<h3 class="text-title-md font-title-md text-text-primary">Deterministic 5-Stage Distribution Pipeline</h3>
+<p class="text-caption font-caption text-text-muted">Inngest-orchestrated background event DAG with automatic retry policies</p>
+</div>
+<span class="font-mono text-label-sm text-status-info px-2.5 py-1 rounded bg-status-info/10 border border-status-info/20">
+            Engine Latency: &lt; 250ms Total
+          </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 relative">
+<!-- Stage 1 -->
+<div class="p-3.5 rounded bg-surface-base border border-border-subtle flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-status-info">01. SOURCE</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted" data-icon="edit_document">edit_document</span>
+</div>
+<span class="text-title-sm font-title-sm text-text-primary">Author</span>
+<span class="text-caption font-caption text-text-muted">Markdown + Frontmatter validated via Zod schema.</span>
+</div>
+<!-- Stage 2 -->
+<div class="p-3.5 rounded bg-surface-base border border-border-subtle flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-flow-cyan">02. PARSE</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted" data-icon="account_tree">account_tree</span>
+</div>
+<span class="text-title-sm font-title-sm text-text-primary">AST Transform</span>
+<span class="text-caption font-caption text-text-muted">Isolated adapters transpile codeblocks &amp; image CDNs.</span>
+</div>
+<!-- Stage 3 -->
+<div class="p-3.5 rounded bg-surface-base border border-border-subtle flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-primary">03. DISPATCH</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted" data-icon="rocket_launch">rocket_launch</span>
+</div>
+<span class="text-title-sm font-title-sm text-text-primary">Distribute</span>
+<span class="text-caption font-caption text-text-muted">Multi-threaded API fan-out with canonical headers.</span>
+</div>
+<!-- Stage 4 -->
+<div class="p-3.5 rounded bg-surface-base border border-border-subtle flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-secondary-foreground-bright">04. CONCURRENCY</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted" data-icon="sync">sync</span>
+</div>
+<span class="text-title-sm font-title-sm text-text-primary">Synchronize</span>
+<span class="text-caption font-caption text-text-muted">Handle rate-limits with backoff queue &amp; retry tokens.</span>
+</div>
+<!-- Stage 5 -->
+<div class="p-3.5 rounded bg-surface-base border border-border-subtle flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-status-success">05. TELEMETRY</span>
+<span class="material-symbols-outlined text-[16px] text-text-muted" data-icon="insights">insights</span>
+</div>
+<span class="text-title-sm font-title-sm text-text-primary">Analyze</span>
+<span class="text-caption font-caption text-text-muted">Unified pageviews, read-time, and engagement matrix.</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= DEEP FEATURE SHOWCASE ================= -->
+<section class="py-20 bg-surface-base border-b border-border-subtle" id="adapters">
+<div class="max-w-[1440px] mx-auto px-space-lg md:px-margin-lg">
+<!-- Feature 1: Canonical Source of Truth with visual asset (IMG_47) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center mb-24">
+<div class="lg:col-span-5 flex flex-col items-start">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-raised border border-status-info/30 text-label-sm font-label-sm text-flow-cyan mb-4">
+<span class="material-symbols-outlined text-[14px]" data-icon="link">link</span>
+<span class="">SEO INTEGRITY GUARANTEE</span>
+</div>
+<h3 class="text-headline-md md:text-headline-lg font-headline-lg text-text-primary tracking-tight">
+            Canonical Source of Truth with Strict <code class="text-status-info">rel=canonical</code>
+</h3>
+<p class="mt-4 text-body-lg font-body-lg text-text-secondary leading-relaxed">
+            Google’s Search algorithm heavily penalizes duplicate technical content unless the canonical authority is strictly asserted. ArtXFlow forces every platform adapter to inject your primary blog post as the absolute canonical anchor.
+          </p>
+<div class="mt-6 space-y-3 font-mono text-label-sm w-full">
+<div class="p-3 rounded bg-surface-raised border border-border-subtle flex items-center justify-between">
+<span class="text-text-muted">DEV.to Meta:</span>
+<span class="text-status-success">canonical_url: https://yoursite.com/blog/x</span>
+</div>
+<div class="p-3 rounded bg-surface-raised border border-border-subtle flex items-center justify-between">
+<span class="text-text-muted">Hashnode GraphQL:</span>
+<span class="text-status-success">isRepublished: { originalUrl: true }</span>
+</div>
+<div class="p-3 rounded bg-surface-raised border border-border-subtle flex items-center justify-between">
+<span class="text-text-muted">Medium REST:</span>
+<span class="text-status-success">canonicalUrl: https://yoursite.com/blog/x</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-7">
+<div class="relative rounded-xl border border-border-default bg-surface-raised p-2 overflow-hidden shadow-2xl">
+<img class="w-full h-auto rounded-lg object-cover" data-alt="A sleek dark workstation monitor visual demonstrating the ArtXFlow canonical markdown source dispatching simultaneously to DEV.to card, Medium article, and Hashnode post with verified latency badges and green rel=canonical tags in an obsidian dark developer UI theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyorpMHjiDN1F6HLQmqkjxVJfiFhZB6L09O2r-iglnEXS3U_qZT6_G5yIwk_CSdm4dXwDJgNihmBpF46V3TNaaKlJ6_PQnkVO_bbeu4_baoz238KBO8ohE2hjnor89ZZCCsM9T4vHZzHAwIRCFH2M_H8LItaDFRECEkvQuEMgL8zpZAmKIuZW-bqlBLgc6m0XsZdLui1KmZumILNRWXb8CRTLYDnEShwEWAxQx-8k">
+</div>
+</div>
+</div>
+<!-- Feature 2: Isolated Platform Adapters & Smart AST Split View -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center mb-24">
+<div class="lg:col-span-7 order-2 lg:order-1">
+<div class="rounded-xl border border-border-default bg-surface-raised overflow-hidden">
+<div class="flex items-center justify-between px-4 py-3 bg-surface-base border-b border-border-subtle">
+<div class="flex items-center gap-3">
+<span class="text-label-sm font-label-sm font-mono text-flow-cyan">AST Transformer: /adapters/hashnode.ts</span>
+</div>
+<span class="text-caption font-caption text-status-success flex items-center gap-1 font-mono">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                Type-Safe AST v2.0
+              </span>
+</div>
+<pre class="p-4 text-label-sm font-label-sm font-mono overflow-x-auto text-text-secondary leading-5"><code><span class="text-text-muted">// Platform-specific AST transformation engine</span>
+<span class="text-status-info">export class</span> <span class="text-flow-cyan">HashnodeAdapter</span> <span class="text-status-info">implements</span> <span class="text-text-primary">PublishingPlatform</span> {
+  <span class="text-status-info">async</span> <span class="text-secondary-foreground">transform</span>(article: Article): <span class="text-flow-cyan">Promise</span>&lt;PlatformPayload&gt; {
+    <span class="text-status-info">const</span> ast = <span class="text-flow-cyan">unified</span>()
+      .use(remarkParse)
+      .use(remarkGfm)
+      .use(transformCodeBlocksToGistOrHighlight)
+      .use(resolveLocalCdnImages, { cdn: <span class="text-status-success">'https://cdn.artxflow.dev'</span> })
+      .use(remarkStringify);
+
+    <span class="text-status-info">return</span> {
+      publicationId: env.HASHNODE_PUB_ID,
+      input: {
+        title: article.title,
+        contentMarkdown: <span class="text-flow-cyan">String</span>(<span class="text-status-info">await</span> ast.process(article.content)),
+        canonicalUrl: article.canonicalUrl, <span class="text-text-muted">// Strict SEO</span>
+        tags: article.tags.map(t =&gt; ({ slug: t.slug, name: t.name }))
+      }
+    };
+  }
+}</code></pre>
+</div>
+</div>
+<div class="lg:col-span-5 order-1 lg:order-2 flex flex-col items-start">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-raised border border-status-info/30 text-label-sm font-label-sm text-flow-cyan mb-4">
+<span class="material-symbols-outlined text-[14px]" data-icon="schema">schema</span>
+<span class="">MODULAR EXTENSIBILITY</span>
+</div>
+<h3 class="text-headline-md md:text-headline-lg font-headline-lg text-text-primary tracking-tight">
+            Isolated Platform Adapters &amp; Smart AST Rewrites
+          </h3>
+<p class="mt-4 text-body-lg font-body-lg text-text-secondary leading-relaxed">
+            No messy string replaces. ArtXFlow parses markdown into a concrete syntax tree (MDAST). Adapters compile code blocks, image attributes, and frontmatter into exact target schemas without altering the core markdown source.
+          </p>
+<div class="mt-6 flex flex-wrap gap-2">
+<span class="px-2.5 py-1 rounded bg-surface-raised border border-border-default text-label-sm font-label-sm text-text-primary">DEV Community v1 API</span>
+<span class="px-2.5 py-1 rounded bg-surface-raised border border-border-default text-label-sm font-label-sm text-text-primary">Hashnode GraphQL</span>
+<span class="px-2.5 py-1 rounded bg-surface-raised border border-border-default text-label-sm font-label-sm text-text-primary">Medium Session Bridge</span>
+<span class="px-2.5 py-1 rounded bg-surface-raised border border-border-default text-label-sm font-label-sm text-text-primary">Ghost Admin API</span>
+<span class="px-2.5 py-1 rounded bg-surface-raised border border-border-default text-label-sm font-label-sm text-text-primary">GitHub Raw Repos</span>
+</div>
+</div>
+</div>
+<!-- Feature 3 & 4 Grid: Rate Limits & CDN Automation -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Rate-Limit & Failure Recovery Card -->
+<div class="rounded-xl border border-border-default bg-surface-raised p-6 relative overflow-hidden">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2 text-secondary-foreground font-title-sm font-title-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="warning">warning</span>
+<span class="">Backoff Queues &amp; Rate Limit Mitigation</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-secondary-container-deep border border-secondary/30 text-label-sm font-label-sm text-secondary-foreground-bright">
+              Auto-Backoff
+            </span>
+</div>
+<p class="text-body-sm font-body-sm text-text-secondary mb-4">
+            DEV.to allows 30 requests/30 seconds; Medium restricts parallel writes. ArtXFlow workers orchestrate idempotent queues, exponential backoff, and instant Slack/Webhook failure notifications.
+          </p>
+<div class="p-3 bg-surface-base rounded border border-border-subtle font-mono text-label-sm text-text-muted space-y-1">
+<div class="text-secondary-foreground">▲ [429] Hashnode API throttled. Inngest sleep(60s)...</div>
+<div class="text-status-success">✓ [200] Resuming worker queue. Nonce re-validated.</div>
+</div>
+</div>
+<!-- Asset Pipeline Card -->
+<div class="rounded-xl border border-border-default bg-surface-raised p-6 relative overflow-hidden">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2 text-flow-cyan font-title-sm font-title-sm">
+<span class="material-symbols-outlined text-[18px]" data-icon="imagesmode">imagesmode</span>
+<span class="">Asset Pipeline &amp; Edge CDN Acceleration</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-status-info/10 border border-status-info/30 text-label-sm font-label-sm text-primary">
+              Global WebP
+            </span>
+</div>
+<p class="text-body-sm font-body-sm text-text-secondary mb-4">
+            Never host local PNGs that break on third-party blogs. Images in markdown are automatically mirrored to high-availability object storage and served via WebP with responsive srcsets.
+          </p>
+<div class="p-3 bg-surface-base rounded border border-border-subtle font-mono text-label-sm text-text-muted space-y-1">
+<div class="">Original: <code class="text-text-secondary">./assets/hero.png (4.2 MB)</code></div>
+<div class="">Optimized: <code class="text-flow-cyan">cdn.artxflow.dev/hero.webp (180 KB) [-95%]</code></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= COMPARISON SECTION ================= -->
+<section class="py-20 bg-surface-base border-b border-border-subtle" id="compare">
+<div class="max-w-[1440px] mx-auto px-space-lg md:px-margin-lg">
+<div class="text-center max-w-3xl mx-auto mb-16">
+<span class="text-label-sm font-label-sm uppercase tracking-wider text-status-info mb-2 block">
+          Competitive Matrix
+        </span>
+<h2 class="text-headline-md md:text-headline-lg font-headline-lg text-text-primary tracking-tight">
+          Why ArtXFlow is Built Different
+        </h2>
+<p class="mt-3 text-body-md font-body-md text-text-secondary">
+          Traditional social media schedulers treat tech articles like tweets. ArtXFlow is purpose-built for engineering documentation, MDX, and search attribution.
+        </p>
+</div>
+<!-- Comparison Matrix Table -->
+<div class="overflow-x-auto rounded-xl border border-border-default bg-surface-raised shadow-xl">
+<table class="w-full text-left border-collapse min-w-[700px]">
+<thead>
+<tr class="border-b border-border-subtle bg-surface-base text-label-sm font-label-sm text-text-muted">
+<th class="p-4 font-medium uppercase">Engineering Capability</th>
+<th class="p-4 font-semibold text-flow-cyan bg-status-info/10 border-x border-status-info/30">
+                ArtXFlow (Open Engine)
+              </th>
+<th class="p-4 font-medium">Traditional Schedulers (Buffer, Hootsuite)</th>
+<th class="p-4 font-medium">Manual Cross-Posting</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle text-body-sm font-body-sm font-mono">
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="p-4 font-sans font-medium text-text-primary">
+                Canonical SEO rel=tag Protection
+              </td>
+<td class="p-4 bg-status-info/5 border-x border-status-info/30 text-status-success font-semibold">
+                ✓ Automated &amp; Strictly Enforced
+              </td>
+<td class="p-4 text-status-error">
+                ✗ None / Unsupported
+              </td>
+<td class="p-4 text-secondary-foreground">
+                ⚠ Highly Error-Prone (Manual)
+              </td>
+</tr>
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="p-4 font-sans font-medium text-text-primary">
+                AST Markdown &amp; Code Syntax Parsing
+              </td>
+<td class="p-4 bg-status-info/5 border-x border-status-info/30 text-status-success font-semibold">
+                ✓ Full AST + Prism/Shiki Tokenizer
+              </td>
+<td class="p-4 text-status-error">
+                ✗ Strips Code Blocks &amp; Indents
+              </td>
+<td class="p-4 text-secondary-foreground">
+                ⚠ Tedious Re-Highlighting
+              </td>
+</tr>
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="p-4 font-sans font-medium text-text-primary">
+                Developer Platform Adapters (DEV, Hashnode, Medium)
+              </td>
+<td class="p-4 bg-status-info/5 border-x border-status-info/30 text-status-success font-semibold">
+                ✓ Native API + Session Extensions
+              </td>
+<td class="p-4 text-status-error">
+                ✗ Only Twitter/LinkedIn
+              </td>
+<td class="p-4 text-text-muted">
+                ~45 mins per article
+              </td>
+</tr>
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="p-4 font-sans font-medium text-text-primary">
+                Git-backed CI/CD Push-to-Publish
+              </td>
+<td class="p-4 bg-status-info/5 border-x border-status-info/30 text-status-success font-semibold">
+                ✓ GitHub Actions &amp; Webhook Triggers
+              </td>
+<td class="p-4 text-status-error">
+                ✗ No Git Integration
+              </td>
+<td class="p-4 text-status-error">
+                ✗ Manual Browser Only
+              </td>
+</tr>
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="p-4 font-sans font-medium text-text-primary">
+                Self-Hostable &amp; 100% Open Source
+              </td>
+<td class="p-4 bg-status-info/5 border-x border-status-info/30 text-status-success font-semibold">
+                ✓ 100% MIT Licensed Monorepo
+              </td>
+<td class="p-4 text-status-error">
+                ✗ Closed Proprietary SaaS ($99/mo)
+              </td>
+<td class="p-4 text-text-muted">
+                N/A
+              </td>
+</tr>
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="p-4 font-sans font-medium text-text-primary">
+                Unified Cross-Network Metrics
+              </td>
+<td class="p-4 bg-status-info/5 border-x border-status-info/30 text-status-success font-semibold">
+                ✓ Normalized Read/View Pipeline
+              </td>
+<td class="p-4 text-secondary-foreground">
+                ⚠ Fragmented Social Impressions
+              </td>
+<td class="p-4 text-text-muted">
+                Manual Spreadsheets
+              </td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- ================= DEVELOPER EXPERIENCE & CODE SNIPPET ================= -->
+<section class="py-20 bg-surface-base border-b border-border-subtle code-grid" id="docs">
+<div class="max-w-[1440px] mx-auto px-space-lg md:px-margin-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+<div class="lg:col-span-5">
+<span class="text-label-sm font-label-sm uppercase tracking-wider text-status-info mb-2 block">
+            Developer-First Architecture
+          </span>
+<h2 class="text-headline-md md:text-headline-lg font-headline-lg text-text-primary tracking-tight">
+            Built with TypeScript, Drizzle ORM &amp; Inngest
+          </h2>
+<p class="mt-4 text-body-lg font-body-lg text-text-secondary leading-relaxed">
+            The monorepo is engineered for modular scale. Add custom blog platforms in under 50 lines of code by implementing our standard <code class="text-primary font-mono">PublishingPlatform</code> interface.
+          </p>
+<div class="mt-6 space-y-4">
+<div class="flex items-start gap-3">
+<div class="p-1.5 rounded bg-surface-raised border border-border-default text-status-info">
+<span class="material-symbols-outlined text-[20px]" data-icon="bolt">bolt</span>
+</div>
+<div>
+<h4 class="text-title-sm font-title-sm text-text-primary">Turborepo Orchestration</h4>
+<p class="text-body-sm font-body-sm text-text-muted">High-velocity caching for zero-friction local development.</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="p-1.5 rounded bg-surface-raised border border-border-default text-flow-cyan">
+<span class="material-symbols-outlined text-[20px]" data-icon="database">database</span>
+</div>
+<div>
+<h4 class="text-title-sm font-title-sm text-text-primary">PostgreSQL &amp; Drizzle ORM</h4>
+<p class="text-body-sm font-body-sm text-text-muted">Deterministic schema migrations and instant serverless branching.</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="p-1.5 rounded bg-surface-raised border border-border-default text-secondary-foreground">
+<span class="material-symbols-outlined text-[20px]" data-icon="terminal">terminal</span>
+</div>
+<div>
+<h4 class="text-title-sm font-title-sm text-text-primary">CI/CD Push-to-Publish CLI</h4>
+<p class="text-body-sm font-body-sm text-text-muted">Trigger global distribution right from your GitHub pull requests.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Terminal Mockup -->
+<div class="lg:col-span-7">
+<div class="rounded-xl border border-border-default bg-surface-raised shadow-2xl overflow-hidden">
+<!-- Header bar -->
+<div class="flex items-center justify-between px-4 py-2.5 bg-surface-base border-b border-border-subtle">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-[#ff5f56]"></span>
+<span class="w-3 h-3 rounded-full bg-[#ffbd2e]"></span>
+<span class="w-3 h-3 rounded-full bg-[#27c93f]"></span>
+<span class="ml-2 font-mono text-label-sm text-text-muted">terminal: artxflow publish</span>
+</div>
+<span class="font-mono text-label-sm text-text-muted">zsh</span>
+</div>
+<!-- Code content -->
+<div class="p-5 font-mono text-label-sm leading-6 overflow-x-auto text-text-secondary bg-[#0a0e15]">
+<p class="text-text-muted"># 1. Author canonical content with metadata</p>
+<p class=""><span class="text-status-info">$</span> <span class="text-text-primary">cat ./content/deterministic-runtimes.md</span></p>
+<div class="text-text-muted my-2 p-3 bg-surface-base/80 rounded border border-border-subtle">
+<span class="text-flow-cyan">---</span><br>
+<span class="text-text-secondary">title:</span> "Architecting Low-Latency Multi-Platform Pipelines"<br>
+<span class="text-text-secondary">canonical:</span> "https://engineers.internal/blog/pipelines"<br>
+<span class="text-text-secondary">tags:</span> [system-design, rust, devops]<br>
+<span class="text-flow-cyan">---</span>
+</div>
+<p class="text-text-muted"># 2. Dispatch via ArtXFlow CLI</p>
+<p class=""><span class="text-status-info">$</span> <span class="text-text-primary">artxflow publish ./content/deterministic-runtimes.md --dry-run=false</span></p>
+<div class="my-2 space-y-1">
+<p class="text-flow-cyan">● [Inngest Worker] Fan-out event triggered (id: evt_9941a8e)</p>
+<p class="text-status-success">✓ DEV.to: published (id: 198421, canonical: verified) [48ms]</p>
+<p class="text-status-success">✓ Hashnode: published (post: 67b5e..., schema: graphql) [82ms]</p>
+<p class="text-status-success">✓ Medium: published (id: 4a2f8b, rel=canonical: set) [110ms]</p>
+<p class="text-status-success">✓ GitHub Repo Sync: pushed to docs/production-v2 [65ms]</p>
+</div>
+<p class="text-status-info font-bold mt-3">⚡ All destinations in sync. Zero duplicate content penalty.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= COMMUNITY & OPEN SOURCE CTA ================= -->
+<section class="py-20 bg-surface-base border-b border-border-subtle relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-status-info/5 to-transparent pointer-events-none"></div>
+<div class="max-w-[1440px] mx-auto px-space-lg md:px-margin-lg relative">
+<div class="rounded-2xl border border-border-default bg-surface-raised p-8 md:p-14 text-center max-w-4xl mx-auto glow-cobalt">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-base border border-border-subtle mb-6 text-label-sm font-label-sm text-text-secondary">
+<span class="material-symbols-outlined text-[16px] text-secondary-foreground" data-icon="favorite" data-weight="fill" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="">100% Free &amp; Open Source Under MIT License</span>
+</div>
+<h2 class="text-headline-md md:text-display font-display font-bold text-text-primary tracking-tight">
+          Built in Public with the Developer Community
+        </h2>
+<p class="mt-4 text-body-lg font-body-lg text-text-secondary max-w-xl mx-auto">
+          No vendor lock-in. No closed syndication silos. Join hundreds of technical authors and infrastructure developers shaping the future of decentralized technical writing.
+        </p>
+<!-- Stats row -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 my-8 max-w-2xl mx-auto">
+<div class="p-3 bg-surface-base rounded-xl border border-border-subtle">
+<span class="text-headline-sm font-headline-sm text-text-primary font-bold">1.4k+</span>
+<span class="block text-caption font-caption text-text-muted">GitHub Stars</span>
+</div>
+<div class="p-3 bg-surface-base rounded-xl border border-border-subtle">
+<span class="text-headline-sm font-headline-sm text-flow-cyan font-bold">100%</span>
+<span class="block text-caption font-caption text-text-muted">MIT License</span>
+</div>
+<div class="p-3 bg-surface-base rounded-xl border border-border-subtle">
+<span class="text-headline-sm font-headline-sm text-status-success font-bold">120ms</span>
+<span class="block text-caption font-caption text-text-muted">Dispatch Speed</span>
+</div>
+<div class="p-3 bg-surface-base rounded-xl border border-border-subtle">
+<span class="text-headline-sm font-headline-sm text-secondary-foreground font-bold">5+</span>
+<span class="block text-caption font-caption text-text-muted">Native Adapters</span>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-status-info hover:bg-[#2675F7] text-text-primary px-6 py-3 rounded-xl text-title-sm font-title-sm font-semibold transition-all duration-150 active:scale-[0.98]" href="https://github.com/shubhsaur/ArtXFlow" rel="noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[18px]" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="">Star on GitHub (1.4k)</span>
+</a>
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-surface-base hover:bg-surface-overlay border border-border-default text-text-primary px-6 py-3 rounded-xl text-title-sm font-title-sm font-medium transition-all duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="group">group</span>
+<span class="">Join Developer Discord</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= ENTERPRISE FOOTER (MATCHING JSON AS BLUEPRINT) ================= -->
+<footer class="bg-surface-base dark:bg-surface-base border-t border-border-subtle dark:border-border-subtle w-full">
+<div class="px-space-lg md:px-margin-lg py-space-xl max-w-[1440px] mx-auto">
+<!-- Top Grid: 4-Column Structured Directory -->
+<div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+<!-- Brand Info Column -->
+<div class="col-span-2">
+<div class="flex items-center gap-2 mb-3">
+<img alt="ArtXFlow Logo" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT-wuTBgHZiw_li5nHVXg7nWmVYVHg9EKsPKrLR5DMQzn-CPGX1WgRB-V69W9hf1GKe1PtjSQphRDoxjSes4PRaoC4dndUPMiacMjy3ztjwpD7TdD-ZM02cq-e1IqQ3h25QgMeoNLiTgvuxA53rzDf2JmCj1v7Q3n2hmdKEywWpoFJyBfGXULO7bVHlkRhPi0OLdH9l7etbqBCokEJVQzGf9UXV3uY1BMDphdNaSdFG5V0ZdVriJtW">
+<span class="text-title-md font-title-md font-bold text-text-primary dark:text-text-primary">
+              Art<span class="brand-gradient-text">X</span>Flow
+            </span>
+</div>
+<p class="text-body-sm font-body-sm text-text-secondary max-w-sm mb-4">
+            Deterministic low-latency multi-platform runtime. Author canonical technical articles once, sync everywhere seamlessly.
+          </p>
+<div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-surface-raised border border-border-subtle text-label-sm font-label-sm text-status-success font-mono">
+<span class="w-2 h-2 rounded-full bg-status-success animate-pulse"></span>
+<span class="">All systems operational (99.99%)</span>
+</div>
+</div>
+<!-- Col 1: Product Ecosystem -->
+<div>
+<h4 class="text-title-sm font-title-sm text-text-primary font-semibold mb-3">Product Ecosystem</h4>
+<ul class="space-y-2 text-body-sm font-body-sm">
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">Articles Hub</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">Markdown AST Editor</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">Platform Adapters</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">Distribution Pipelines</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">Changelog v2.4</a></li>
+</ul>
+</div>
+<!-- Col 2: Developers & Docs -->
+<div>
+<h4 class="text-title-sm font-title-sm text-text-primary font-semibold mb-3">Developers</h4>
+<ul class="space-y-2 text-body-sm font-body-sm">
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">Developer Docs</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="https://github.com/shubhsaur/ArtXFlow">GitHub Repository</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">Adapter API Reference</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">CLI Tooling</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">System Status</a></li>
+</ul>
+</div>
+<!-- Col 3: Compliance & Trust -->
+<div>
+<h4 class="text-title-sm font-title-sm text-text-primary font-semibold mb-3">Compliance &amp; Trust</h4>
+<ul class="space-y-2 text-body-sm font-body-sm">
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">MIT License Open Source</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">Security Baseline</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">Privacy Policy</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">Terms of Service</a></li>
+<li class=""><a class="text-text-muted hover:text-text-primary transition-colors duration-150" href="#">Trademark Guidelines</a></li>
+</ul>
+</div>
+</div>
+<!-- Bottom Bar: Exact JSON Copyright & Links -->
+<div class="pt-6 border-t border-border-subtle flex flex-col md:flex-row items-center justify-between gap-4">
+<p class="text-caption font-caption text-text-muted">
+          © 2025 ArtXFlow Systems Inc. Deterministic low-latency multi-platform runtime. All systems operational.
+        </p>
+<div class="flex flex-wrap items-center gap-4 text-caption font-caption text-text-muted">
+<a class="hover:text-text-primary transition-colors duration-150" href="#">Product Ecosystem</a>
+<span class="">•</span>
+<a class="hover:text-text-primary transition-colors duration-150" href="#">Platform Adapters</a>
+<span class="">•</span>
+<a class="hover:text-text-primary transition-colors duration-150" href="#">Developer Docs</a>
+<span class="">•</span>
+<a class="hover:text-text-primary transition-colors duration-150" href="#">Compliance &amp; Trust</a>
+<span class="">•</span>
+<a class="hover:text-text-primary transition-colors duration-150" href="#">Security Baseline</a>
+<span class="">•</span>
+<a class="hover:text-text-primary transition-colors duration-150" href="#">Privacy Policy</a>
+<span class="">•</span>
+<a class="hover:text-text-primary transition-colors duration-150" href="#">System Status</a>
+</div>
+</div>
+</div>
+</footer>
+
+
+</body></html>

@@ -7,6 +7,35 @@ export interface LogoProps extends React.HTMLAttributes<HTMLDivElement> {
   alt?: string;
 }
 
+export const BRAND_X_GRADIENT =
+  'linear-gradient(135deg, #19D7FE 0%, #0B87FE 38%, #7A5CFD 72%, #E040FB 100%)';
+
+export function BrandWordmark({
+  className = '',
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <span className={className} style={{ display: 'inline', fontWeight: 'inherit', ...style }}>
+      Art
+      <span
+        style={{
+          background: BRAND_X_GRADIENT,
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          display: 'inline-block',
+          fontWeight: 'inherit',
+        }}
+      >
+        X
+      </span>
+      Flow
+    </span>
+  );
+}
+
 export function Logo({
   size = 32,
   showWordmark = true,
@@ -33,11 +62,12 @@ export function Logo({
       <img
         src={src}
         alt={alt}
-        width={size}
+        width={Math.round(size * 1.8)}
         height={size}
         style={{
-          width: `${size}px`,
           height: `${size}px`,
+          width: 'auto',
+          maxHeight: `${size}px`,
           objectFit: 'contain',
           display: 'block',
           flexShrink: 0,
@@ -56,9 +86,23 @@ export function Logo({
             alignItems: 'center',
           }}
         >
-          Art<span style={{ color: 'var(--axf-cyan, #19D7FE)' }}>X</span>Flow
+          Art
+          <span
+            style={{
+              background: BRAND_X_GRADIENT,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              display: 'inline-block',
+              fontWeight: 800,
+              padding: '0 0.5px',
+            }}
+          >
+            X
+          </span>
+          Flow
         </span>
       )}
     </div>
   );
 }
+

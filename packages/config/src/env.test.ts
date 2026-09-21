@@ -62,6 +62,35 @@ describe('@artxflow/config', () => {
       ).toThrowError(/ENCRYPTION_KEY must be at least 32 characters long/);
     });
 
+    it('parses optional Brevo configuration when provided', () => {
+      const parsed = validateServerEnv({
+        ...validServerEnv,
+        BREVO_API_KEY: 'xkeysib-test-12345',
+        BREVO_FROM_EMAIL: 'team@artxflow.com',
+        BREVO_FROM_NAME: 'ArtXFlow Support',
+      });
+      expect(parsed.BREVO_API_KEY).toBe('xkeysib-test-12345');
+      expect(parsed.BREVO_FROM_EMAIL).toBe('team@artxflow.com');
+      expect(parsed.BREVO_FROM_NAME).toBe('ArtXFlow Support');
+    });
+
+    it('requires BETTER_AUTH_URL when NODE_ENV is production', () => {
+      expect(() =>
+        validateServerEnv({
+          ...validServerEnv,
+          NODE_ENV: 'production',
+          BETTER_AUTH_URL: undefined,
+        }),
+      ).toThrowError(/BETTER_AUTH_URL is required in production/);
+
+      const parsed = validateServerEnv({
+        ...validServerEnv,
+        NODE_ENV: 'production',
+        BETTER_AUTH_URL: 'https://artxflow.com',
+      });
+      expect(parsed.BETTER_AUTH_URL).toBe('https://artxflow.com');
+    });
+
     it('prevents execution in browser environment if window is defined', () => {
       const globalObj = globalThis as { window?: unknown };
       const originalWindow = globalObj.window;

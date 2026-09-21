@@ -6,3 +6,5 @@
 export * from './auth';
 export * from './session';
 export * from './bootstrap';
+export * from './email/brevo';
+export * from './email/templates';

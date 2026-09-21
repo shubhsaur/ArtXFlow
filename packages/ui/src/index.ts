@@ -11,3 +11,5 @@ export * from './components/logo';
 export * from './components/article-renderer';
 export * from './components/article-preview';
 export * from './components/toaster';
+export * from './components/theme-toggle';
+export * from './components/page-loader';

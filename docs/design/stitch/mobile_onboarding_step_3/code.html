@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>ArtXFlow - Mobile Onboarding Step 3: Connect Destinations</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed": "#e6deff",
+            "error": "#ffb4ab",
+            "tertiary-fixed-dim": "#cabeff",
+            "secondary-fixed": "#ffddb8",
+            "on-primary-fixed-variant": "#00468a",
+            "on-tertiary": "#30009b",
+            "on-background": "#dee2ed",
+            "surface-bright": "#353941",
+            "tertiary-container": "#937dff",
+            "status-success": "#12b76a",
+            "on-surface-variant": "#c0c6d6",
+            "inverse-surface": "#dee2ed",
+            "inverse-primary": "#005eb4",
+            "flow-cyan": "#19d7fe",
+            "surface-container": "#1b2027",
+            "primary-container": "#3790ff",
+            "surface-variant": "#30353d",
+            "on-secondary": "#ffffff",
+            "surface-container-high": "#262a32",
+            "on-surface": "#dee2ed",
+            "on-secondary-fixed": "#2a1700",
+            "status-warning": "#f59e0b",
+            "border-default": "#243447",
+            "secondary": "#ffb95f",
+            "secondary-foreground-bright": "#fbbf24",
+            "status-error": "#d92d20",
+            "secondary-container": "#ee9800",
+            "surface-container-highest": "#30353d",
+            "text-muted": "#66768d",
+            "tertiary": "#cabeff",
+            "surface-container-lowest": "#0a0e15",
+            "on-tertiary-fixed-variant": "#4718c9",
+            "on-secondary-fixed-variant": "#653e00",
+            "on-tertiary-fixed": "#1b0062",
+            "surface": "#0f141b",
+            "primary": "#a8c8ff",
+            "border-highlight": "rgba(25, 215, 254, 0.25)",
+            "outline": "#8a919f",
+            "on-primary-container": "#002956",
+            "status-info": "#0b87fe",
+            "surface-base": "#070b12",
+            "surface-dim": "#0f141b",
+            "text-secondary": "#aab5c4",
+            "surface-container-low": "#171c23",
+            "on-error": "#690005",
+            "secondary-foreground": "#f59e0b",
+            "secondary-fixed-dim": "#ffb95f",
+            "on-tertiary-container": "#290089",
+            "primary-fixed-dim": "#a8c8ff",
+            "inverse-on-surface": "#2c3138",
+            "primary-fixed": "#d6e3ff",
+            "surface-overlay": "#111a28",
+            "on-primary-fixed": "#001b3c",
+            "border-subtle": "#172333",
+            "on-primary": "#003062",
+            "surface-raised": "#0d1420",
+            "flow-purple": "#7a5cfd",
+            "surface-tint": "#a8c8ff",
+            "flow-blue": "#0b87fe",
+            "on-error-container": "#ffdad6",
+            "on-secondary-container": "#5b3800",
+            "text-primary": "#f5f7fa",
+            "error-container": "#93000a",
+            "on-secondary-alt": "#1e1b4b",
+            "background": "#0f141b",
+            "outline-variant": "#404754",
+            "secondary-container-deep": "#451a03"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "margin": "1rem",
+            "margin-lg": "2.5rem",
+            "space-lg": "1.5rem",
+            "margin-md": "1.5rem",
+            "space-xl": "2rem",
+            "gutter": "1rem",
+            "gutter-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem"
+          },
+          "fontFamily": {
+            "body-md": ["Geist", "sans-serif"],
+            "label-md": ["JetBrains Mono", "monospace"],
+            "headline-lg-mobile": ["Geist", "sans-serif"],
+            "title-md": ["Geist", "sans-serif"],
+            "display": ["Geist", "sans-serif"],
+            "caption": ["Geist", "sans-serif"],
+            "body-lg": ["Geist", "sans-serif"],
+            "display-mobile": ["Geist", "sans-serif"],
+            "headline-md": ["Geist", "sans-serif"],
+            "label-sm": ["JetBrains Mono", "monospace"],
+            "headline-sm": ["Geist", "sans-serif"],
+            "title-sm": ["Geist", "sans-serif"],
+            "body-sm": ["Geist", "sans-serif"],
+            "headline-lg": ["Geist", "sans-serif"]
+          },
+          "fontSize": {
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "title-md": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "display": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "caption": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "display-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "headline-md": ["24px", { "lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-sm": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "title-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-lg": ["36px", { "lineHeight": "42px", "letterSpacing": "-0.025em", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #070b12;
+      color: #dee2ed;
+      font-family: 'Geist', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    }
+    .btn-dispatch-gradient {
+      background: linear-gradient(135deg, #0b87fe 0%, #19d7fe 50%, #7a5cfd 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+    .stepper-glow {
+      box-shadow: 0 0 12px -2px rgba(11, 135, 254, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-surface-base text-on-surface min-h-screen flex flex-col justify-between selection:bg-primary-container selection:text-white">
+<!-- Linear Onboarding Shell: Global Bottom Navigation Suppressed per Semantic Shell Mandate -->
+<!-- Mobile Header Bar -->
+<header class="w-full bg-surface-raised sticky top-0 z-40 px-gutter h-14 flex items-center justify-between border-b border-border-subtle">
+<div class="flex items-center gap-2">
+<!-- ArtXFlow Logo Placeholder from prompt -->
+<img alt="ArtXFlow Logo" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeNBmE9eJY3dafAK49SKdPly42xmgBwFfpQ-6Yb1om3EKRVvMOdg6Hmita5OJTVD-0GnJf8MNCqxlRMaApdiRgUfMPdfRHZaUVC0zqyR-neFGqR3qVtSCE3QVR3peVLyTU68-MwtwX-5oIJny7e9Cm4JtIUsf3Wba2tH7pTtYi--F-uiZ8dUNnUO2q340uktwaZH3FEDTfr6yomh_J4GzrXkRsrl4aCg27VOz5Qy-te3F5PAqHJ-tT"/>
+<span class="font-headline-sm text-headline-sm font-bold text-text-primary tracking-tight">ArtXFlow</span>
+</div>
+<!-- Right utility: Onboarding Step counter tag -->
+<div class="flex items-center gap-1.5 px-space-sm py-0.5 rounded-lg bg-surface-container border border-border-default">
+<span class="font-label-sm text-label-sm text-flow-cyan">STEP 3/4</span>
+</div>
+</header>
+<!-- Main Scrollable Content Area -->
+<main class="flex-1 w-full max-w-md mx-auto px-gutter pt-space-md pb-24 flex flex-col gap-space-lg">
+<!-- Compact Mobile Stepper -->
+<section aria-label="Onboarding Progress" class="w-full py-space-xs">
+<div class="grid grid-cols-4 items-center gap-2 bg-surface-raised p-2 rounded-xl border border-border-subtle">
+<!-- Step 1: Completed -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-6 h-6 rounded-full bg-status-success/15 border border-status-success/40 flex items-center justify-center text-status-success">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-label-sm text-[10px] leading-tight text-text-secondary truncate w-full text-center">1. Profile</span>
+</div>
+<!-- Step 2: Completed -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-6 h-6 rounded-full bg-status-success/15 border border-status-success/40 flex items-center justify-center text-status-success">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-label-sm text-[10px] leading-tight text-text-secondary truncate w-full text-center">2. Canonical</span>
+</div>
+<!-- Step 3: Active (#0B62F5 / flow-blue) -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-6 h-6 rounded-full bg-flow-blue border border-flow-cyan flex items-center justify-center text-white stepper-glow">
+<span class="font-label-sm text-[11px] font-bold">3</span>
+</div>
+<span class="font-label-sm text-[10px] leading-tight text-flow-cyan font-bold truncate w-full text-center">Destinations</span>
+</div>
+<!-- Step 4: Pending -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-6 h-6 rounded-full bg-surface-container border border-border-default flex items-center justify-center text-text-muted">
+<span class="font-label-sm text-[11px]">4</span>
+</div>
+<span class="font-label-sm text-[10px] leading-tight text-text-muted truncate w-full text-center">Launch</span>
+</div>
+</div>
+</section>
+<!-- Headline and Subtitle Area -->
+<section class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-4 bg-flow-blue rounded-full"></span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-semibold text-text-primary tracking-tight">
+          Connect your publishing targets
+        </h1>
+</div>
+<p class="font-body-md text-body-md text-text-secondary pl-3.5">
+        Publish to multiple developer communities with a single click.
+      </p>
+</section>
+<!-- Destination List Cards -->
+<section class="flex flex-col gap-3">
+<!-- Card 1: DEV Community (Connected) -->
+<article class="p-3.5 rounded-xl bg-surface-raised border border-border-subtle transition-all duration-150 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-status-success/5 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-3">
+<!-- Platform Brand Mark -->
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest border border-border-default flex items-center justify-center flex-shrink-0 text-text-primary font-bold text-sm tracking-wider">
+              DEV
+            </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-title-sm text-title-sm text-text-primary font-semibold">DEV Community</span>
+<!-- Green badge "Connected" -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-status-success/15 border border-status-success/30 text-status-success">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success animate-pulse"></span>
+                  Connected
+                </span>
+</div>
+<span class="font-caption text-caption text-text-secondary mt-0.5">API Token active • Auto-save as draft</span>
+</div>
+</div>
+<!-- Switch / Toggle Active -->
+<label class="relative inline-flex items-center cursor-pointer mt-1 flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-flow-blue"></div>
+</label>
+</div>
+</article>
+<!-- Card 2: Hashnode (Needs Token) -->
+<article class="p-3.5 rounded-xl bg-surface-raised border border-border-default transition-all duration-150">
+<div class="flex items-start justify-between gap-3 mb-2.5">
+<div class="flex items-center gap-3">
+<!-- Platform Brand Mark -->
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest border border-border-default flex items-center justify-center flex-shrink-0 text-flow-blue">
+<span class="material-symbols-outlined text-xl">hub</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-title-sm text-title-sm text-text-primary font-semibold">Hashnode</span>
+<!-- Amber / Warning Badge: Needs Token -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-secondary-container-deep border border-status-warning/40 text-secondary-foreground-bright">
+<span class="w-1.5 h-1.5 rounded-full bg-status-warning animate-ping"></span>
+                  Needs Token
+                </span>
+</div>
+<span class="font-caption text-caption text-text-secondary mt-0.5">Direct blog sync via Personal Access Token</span>
+</div>
+</div>
+</div>
+<!-- Token Input + Save Action -->
+<div class="flex items-center gap-2 mt-1">
+<div class="relative flex-1">
+<input class="w-full bg-surface-container-lowest border border-border-default focus:border-flow-blue focus:ring-1 focus:ring-flow-blue text-text-primary placeholder:text-text-muted text-body-sm font-body-sm px-3 py-2 rounded-lg outline-none transition-colors" placeholder="Enter Personal Access Token" type="password"/>
+</div>
+<button class="px-3.5 py-2 rounded-lg bg-flow-blue hover:bg-primary-container text-white font-label-sm text-label-sm font-medium active:scale-95 transition-all flex items-center justify-center shadow-sm flex-shrink-0" type="button">
+            Save
+          </button>
+</div>
+</article>
+<!-- Card 3: Medium (Extension Paired) -->
+<article class="p-3.5 rounded-xl bg-surface-raised border border-border-subtle transition-all duration-150">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-3">
+<!-- Platform Brand Mark -->
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest border border-border-default flex items-center justify-center flex-shrink-0 text-text-primary font-serif font-bold text-lg">
+              M
+            </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-title-sm text-title-sm text-text-primary font-semibold">Medium</span>
+<!-- Recommended / Paired Badge -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-primary-container/20 border border-flow-cyan/30 text-flow-cyan">
+<span class="material-symbols-outlined text-[13px]">extension</span>
+                  Extension Paired
+                </span>
+</div>
+<span class="font-caption text-caption text-text-secondary mt-0.5">Publishes seamlessly via Chrome Companion</span>
+</div>
+</div>
+<!-- Switch / Toggle Active -->
+<label class="relative inline-flex items-center cursor-pointer mt-1 flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-flow-blue"></div>
+</label>
+</div>
+</article>
+</section>
+<!-- Quick Informative Banner -->
+<div class="p-3 rounded-xl bg-surface-container-low border border-border-subtle flex items-start gap-2.5">
+<span class="material-symbols-outlined text-flow-cyan text-[18px] mt-0.5 flex-shrink-0">info</span>
+<p class="font-caption text-caption text-text-secondary leading-relaxed">
+        You can connect more platforms (<span class="text-text-primary font-medium">Ghost, Substack, LinkedIn</span>) later in Settings.
+      </p>
+</div>
+</main>
+<!-- Fixed Bottom Navigation / Wizard Footer Bar -->
+<footer class="fixed bottom-0 left-0 w-full z-50 bg-surface-raised/95 backdrop-blur-md px-gutter py-space-sm border-t border-border-subtle flex items-center justify-between gap-3 max-w-md mx-auto right-0">
+<!-- Back Action -->
+<button class="px-4 py-2.5 rounded-lg border border-border-default bg-surface-container text-text-secondary hover:text-text-primary hover:border-flow-blue text-body-sm font-body-sm font-medium active:scale-95 transition-all flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+<span>Back</span>
+</button>
+<!-- Primary Continue Action -->
+<button class="flex-1 btn-dispatch-gradient py-2.5 px-4 rounded-lg text-white font-title-sm text-title-sm font-semibold flex items-center justify-center gap-2 active:scale-98 transition-all hover:opacity-95" type="button">
+<span>Continue to Launch</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</footer>
+</body></html>

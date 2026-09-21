@@ -1,0 +1,488 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>ArtXFlow - Onboarding: Step 4 Verify &amp; Dispatch</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Configuration Verbatim -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary-container": "#362005",
+            "surface-raised": "#0d1420",
+            "secondary-container-deep": "#451a03",
+            "outline-variant": "#404754",
+            "inverse-surface": "#dee2ed",
+            "surface-container": "#1b2027",
+            "flow-cyan": "#19d7fe",
+            "surface-container-highest": "#31353d",
+            "surface-overlay": "#111a28",
+            "flow-purple": "#7a5cfd",
+            "surface-container-lowest": "#090e15",
+            "surface-base": "#070b12",
+            "on-tertiary-container": "#290089",
+            "border-subtle": "#172333",
+            "border-highlight": "rgba(25, 215, 254, 0.25)",
+            "background": "#0f141b",
+            "on-primary-fixed": "#001b3c",
+            "on-primary-container": "#002956",
+            "text-muted": "#66768d",
+            "surface-container-high": "#252a32",
+            "on-tertiary-fixed-variant": "#4718c9",
+            "secondary": "#ffb95f",
+            "on-background": "#dee2ed",
+            "status-info": "#0b87fe",
+            "surface-tint": "#a8c8ff",
+            "outline": "#8a919f",
+            "tertiary-container": "#937dff",
+            "secondary-fixed-dim": "#ffb95f",
+            "on-secondary-alt": "#1e1b4b",
+            "surface-dim": "#0f141b",
+            "surface-variant": "#30353d",
+            "error-container": "#93000a",
+            "primary": "#a8c8ff",
+            "on-secondary-fixed": "#2a1700",
+            "primary-fixed-dim": "#a8c8ff",
+            "primary-container": "#3790ff",
+            "primary-fixed": "#d6e3ff",
+            "on-primary": "#003062",
+            "on-tertiary-fixed": "#1b0062",
+            "on-error-container": "#ffdad6",
+            "on-surface-variant": "#c0c6d6",
+            "inverse-primary": "#005eb4",
+            "on-error": "#690005",
+            "on-primary-fixed-variant": "#00468a",
+            "flow-blue": "#0b87fe",
+            "tertiary-fixed": "#e6deff",
+            "text-primary": "#f5f7fa",
+            "text-secondary": "#aab5c4",
+            "error": "#ffb4ab",
+            "on-surface": "#dee2ed",
+            "surface-bright": "#353941",
+            "secondary-foreground-bright": "#fbbf24",
+            "on-secondary": "#ffffff",
+            "status-success": "#12b76a",
+            "status-error": "#d92d20",
+            "on-secondary-container": "#5b3800",
+            "surface": "#0f141b",
+            "surface-container-low": "#171c23",
+            "secondary-fixed": "#ffddb8",
+            "on-secondary-fixed-variant": "#653e00",
+            "tertiary": "#cabeff",
+            "border-default": "#243447",
+            "on-tertiary": "#30009b",
+            "tertiary-fixed-dim": "#cabeff",
+            "secondary-foreground": "#f59e0b",
+            "inverse-on-surface": "#2c3138",
+            "status-warning": "#f59e0b"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "gutter-lg": "1.5rem",
+            "space-md": "1rem",
+            "gutter": "1rem",
+            "space-xl": "2rem",
+            "margin-md": "1.5rem",
+            "margin": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "margin-lg": "2.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "caption": ["Geist"],
+            "label-md": ["JetBrains Mono"],
+            "display-mobile": ["Geist"],
+            "headline-lg-mobile": ["Geist"],
+            "body-lg": ["Geist"],
+            "headline-sm": ["Geist"],
+            "title-sm": ["Geist"],
+            "body-md": ["Geist"],
+            "title-md": ["Geist"],
+            "label-sm": ["JetBrains Mono"],
+            "headline-lg": ["Geist"],
+            "headline-md": ["Geist"],
+            "display": ["Geist"],
+            "body-sm": ["Geist"]
+          },
+          "fontSize": {
+            "caption": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "display-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "headline-sm": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "title-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "title-md": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-lg": ["36px", { "lineHeight": "42px", "letterSpacing": "-0.025em", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "display": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      vertical-align: middle;
+      display: inline-block;
+      line-height: 1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #090e15;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #243447;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #0b87fe;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.9; }
+    }
+    .animate-pulse-glow {
+      animation: pulseGlow 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-surface-base text-text-primary min-h-screen flex flex-col font-body-md selection:bg-flow-blue selection:text-white antialiased overflow-x-hidden">
+<!-- TOP APP BAR -->
+<header class="w-full h-14 bg-surface-raised border-b border-border-default z-40 sticky top-0 px-margin-md flex items-center justify-between">
+<!-- Brand & Workspace Meta -->
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-sm">
+<img alt="ArtXFlow brand mark" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1FjU5oIJDA2hff25rKQS3q6CL8GCT-Ari4fJsGqvX52hoG5X0JLBWibQ_tWiEM4ltQPBF6rCDamCKaGSQ7Xyt8YBsPp31PmMXdPS9N7ySlWyRu0Zf5GA3B88XAlX9rOg9x0kdWYybvIpszzBWR23j7befPWG0ltbj_jwF0bIjqMHb2hzlNQjdzjl4-IFLcaVGt_cMQgGYul4Inkv3PoXszEsXsNaGu6vdqJaadMHo494iYXIADmIU">
+<span class="font-title-md text-title-md font-bold tracking-tight text-text-primary flex items-center">
+          Art<span class="text-transparent bg-clip-text bg-gradient-to-r from-flow-blue via-flow-cyan to-flow-purple">X</span>Flow
+        </span>
+</div>
+<div class="h-4 w-px bg-border-default hidden sm:block"></div>
+<!-- Node / Onboarding Runtime Pill -->
+<div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low border border-border-subtle">
+<span class="w-1.5 h-1.5 rounded-full bg-flow-cyan animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-text-secondary tracking-normal">v2.4.0 • Onboarding Setup</span>
+</div>
+</div>
+<!-- Actions & User Profile -->
+<div class="flex items-center gap-space-md">
+<a class="hidden md:flex items-center gap-1.5 text-text-muted hover:text-text-primary transition-colors font-label-md text-label-md" href="#specs">
+<span class="material-symbols-outlined text-[16px]">menu_book</span>
+<span class="">Docs &amp; Specs</span>
+</a>
+<button class="px-3 py-1.5 rounded bg-surface-container border border-border-default hover:border-outline-variant text-text-secondary hover:text-text-primary font-label-md text-label-md transition-all active:scale-[0.98]" type="button">
+        Save &amp; Exit
+      </button>
+<div class="h-5 w-px bg-border-default"></div>
+<!-- User avatar badge -->
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-overlay border border-flow-blue/40 flex items-center justify-center text-flow-cyan font-label-sm text-label-sm font-semibold shadow-inner">
+          AR
+        </div>
+<span class="hidden lg:inline text-text-primary font-body-sm text-body-sm font-medium">Alex Rivera</span>
+</div>
+</div>
+</header>
+<!-- STEPPER PROGRESS BAR (4 STEPS) -->
+<nav class="w-full bg-surface-container-low/90 backdrop-blur-md border-b border-border-subtle sticky top-14 z-30 px-margin-md py-3">
+<div class="max-w-[1340px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-6">
+<!-- Step 1: Completed -->
+<div class="flex items-center gap-2.5 p-2 rounded bg-surface-raised/40 border border-border-subtle">
+<div class="w-6 h-6 rounded-full bg-status-success/15 border border-status-success/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-status-success text-[15px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="min-w-0">
+<p class="font-label-sm text-[10px] text-text-muted uppercase tracking-wider">Step 1 • Completed</p>
+<p class="font-title-sm text-title-sm text-text-primary truncate">Workspace Profile</p>
+</div>
+</div>
+<!-- Step 2: Completed -->
+<div class="flex items-center gap-2.5 p-2 rounded bg-surface-raised/40 border border-border-subtle">
+<div class="w-6 h-6 rounded-full bg-status-success/15 border border-status-success/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-status-success text-[15px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="min-w-0">
+<p class="font-label-sm text-[10px] text-text-muted uppercase tracking-wider">Step 2 • Completed</p>
+<p class="font-title-sm text-title-sm text-text-primary truncate">Canonical Source</p>
+</div>
+</div>
+<!-- Step 3: Completed -->
+<div class="flex items-center gap-2.5 p-2 rounded bg-surface-raised/40 border border-border-subtle">
+<div class="w-6 h-6 rounded-full bg-status-success/15 border border-status-success/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-status-success text-[15px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="min-w-0">
+<p class="font-label-sm text-[10px] text-text-muted uppercase tracking-wider">Step 3 • Completed</p>
+<p class="font-title-sm text-title-sm text-text-primary truncate">Connect Destinations</p>
+</div>
+</div>
+<!-- Step 4: Active Focus -->
+<div class="flex items-center gap-2.5 p-2 rounded bg-surface-overlay border border-flow-blue/60 shadow-[0_0_12px_-2px_rgba(11,135,254,0.35)] relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-flow-blue to-flow-cyan"></div>
+<div class="w-6 h-6 rounded-full bg-flow-blue/20 border border-flow-blue flex items-center justify-center shrink-0 ring-2 ring-flow-blue/30">
+<span class="font-label-sm text-label-sm text-flow-cyan font-bold">4</span>
+</div>
+<div class="min-w-0">
+<p class="font-label-sm text-[10px] text-flow-cyan font-semibold uppercase tracking-wider flex items-center gap-1">
+            Step 4 of 4 <span class="w-1.5 h-1.5 rounded-full bg-flow-cyan animate-ping"></span>
+</p>
+<p class="font-title-sm text-title-sm text-text-primary font-bold truncate">Verify &amp; Dispatch</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- MAIN VIEWPORT / WORKSPACE CANVAS -->
+<main class="flex-1 w-full max-w-[1380px] mx-auto px-margin-md py-6 flex flex-col gap-6">
+<!-- PAGE HEADER SUMMARY -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-border-subtle"><div>
+  <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-status-success/15 border border-status-success/30 text-status-success font-label-sm text-label-sm mb-2">
+    <span class="material-symbols-outlined text-[14px]">check_circle</span>
+    Setup Complete • Ready to Publish
+  </div>
+  <h1 class="font-headline-lg text-headline-lg font-bold text-text-primary tracking-tight">
+    You're all set to syndicate effortlessly
+  </h1>
+  <p class="font-body-md text-body-md text-text-secondary mt-1">
+    Your workspace, canonical repository, and publishing destinations are securely configured and ready to go.
+  </p>
+</div>
+<div class="flex items-center gap-3 self-start md:self-auto shrink-0 font-label-sm text-label-sm">
+  <div class="px-3.5 py-2 rounded-full bg-status-success/10 border border-status-success/30 flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-status-success animate-pulse"></span>
+    <span class="text-status-success font-medium">3 Destinations Connected</span>
+  </div>
+</div></div>
+<!-- 2-COLUMN SPLIT WITH RIGHT TELEMETRY RAIL -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- LEFT COLUMN (Pre-flight Verification & Sample Dispatch Test) - 7 Cols -->
+<div class="lg:col-span-7 flex flex-col gap-6"><!-- Clean Setup Overview Card -->
+<section class="rounded-lg bg-surface-raised border border-border-default p-space-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.6)] flex flex-col gap-6">
+  <div class="flex items-start justify-between gap-4 pb-4 border-b border-border-subtle">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-flow-blue/15 border border-flow-blue/30 flex items-center justify-center text-flow-cyan shrink-0">
+        <span class="material-symbols-outlined text-[22px]">task_alt</span>
+      </div>
+      <div>
+        <h2 class="font-title-md text-title-md font-bold text-text-primary">Workspace Configuration Summary</h2>
+        <p class="font-body-sm text-body-sm text-text-muted mt-0.5">Everything verified and linked to your ArtXFlow account.</p>
+      </div>
+    </div>
+    <span class="px-2.5 py-1 rounded-full font-label-sm text-label-sm bg-status-success/15 text-status-success border border-status-success/30 shrink-0 font-medium">
+      Ready
+    </span>
+  </div>
+
+  <!-- Key Specs Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Workspace Profile -->
+    <div class="p-3.5 rounded bg-surface-base border border-border-subtle flex flex-col gap-1.5">
+      <div class="flex items-center justify-between text-text-muted font-label-sm text-label-sm">
+        <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-flow-blue">corporate_fare</span> Workspace</span>
+        <span class="text-status-success font-medium flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-status-success"></span> Active</span>
+      </div>
+      <p class="font-title-sm text-title-sm font-semibold text-text-primary truncate">ScaleOps Engineering</p>
+      <p class="font-caption text-caption text-text-secondary truncate">scaleops.artxflow.io</p>
+    </div>
+
+    <!-- Canonical Source -->
+    <div class="p-3.5 rounded bg-surface-base border border-border-subtle flex flex-col gap-1.5">
+      <div class="flex items-center justify-between text-text-muted font-label-sm text-label-sm">
+        <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-flow-cyan">code_blocks</span> Canonical Source</span>
+        <span class="px-1.5 py-0.2 rounded font-label-sm text-[10px] bg-flow-cyan/10 text-flow-cyan border border-flow-cyan/30 font-mono">GitHub</span>
+      </div>
+      <p class="font-title-sm text-title-sm font-semibold text-text-primary truncate">scaleops/engineering-blog</p>
+      <p class="font-caption text-caption text-text-muted truncate">Syncing branch: <code class="text-flow-blue">main</code></p>
+    </div>
+  </div>
+
+  <!-- Connected Destinations Cluster -->
+  <div class="flex flex-col gap-2.5">
+    <div class="flex items-center justify-between">
+      <span class="font-label-sm text-label-sm text-text-secondary uppercase tracking-wider font-semibold">Connected Distribution Channels</span>
+      <span class="font-caption text-caption text-text-muted">All channels ready</span>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="p-3 rounded bg-surface-overlay border border-border-subtle flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded bg-[#1a1f2c] border border-border-default flex items-center justify-center text-text-primary font-bold font-mono text-[11px] shrink-0">
+          DEV
+        </div>
+        <div class="min-w-0">
+          <p class="font-title-sm text-[13px] font-semibold text-text-primary truncate">DEV Community</p>
+          <span class="font-caption text-[11px] text-secondary-foreground flex items-center gap-1 font-medium">Auto-draft</span>
+        </div>
+      </div>
+      <div class="p-3 rounded bg-surface-overlay border border-border-subtle flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded bg-flow-blue/20 border border-flow-blue/40 flex items-center justify-center text-flow-blue font-bold font-mono text-[11px] shrink-0">
+          HN
+        </div>
+        <div class="min-w-0">
+          <p class="font-title-sm text-[13px] font-semibold text-text-primary truncate">Hashnode</p>
+          <span class="font-caption text-[11px] text-tertiary flex items-center gap-1 font-medium">GraphQL v2</span>
+        </div>
+      </div>
+      <div class="p-3 rounded bg-surface-overlay border border-border-subtle flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded bg-surface-container-high border border-border-default flex items-center justify-center text-text-primary font-bold font-mono text-[11px] shrink-0">
+          M
+        </div>
+        <div class="min-w-0">
+          <p class="font-title-sm text-[13px] font-semibold text-text-primary truncate">Medium</p>
+          <span class="font-caption text-[11px] text-flow-cyan flex items-center gap-1 font-medium">Extension Paired</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Toggle: Create First Sample Article -->
+  <div class="p-4 rounded-lg bg-surface-overlay border border-flow-blue/30 flex items-center justify-between gap-4">
+    <div class="flex items-start gap-3">
+      <div class="w-8 h-8 rounded bg-flow-blue/20 border border-flow-blue/40 flex items-center justify-center text-flow-blue shrink-0 mt-0.5">
+        <span class="material-symbols-outlined text-[18px]">post_add</span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <p class="font-title-sm text-title-sm font-semibold text-text-primary">Create my first sample article</p>
+          <span class="px-1.5 py-0.5 rounded font-label-sm text-[10px] bg-flow-cyan/15 text-flow-cyan font-medium">Recommended</span>
+        </div>
+        <p class="font-body-sm text-body-sm text-text-secondary mt-0.5">
+          Populate your workspace with a starter post to immediately test previewing and one-click dispatch.
+        </p>
+      </div>
+    </div>
+    <label class="relative inline-flex items-center cursor-pointer shrink-0">
+      <input type="checkbox" checked="checked" class="sr-only peer" id="sample-article-toggle">
+      <div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0b62f5]"></div>
+    </label>
+  </div>
+</section></div>
+<!-- RIGHT COLUMN (Telemetry & Launch Overview Preview Rail) - 5 Cols -->
+<div class="lg:col-span-5 flex flex-col gap-6"><!-- Next steps after onboarding guide -->
+<section class="rounded-lg bg-surface-raised border border-border-default p-space-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.6)] flex flex-col gap-4">
+  <div class="flex items-center justify-between pb-3 border-b border-border-subtle">
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-flow-cyan text-[20px]">explore</span>
+      <h2 class="font-title-md text-title-md font-bold text-text-primary">What happens next</h2>
+    </div>
+    <span class="font-label-sm text-label-sm text-text-muted">3 simple steps</span>
+  </div>
+
+  <div class="flex flex-col gap-3.5">
+    <!-- Step 1 -->
+    <div class="p-3.5 rounded bg-surface-base border border-border-subtle flex items-start gap-3.5">
+      <div class="w-7 h-7 rounded-full bg-flow-blue/20 border border-flow-blue/40 flex items-center justify-center text-flow-cyan font-bold font-mono text-[12px] shrink-0 mt-0.5">
+        1
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-title-sm text-title-sm font-semibold text-text-primary">Write or import an article</p>
+        <p class="font-body-sm text-body-sm text-text-secondary mt-1">
+          Draft directly with rich markdown or automatically pull commits from your canonical GitHub repository.
+        </p>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="p-3.5 rounded bg-surface-base border border-border-subtle flex items-start gap-3.5">
+      <div class="w-7 h-7 rounded-full bg-flow-purple/15 border border-flow-purple/40 flex items-center justify-center text-tertiary font-bold font-mono text-[12px] shrink-0 mt-0.5">
+        2
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-title-sm text-title-sm font-semibold text-text-primary">Preview platform formatting</p>
+        <p class="font-body-sm text-body-sm text-text-secondary mt-1">
+          Inspect how frontmatter, callouts, and code highlighting render specifically for DEV.to, Hashnode, and Medium.
+        </p>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="p-3.5 rounded bg-surface-base border border-border-subtle flex items-start gap-3.5">
+      <div class="w-7 h-7 rounded-full bg-status-success/15 border border-status-success/30 flex items-center justify-center text-status-success font-bold font-mono text-[12px] shrink-0 mt-0.5">
+        3
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-title-sm text-title-sm font-semibold text-text-primary">Publish to all targets in 1-click</p>
+        <p class="font-body-sm text-body-sm text-text-secondary mt-1">
+          Syndicate with canonical SEO tags guaranteed, automatic draft safety, and realtime sync status.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guarantee Note -->
+  <div class="mt-1 p-3 rounded bg-surface-overlay border border-border-subtle flex items-center gap-2.5 text-text-secondary font-body-sm text-body-sm">
+    <span class="material-symbols-outlined text-flow-cyan text-[18px]">verified</span>
+    <span class="">Canonical URL injection &amp; SEO protection are active on all dispatches.</span>
+  </div>
+</section></div>
+</div>
+</main>
+<!-- WIZARD STICKY FOOTER ACTIONS BAR -->
+<footer class="w-full bg-surface-raised border-t border-border-default sticky bottom-0 z-40 py-3.5 px-margin-md shadow-[0_-8px_24px_-4px_rgba(0,0,0,0.7)]">
+<div class="max-w-[1380px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4"><!-- Back Action -->
+<button class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded bg-surface-container border border-border-default hover:border-outline-variant text-text-secondary hover:text-text-primary font-label-md text-label-md transition-all active:scale-[0.98]" type="button">
+  <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+  <span class="">Back: Connect Destinations</span>
+</button>
+
+<!-- Center Reassurance -->
+<div class="text-text-muted text-body-sm font-body-sm flex items-center gap-1.5 order-last sm:order-none">
+  <span class="material-symbols-outlined text-status-success text-[16px]">check</span>
+  <span class="">Settings can be modified anytime in Workspace Settings</span>
+</div>
+
+<!-- Primary Final Launch CTA -->
+<button class="w-full sm:w-auto flex items-center justify-center gap-2.5 px-6 py-2.5 rounded bg-[#0b62f5] hover:bg-flow-blue text-white font-title-sm text-title-sm font-bold tracking-tight shadow-[0_0_24px_-2px_rgba(11,98,245,0.75),inset_0_1px_0_rgba(255,255,255,0.3)] hover:shadow-[0_0_32px_rgba(11,98,245,0.9)] transition-all active:scale-[0.98]" type="button">
+  <span class="">Launch Workspace &amp; Start Writing</span>
+  <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button></div>
+</footer>
+<!-- Light interactive script for the test simulation button -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const runBtn = document.getElementById('run-dry-run-btn');
+      if (runBtn) {
+        runBtn.addEventListener('click', () => {
+          const originalHTML = runBtn.innerHTML;
+          runBtn.disabled = true;
+          runBtn.innerHTML = `
+            <span class="material-symbols-outlined text-[16px] animate-spin">refresh</span>
+            <span>Running Dry Run Probes...</span>
+          `;
+          setTimeout(() => {
+            runBtn.disabled = false;
+            runBtn.innerHTML = `
+              <span class="material-symbols-outlined text-[16px] text-white">check</span>
+              <span>All 3 Payloads Validated!</span>
+            `;
+            setTimeout(() => {
+              runBtn.innerHTML = originalHTML;
+            }, 3000);
+          }, 1200);
+        });
+      }
+    });
+  </script>
+
+
+</body></html>

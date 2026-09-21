@@ -30,7 +30,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**', '**/.kilo/**'],
     server: {
       deps: {
         inline: [/remark-gfm/, /react-markdown/, /inngest/, /micromark/],

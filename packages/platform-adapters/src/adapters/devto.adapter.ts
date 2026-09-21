@@ -14,6 +14,7 @@ import type {
   PlatformMetrics,
 } from '../contract';
 import { PlatformError } from '../errors';
+import { stripFrontmatter, formatDevtoMarkdown } from '../transformers';
 
 export interface DevtoAdapterOptions {
   baseUrl?: string;
@@ -97,9 +98,12 @@ export class DevtoAdapter implements PlatformAdapter {
       .filter((tag) => tag.length > 0)
       .slice(0, 4);
 
+    const cleanMarkdown = stripFrontmatter(article.markdown || '');
+    const formattedContent = formatDevtoMarkdown(cleanMarkdown);
+
     return {
       title: article.title,
-      content: article.markdown,
+      content: formattedContent,
       description: article.excerpt ?? undefined,
       canonicalUrl: article.canonicalUrl ?? undefined,
       coverImageUrl: article.coverImage?.url ?? undefined,

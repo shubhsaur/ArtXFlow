@@ -19,3 +19,5 @@ export * from './platform-connection.repository';
 export * from './schedule.repository';
 export * from './analytics.repository';
 export * from './transformation.repository';
+export * from './asset.repository';
+export * from './profile.repository';

@@ -17,6 +17,25 @@ import {
 } from '@artxflow/types';
 import { HASHNODE_PUBLISH_MODE_OPTIONS } from './hashnode-publish-mode-picker';
 import { MEDIUM_PUBLISH_MODE_OPTIONS } from './medium-publish-mode-picker';
+import { formatMediumMarkdown, stripFrontmatter } from '@artxflow/platform-adapters/transformers';
+import { UnsplashModal, type SelectedUnsplashImage } from './unsplash-modal';
+import { EditorToolbar } from './editor/editor-toolbar';
+import { EditorCoverUploader } from './editor/editor-cover-uploader';
+import { EditorTagInput } from './editor/editor-tag-input';
+import { EditorSlashMenu, type SlashAction } from './editor/editor-slash-menu';
+import { EditorSidebar } from './editor/editor-sidebar';
+import {
+  applyInlineFormatting,
+  applyHeading,
+  applyBlockquote,
+  applyList,
+  applyCodeBlock,
+  applyLink,
+  applyDivider,
+  applyTable,
+  calculateReadingStats,
+  checkPublisherReadiness,
+} from './editor/formatting-helpers';
 
 export interface ArticleEditorProps {
   initialArticle?: Article;
@@ -64,6 +83,436 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
   const [manualUrlInput, setManualUrlInput] = useState<Record<string, string>>({});
   const [recordingExternal, setRecordingExternal] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [showUnsplashModal, setShowUnsplashModal] = useState(false);
+  const [unsplashTarget, setUnsplashTarget] = useState<'body' | 'cover'>('body');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [coverUrl, setCoverUrl] = useState<string | null>(
+    ((initialArticle as unknown as Record<string, unknown>)?.coverUrl as string | undefined) ||
+      (((initialArticle as unknown as Record<string, unknown>)?.metadata as Record<string, unknown> | undefined)?.coverUrl as string | undefined) ||
+      ((initialVersion?.metadata as Record<string, unknown> | undefined)?.coverUrl as string | undefined) ||
+      null,
+  );
+  const [tags, setTags] = useState<string[]>(
+    Array.isArray(((initialArticle as unknown as Record<string, unknown>)?.metadata as Record<string, unknown> | undefined)?.tags)
+      ? (((initialArticle as unknown as Record<string, unknown>)?.metadata as Record<string, unknown>).tags as string[])
+      : Array.isArray((initialVersion?.metadata as Record<string, unknown> | undefined)?.tags)
+        ? ((initialVersion?.metadata as Record<string, unknown>).tags as string[])
+        : [],
+  );
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isZenMode, setIsZenMode] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkModalUrl, setLinkModalUrl] = useState('');
+  const [linkModalText, setLinkModalText] = useState('');
+  const [savedSelectionRange, setSavedSelectionRange] = useState<{ start: number; end: number }>({
+    start: 0,
+    end: 0,
+  });
+  const [showSlashMenu, setShowSlashMenu] = useState(false);
+  const [slashFilter, setSlashFilter] = useState('');
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const insertMarkdownSnippet = React.useCallback(
+    (snippet: string) => {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        const start = textarea.selectionStart ?? content.length;
+        const end = textarea.selectionEnd ?? content.length;
+        const before = content.substring(0, start);
+        const after = content.substring(end);
+        const prefix =
+          before.length > 0 && !before.endsWith('\n\n')
+            ? before.endsWith('\n')
+              ? '\n'
+              : '\n\n'
+            : '';
+        const suffix =
+          after.length > 0 && !after.startsWith('\n\n')
+            ? after.startsWith('\n')
+              ? '\n'
+              : '\n\n'
+            : '';
+        const newContent = `${before}${prefix}${snippet}${suffix}${after}`;
+        setContent(newContent);
+        setSaveStatus('unsaved');
+        setTimeout(() => {
+          textarea.focus();
+          const cursorPosition = start + prefix.length + snippet.length;
+          textarea.setSelectionRange(cursorPosition, cursorPosition);
+        }, 50);
+      } else {
+        const prefix = content.length > 0 ? '\n\n' : '';
+        setContent((prev) => `${prev}${prefix}${snippet}`);
+        setSaveStatus('unsaved');
+      }
+    },
+    [content],
+  );
+
+  const handleUploadFile = React.useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith('image/')) {
+        toast.error('Only image files (JPEG, PNG, WebP, GIF, SVG) are supported.');
+        return;
+      }
+
+      setIsUploadingImage(true);
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await fetch('/api/assets/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Failed to upload image');
+        }
+
+        const { asset } = await res.json();
+        const alt = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+        insertMarkdownSnippet(`![${alt}](${asset.url})`);
+        toast.success('Image uploaded successfully!');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to upload image';
+        toast.error(msg);
+      } finally {
+        setIsUploadingImage(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    },
+    [insertMarkdownSnippet],
+  );
+
+  const handleUploadCoverFile = React.useCallback(async (file: File): Promise<string | void> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch('/api/assets/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Failed to upload cover image');
+    }
+    const { asset } = await res.json();
+    setCoverUrl(asset.url);
+    setSaveStatus('unsaved');
+    toast.success('Cover image uploaded!');
+    return asset.url;
+  }, []);
+
+  const handleSelectUnsplashImage = React.useCallback(
+    (img: SelectedUnsplashImage) => {
+      if (unsplashTarget === 'cover') {
+        setCoverUrl(img.url);
+        setSaveStatus('unsaved');
+        toast.success('Unsplash cover image set!');
+      } else {
+        const markdown = `![${img.alt}](${img.url})\n*${img.caption}*`;
+        insertMarkdownSnippet(markdown);
+        toast.success('Unsplash image inserted!');
+      }
+    },
+    [insertMarkdownSnippet, unsplashTarget],
+  );
+
+  const handleInsertEmbed = React.useCallback(
+    (url: string) => {
+      insertMarkdownSnippet(`\n\n${url}\n\n`);
+      toast.success('Embed link inserted!');
+    },
+    [insertMarkdownSnippet],
+  );
+
+  const handleApplyHeading = React.useCallback(
+    (level: 1 | 2 | 3 | 0) => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+      const res = applyHeading(content, textarea.selectionStart ?? 0, level);
+      setContent(res.newContent);
+      setSaveStatus('unsaved');
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(res.newSelectionStart, res.newSelectionEnd);
+      }, 50);
+    },
+    [content],
+  );
+
+  const handleApplyInline = React.useCallback(
+    (prefix: string, suffix?: string, placeholder?: string) => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+      const start = textarea.selectionStart ?? 0;
+      const end = textarea.selectionEnd ?? 0;
+      const res = applyInlineFormatting(content, start, end, prefix, suffix, placeholder);
+      setContent(res.newContent);
+      setSaveStatus('unsaved');
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(res.newSelectionStart, res.newSelectionEnd);
+      }, 50);
+    },
+    [content],
+  );
+
+  const handleApplyBlockquote = React.useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
+    const res = applyBlockquote(content, start, end);
+    setContent(res.newContent);
+    setSaveStatus('unsaved');
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(res.newSelectionStart, res.newSelectionEnd);
+    }, 50);
+  }, [content]);
+
+  const handleApplyList = React.useCallback(
+    (type: 'bullet' | 'number') => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+      const start = textarea.selectionStart ?? 0;
+      const end = textarea.selectionEnd ?? 0;
+      const res = applyList(content, start, end, type);
+      setContent(res.newContent);
+      setSaveStatus('unsaved');
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(res.newSelectionStart, res.newSelectionEnd);
+      }, 50);
+    },
+    [content],
+  );
+
+  const handleApplyCodeBlock = React.useCallback(
+    (lang: string) => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+      const start = textarea.selectionStart ?? 0;
+      const end = textarea.selectionEnd ?? 0;
+      const res = applyCodeBlock(content, start, end, lang);
+      setContent(res.newContent);
+      setSaveStatus('unsaved');
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(res.newSelectionStart, res.newSelectionEnd);
+      }, 50);
+    },
+    [content],
+  );
+
+  const handleApplyDivider = React.useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart ?? 0;
+    const res = applyDivider(content, start);
+    setContent(res.newContent);
+    setSaveStatus('unsaved');
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(res.newSelectionStart, res.newSelectionEnd);
+    }, 50);
+  }, [content]);
+
+  const handleApplyTable = React.useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart ?? 0;
+    const res = applyTable(content, start);
+    setContent(res.newContent);
+    setSaveStatus('unsaved');
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(res.newSelectionStart, res.newSelectionEnd);
+    }, 50);
+  }, [content]);
+
+  const handleOpenLinkModal = React.useCallback(() => {
+    const textarea = textareaRef.current;
+    const start = textarea?.selectionStart ?? 0;
+    const end = textarea?.selectionEnd ?? 0;
+    const selected = content.substring(start, end);
+    setSavedSelectionRange({ start, end });
+    setLinkModalText(selected);
+    setLinkModalUrl('');
+    setShowLinkModal(true);
+  }, [content]);
+
+  const handleConfirmLink = React.useCallback(() => {
+    const textarea = textareaRef.current;
+    const res = applyLink(
+      content,
+      savedSelectionRange.start,
+      savedSelectionRange.end,
+      linkModalUrl,
+      linkModalText,
+    );
+    setContent(res.newContent);
+    setSaveStatus('unsaved');
+    setShowLinkModal(false);
+    setTimeout(() => {
+      textarea?.focus();
+      textarea?.setSelectionRange(res.newSelectionStart, res.newSelectionEnd);
+    }, 50);
+  }, [content, linkModalUrl, linkModalText, savedSelectionRange]);
+
+  const handleTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === '/') {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        const cursor = textarea.selectionStart;
+        const lineBefore = content.substring(0, cursor).split('\n').pop() || '';
+        if (lineBefore.trim() === '') {
+          setShowSlashMenu(true);
+          setSlashFilter('');
+        }
+      }
+    } else if (showSlashMenu && (e.key === 'Escape' || e.key === ' ')) {
+      setShowSlashMenu(false);
+    }
+
+    if (e.metaKey || e.ctrlKey) {
+      if (e.key === 'b') {
+        e.preventDefault();
+        handleApplyInline('**', '**', 'bold text');
+      } else if (e.key === 'i') {
+        e.preventDefault();
+        handleApplyInline('*', '*', 'italic text');
+      } else if (e.key === 'u') {
+        e.preventDefault();
+        handleApplyInline('<u>', '</u>', 'underlined text');
+      } else if (e.key === 'e') {
+        e.preventDefault();
+        handleApplyInline('`', '`', 'code');
+      } else if (e.key === 'k') {
+        e.preventDefault();
+        handleOpenLinkModal();
+      } else if (e.shiftKey && e.key.toLowerCase() === 'x') {
+        e.preventDefault();
+        handleApplyInline('~~', '~~', 'strikethrough text');
+      }
+    }
+  };
+
+  const handleSlashSelect = (action: SlashAction) => {
+    setShowSlashMenu(false);
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const cursor = textarea.selectionStart;
+    const beforeCursor = content.substring(0, cursor);
+    const afterCursor = content.substring(cursor);
+    const slashIdx = beforeCursor.lastIndexOf('/');
+    const cleanedBefore = slashIdx >= 0 ? beforeCursor.substring(0, slashIdx) : beforeCursor;
+    const cleanedContent = `${cleanedBefore}${afterCursor}`;
+    const newCursor = cleanedBefore.length;
+
+    setContent(cleanedContent);
+
+    setTimeout(() => {
+      switch (action) {
+        case 'h1': {
+          const res = applyHeading(cleanedContent, newCursor, 1);
+          setContent(res.newContent);
+          break;
+        }
+        case 'h2': {
+          const res = applyHeading(cleanedContent, newCursor, 2);
+          setContent(res.newContent);
+          break;
+        }
+        case 'h3': {
+          const res = applyHeading(cleanedContent, newCursor, 3);
+          setContent(res.newContent);
+          break;
+        }
+        case 'bullet': {
+          const res = applyList(cleanedContent, newCursor, newCursor, 'bullet');
+          setContent(res.newContent);
+          break;
+        }
+        case 'number': {
+          const res = applyList(cleanedContent, newCursor, newCursor, 'number');
+          setContent(res.newContent);
+          break;
+        }
+        case 'quote': {
+          const res = applyBlockquote(cleanedContent, newCursor, newCursor);
+          setContent(res.newContent);
+          break;
+        }
+        case 'code': {
+          const res = applyCodeBlock(cleanedContent, newCursor, newCursor, 'typescript');
+          setContent(res.newContent);
+          break;
+        }
+        case 'image':
+          fileInputRef.current?.click();
+          break;
+        case 'unsplash':
+          setUnsplashTarget('body');
+          setShowUnsplashModal(true);
+          break;
+        case 'divider': {
+          const res = applyDivider(cleanedContent, newCursor);
+          setContent(res.newContent);
+          break;
+        }
+        case 'table': {
+          const res = applyTable(cleanedContent, newCursor);
+          setContent(res.newContent);
+          break;
+        }
+      }
+      setSaveStatus('unsaved');
+      textarea.focus();
+    }, 50);
+  };
+
+  const readingStats = React.useMemo(() => calculateReadingStats(content), [content]);
+  const publisherReadiness = React.useMemo(
+    () => checkPublisherReadiness(title, tags, content, coverUrl),
+    [title, tags, content, coverUrl],
+  );
+
+  const handleTextareaPaste = React.useCallback(
+    (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith('image/')) {
+          const file = items[i].getAsFile();
+          if (file) {
+            e.preventDefault();
+            handleUploadFile(file);
+            return;
+          }
+        }
+      }
+    },
+    [handleUploadFile],
+  );
+
+  const handleTextareaDrop = React.useCallback(
+    (e: React.DragEvent<HTMLTextAreaElement>) => {
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0 && files[0].type.startsWith('image/')) {
+        e.preventDefault();
+        handleUploadFile(files[0]);
+      }
+    },
+    [handleUploadFile],
+  );
 
   const handleEnableMedium = React.useCallback(async () => {
     setEnablingMedium(true);
@@ -637,9 +1086,13 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
               const canonicalUrl = initialArticle.slug
                 ? `${window.location.origin}/articles/${initialArticle.id}`
                 : undefined;
+              const targetMarkdown =
+                item.platform === 'medium'
+                  ? formatMediumMarkdown(stripFrontmatter(content))
+                  : stripFrontmatter(content);
               const extResult = await publishViaExtension(item.platform, {
                 title,
-                markdown: content,
+                markdown: targetMarkdown,
                 canonicalUrl,
               });
               if (!extResult.success) {
@@ -858,6 +1311,13 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
     setError(null);
     setSaving(true);
 
+    const mergedMetadata = {
+      ...(((initialArticle as unknown as Record<string, unknown>)?.metadata as Record<string, unknown> | undefined) || {}),
+      ...((initialVersion?.metadata as Record<string, unknown> | undefined) || {}),
+      tags,
+      coverUrl,
+    };
+
     try {
       if (mode === 'create') {
         const res = await fetch('/api/articles', {
@@ -869,6 +1329,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
             excerpt: excerpt.trim() || undefined,
             content,
             contentFormat: 'markdown',
+            metadata: mergedMetadata,
           }),
         });
 
@@ -891,6 +1352,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
             excerpt: excerpt.trim() || undefined,
             status,
             content,
+            metadata: mergedMetadata,
           }),
         });
 
@@ -2331,198 +2793,406 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
         </Card>
       )}
 
-      {/* Metadata Configuration */}
-      <Card>
+      {/* Dev.to-inspired Header Suite: Cover Image, Title, Tags & Advanced Options */}
+      <Card
+        style={{
+          padding: '24px',
+          backgroundColor: 'var(--surface-elevated, #131E2F)',
+          border: '1px solid var(--border, #1C2A3A)',
+          borderRadius: '12px',
+        }}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* Cover Uploader */}
+          <EditorCoverUploader
+            coverUrl={coverUrl}
+            onCoverChange={(url) => {
+              setCoverUrl(url);
+              setSaveStatus('unsaved');
+            }}
+            onUploadFile={handleUploadCoverFile}
+            onOpenUnsplashModal={() => {
+              setUnsplashTarget('cover');
+              setShowUnsplashModal(true);
+            }}
+          />
+
+          {/* Large DEV.to-style Title */}
           <div>
-            <label
-              htmlFor="article-title"
-              style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: 600,
-                color: 'var(--text-primary, #F5F7FA)',
-                marginBottom: '6px',
-              }}
-            >
-              Article Title
-            </label>
             <input
               id="article-title"
               type="text"
               required
               value={title}
               onChange={(e) => handleTitleChange(e.target.value)}
-              placeholder="e.g. Distributed Content Architecture with Next.js and Drizzle"
+              placeholder="New post title here..."
               style={{
                 width: '100%',
-                padding: '10px 14px',
-                borderRadius: 'var(--radius-md, 8px)',
-                backgroundColor: 'var(--surface-elevated, #131E2F)',
-                border: '1px solid var(--border, #1C2A3A)',
+                backgroundColor: 'transparent',
+                border: 'none',
+                borderBottom: '1px solid var(--border, #1C2A3A)',
+                padding: '4px 0 14px 0',
+                fontSize: '28px',
+                fontWeight: 800,
                 color: 'var(--text-primary, #F5F7FA)',
-                fontSize: '15px',
-                fontWeight: 500,
                 outline: 'none',
+                letterSpacing: '-0.02em',
               }}
             />
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '16px',
-            }}
-          >
-            <div>
+          {/* Tags Input */}
+          <div>
+            <EditorTagInput
+              tags={tags}
+              onChange={(newTags) => {
+                setTags(newTags);
+                setSaveStatus('unsaved');
+              }}
+              maxTags={4}
+            />
+          </div>
+
+          {/* Collapsible Advanced Options (Slug & Excerpt) */}
+          <div style={{ borderTop: '1px solid var(--border, #1C2A3A)', paddingTop: '10px' }}>
+            <button
+              type="button"
+              onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-secondary, #AAB5C4)',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                padding: '4px 0',
+              }}
+            >
+              <span>{showAdvancedSettings ? '▼' : '▶'}</span>
+              <span>Advanced Options (Slug, Meta Description)</span>
+            </button>
+
+            {showAdvancedSettings && (
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: '6px',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: '16px',
+                  marginTop: '12px',
                 }}
               >
-                <label
-                  htmlFor="article-slug"
-                  style={{
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    color: 'var(--text-primary, #F5F7FA)',
-                  }}
-                >
-                  URL Slug
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setIsManualSlug(!isManualSlug)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--axf-cyan, #19D7FE)',
-                    fontSize: '11px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {isManualSlug ? 'Auto-generate' : 'Edit manually'}
-                </button>
-              </div>
-              <input
-                id="article-slug"
-                type="text"
-                disabled={!isManualSlug}
-                value={slug}
-                onChange={(e) => {
-                  setSlug(e.target.value);
-                  setSaveStatus('unsaved');
-                }}
-                placeholder="distributed-content-architecture"
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: 'var(--radius-md, 8px)',
-                  backgroundColor: isManualSlug
-                    ? 'var(--surface-elevated, #131E2F)'
-                    : 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid var(--border, #1C2A3A)',
-                  color: 'var(--axf-cyan, #19D7FE)',
-                  fontFamily: 'monospace',
-                  fontSize: '13px',
-                  outline: 'none',
-                }}
-              />
-            </div>
+                <div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '6px',
+                    }}
+                  >
+                    <label
+                      htmlFor="article-slug"
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        color: 'var(--text-secondary, #AAB5C4)',
+                      }}
+                    >
+                      URL Slug
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setIsManualSlug(!isManualSlug)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--axf-cyan, #19D7FE)',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {isManualSlug ? 'Auto-generate' : 'Edit manually'}
+                    </button>
+                  </div>
+                  <input
+                    id="article-slug"
+                    type="text"
+                    disabled={!isManualSlug}
+                    value={slug}
+                    onChange={(e) => {
+                      setSlug(e.target.value);
+                      setSaveStatus('unsaved');
+                    }}
+                    placeholder="post-title-slug"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: 'var(--radius-md, 8px)',
+                      backgroundColor: isManualSlug
+                        ? 'var(--surface-elevated, #131E2F)'
+                        : 'rgba(255, 255, 255, 0.03)',
+                      border: '1px solid var(--border, #1C2A3A)',
+                      color: 'var(--axf-cyan, #19D7FE)',
+                      fontFamily: 'monospace',
+                      fontSize: '13px',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
 
-            <div>
-              <label
-                htmlFor="article-excerpt"
-                style={{
-                  display: 'block',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  color: 'var(--text-primary, #F5F7FA)',
-                  marginBottom: '6px',
-                }}
-              >
-                Excerpt / Meta Description
-              </label>
-              <input
-                id="article-excerpt"
-                type="text"
-                value={excerpt}
-                onChange={(e) => {
-                  setExcerpt(e.target.value);
-                  setSaveStatus('unsaved');
-                }}
-                placeholder="Brief summary for search engines and platform previews"
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: 'var(--radius-md, 8px)',
-                  backgroundColor: 'var(--surface-elevated, #131E2F)',
-                  border: '1px solid var(--border, #1C2A3A)',
-                  color: 'var(--text-primary, #F5F7FA)',
-                  fontSize: '13px',
-                  outline: 'none',
-                }}
-              />
-            </div>
+                <div>
+                  <label
+                    htmlFor="article-excerpt"
+                    style={{
+                      display: 'block',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      color: 'var(--text-secondary, #AAB5C4)',
+                      marginBottom: '6px',
+                    }}
+                  >
+                    Excerpt / Meta Description
+                  </label>
+                  <input
+                    id="article-excerpt"
+                    type="text"
+                    value={excerpt}
+                    onChange={(e) => {
+                      setExcerpt(e.target.value);
+                      setSaveStatus('unsaved');
+                    }}
+                    placeholder="Brief summary for search engines and platform previews"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: 'var(--radius-md, 8px)',
+                      backgroundColor: 'var(--surface-elevated, #131E2F)',
+                      border: '1px solid var(--border, #1C2A3A)',
+                      color: 'var(--text-primary, #F5F7FA)',
+                      fontSize: '13px',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </Card>
 
-      {/* Editor & Preview Area */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: viewMode === 'split' ? '1fr 1fr' : '1fr',
-          gap: '20px',
-          minHeight: '480px',
+      {/* Hidden image file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleUploadFile(file);
         }}
-      >
-        {/* Editor Pane */}
-        {(viewMode === 'write' || viewMode === 'split') && (
-          <Card style={{ display: 'flex', flexDirection: 'column', padding: '16px' }}>
-            <div
-              style={{
-                marginBottom: '10px',
-                fontSize: '12px',
-                fontWeight: 600,
-                color: 'var(--text-secondary, #AAB5C4)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              Markdown Content
-            </div>
-            <textarea
-              value={content}
-              onChange={(e) => {
-                setContent(e.target.value);
-                setSaveStatus('unsaved');
-              }}
-              placeholder="# Write your canonical article in Markdown here..."
-              aria-label="Markdown content editor"
-              style={{
-                flex: 1,
-                width: '100%',
-                minHeight: '400px',
-                backgroundColor: 'transparent',
-                border: 'none',
-                outline: 'none',
-                color: 'var(--text-primary, #F5F7FA)',
-                fontFamily: 'monospace',
-                fontSize: '14px',
-                lineHeight: '1.6',
-                resize: 'vertical',
-              }}
-            />
-          </Card>
-        )}
+      />
 
-        {/* Preview Pane */}
-        {(viewMode === 'preview' || viewMode === 'split') && (
+      {/* Editor & Preview Area */}
+      {viewMode === 'write' && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: isZenMode
+              ? '1fr'
+              : isSidebarCollapsed
+                ? '1fr 48px'
+                : '1fr 280px',
+            gap: '20px',
+            alignItems: 'start',
+            transition: 'grid-template-columns 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        >
+          {/* Main Editor Card */}
+          <Card
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              padding: '0',
+              overflow: 'hidden',
+              border: '1px solid var(--border, #1C2A3A)',
+              backgroundColor: 'var(--surface-elevated, #131E2F)',
+              borderRadius: '12px',
+            }}
+          >
+            <EditorToolbar
+              onApplyHeading={handleApplyHeading}
+              onApplyInline={handleApplyInline}
+              onApplyBlockquote={handleApplyBlockquote}
+              onApplyList={handleApplyList}
+              onApplyCodeBlock={handleApplyCodeBlock}
+              onApplyDivider={handleApplyDivider}
+              onApplyTable={handleApplyTable}
+              onOpenLinkModal={handleOpenLinkModal}
+              onUploadImageClick={() => fileInputRef.current?.click()}
+              onOpenUnsplashModal={() => {
+                setUnsplashTarget('body');
+                setShowUnsplashModal(true);
+              }}
+              onInsertEmbed={handleInsertEmbed}
+              isUploadingImage={isUploadingImage}
+              isZenMode={isZenMode}
+              onToggleZenMode={() => setIsZenMode(!isZenMode)}
+            />
+
+            <div style={{ position: 'relative', padding: '16px' }}>
+              <EditorSlashMenu
+                isOpen={showSlashMenu}
+                filterText={slashFilter}
+                onSelect={handleSlashSelect}
+                onClose={() => setShowSlashMenu(false)}
+              />
+
+              <textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => {
+                  const newContent = e.target.value;
+                  setContent(newContent);
+                  setSaveStatus('unsaved');
+                  if (showSlashMenu) {
+                    const cursor = e.target.selectionStart;
+                    const lineBefore = newContent.substring(0, cursor).split('\n').pop() || '';
+                    const slashIdx = lineBefore.lastIndexOf('/');
+                    if (slashIdx >= 0) {
+                      setSlashFilter(lineBefore.substring(slashIdx + 1));
+                    } else {
+                      setShowSlashMenu(false);
+                    }
+                  }
+                }}
+                onKeyDown={handleTextareaKeyDown}
+                onPaste={handleTextareaPaste}
+                onDrop={handleTextareaDrop}
+                onDragOver={(e) => e.preventDefault()}
+                placeholder="Write your article in plain English here... (Use toolbar above, press '/' for commands, or Cmd+B/I/U/K)"
+                aria-label="Article content editor"
+                style={{
+                  width: '100%',
+                  minHeight: '520px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: 'var(--text-primary, #F5F7FA)',
+                  fontFamily:
+                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                  fontSize: '16px',
+                  lineHeight: '1.7',
+                  resize: 'vertical',
+                }}
+              />
+            </div>
+          </Card>
+
+          {/* Assistant Sidebar */}
+          {!isZenMode && (
+            <EditorSidebar
+              stats={readingStats}
+              readiness={publisherReadiness}
+              isCollapsed={isSidebarCollapsed}
+              onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            />
+          )}
+        </div>
+      )}
+
+      {viewMode === 'split' && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '20px',
+            alignItems: 'start',
+          }}
+        >
+          {/* Left: Editor */}
+          <Card
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              padding: '0',
+              overflow: 'hidden',
+              border: '1px solid var(--border, #1C2A3A)',
+              backgroundColor: 'var(--surface-elevated, #131E2F)',
+              borderRadius: '12px',
+            }}
+          >
+            <EditorToolbar
+              onApplyHeading={handleApplyHeading}
+              onApplyInline={handleApplyInline}
+              onApplyBlockquote={handleApplyBlockquote}
+              onApplyList={handleApplyList}
+              onApplyCodeBlock={handleApplyCodeBlock}
+              onApplyDivider={handleApplyDivider}
+              onApplyTable={handleApplyTable}
+              onOpenLinkModal={handleOpenLinkModal}
+              onUploadImageClick={() => fileInputRef.current?.click()}
+              onOpenUnsplashModal={() => {
+                setUnsplashTarget('body');
+                setShowUnsplashModal(true);
+              }}
+              onInsertEmbed={handleInsertEmbed}
+              isUploadingImage={isUploadingImage}
+              isZenMode={false}
+            />
+
+            <div style={{ position: 'relative', padding: '16px' }}>
+              <EditorSlashMenu
+                isOpen={showSlashMenu}
+                filterText={slashFilter}
+                onSelect={handleSlashSelect}
+                onClose={() => setShowSlashMenu(false)}
+              />
+
+              <textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => {
+                  const newContent = e.target.value;
+                  setContent(newContent);
+                  setSaveStatus('unsaved');
+                  if (showSlashMenu) {
+                    const cursor = e.target.selectionStart;
+                    const lineBefore = newContent.substring(0, cursor).split('\n').pop() || '';
+                    const slashIdx = lineBefore.lastIndexOf('/');
+                    if (slashIdx >= 0) {
+                      setSlashFilter(lineBefore.substring(slashIdx + 1));
+                    } else {
+                      setShowSlashMenu(false);
+                    }
+                  }
+                }}
+                onKeyDown={handleTextareaKeyDown}
+                onPaste={handleTextareaPaste}
+                onDrop={handleTextareaDrop}
+                onDragOver={(e) => e.preventDefault()}
+                placeholder="Write your article in plain English here..."
+                aria-label="Article content editor"
+                style={{
+                  width: '100%',
+                  minHeight: '520px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: 'var(--text-primary, #F5F7FA)',
+                  fontFamily:
+                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                  fontSize: '16px',
+                  lineHeight: '1.7',
+                  resize: 'vertical',
+                }}
+              />
+            </div>
+          </Card>
+
+          {/* Right: Live Preview */}
           <div
             style={{
               flex: 1,
@@ -2534,13 +3204,166 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
               title={title}
               subtitle={excerpt}
               content={content}
+              coverImageUrl={coverUrl}
+              tags={tags}
               canonicalUrl={slug ? `/blog/${slug}` : undefined}
               publishedAt={initialArticle?.createdAt}
               showModeSelector={true}
             />
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {viewMode === 'preview' && (
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            minWidth: 0,
+          }}
+        >
+          <ArticlePreview
+            title={title}
+            subtitle={excerpt}
+            content={content}
+            coverImageUrl={coverUrl}
+            tags={tags}
+            canonicalUrl={slug ? `/blog/${slug}` : undefined}
+            publishedAt={initialArticle?.createdAt}
+            showModeSelector={true}
+          />
+        </div>
+      )}
+
+      {/* Link Insertion Modal */}
+      {showLinkModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '16px',
+          }}
+          onClick={() => setShowLinkModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '440px',
+              backgroundColor: 'var(--surface-elevated, #131E2F)',
+              border: '1px solid var(--border, #1C2A3A)',
+              borderRadius: '12px',
+              padding: '24px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+            }}
+          >
+            <h3
+              style={{
+                margin: 0,
+                fontSize: '16px',
+                fontWeight: 700,
+                color: 'var(--text-primary, #F5F7FA)',
+              }}
+            >
+              Insert Link
+            </h3>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary, #AAB5C4)',
+                }}
+              >
+                Text to display
+              </label>
+              <input
+                type="text"
+                value={linkModalText}
+                onChange={(e) => setLinkModalText(e.target.value)}
+                placeholder="Link text"
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: 'var(--surface-sunken, #0A121E)',
+                  border: '1px solid var(--border, #1C2A3A)',
+                  borderRadius: '6px',
+                  color: 'var(--text-primary, #F5F7FA)',
+                  fontSize: '13px',
+                  outline: 'none',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary, #AAB5C4)',
+                }}
+              >
+                Link URL
+              </label>
+              <input
+                type="url"
+                autoFocus
+                value={linkModalUrl}
+                onChange={(e) => setLinkModalUrl(e.target.value)}
+                placeholder="https://example.com"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && linkModalUrl.trim()) {
+                    e.preventDefault();
+                    handleConfirmLink();
+                  }
+                }}
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: 'var(--surface-sunken, #0A121E)',
+                  border: '1px solid var(--border, #1C2A3A)',
+                  borderRadius: '6px',
+                  color: 'var(--text-primary, #F5F7FA)',
+                  fontSize: '13px',
+                  outline: 'none',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '8px' }}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowLinkModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                disabled={!linkModalUrl.trim()}
+                onClick={handleConfirmLink}
+              >
+                Insert Link
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <UnsplashModal
+        isOpen={showUnsplashModal}
+        onClose={() => setShowUnsplashModal(false)}
+        onSelectImage={handleSelectUnsplashImage}
+      />
     </div>
   );
 }

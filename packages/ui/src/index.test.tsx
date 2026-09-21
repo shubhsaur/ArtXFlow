@@ -1,9 +1,24 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
-import { Button, Card, CardTitle, Avatar, Badge, Logo } from './index';
+import { Button, Card, CardTitle, Avatar, Badge, Logo, ThemeToggle, PageLoader } from './index';
 
 describe('UI Component Library', () => {
+  describe('ThemeToggle', () => {
+    it('renders theme toggle button with accessibility labels', () => {
+      const html = renderToString(<ThemeToggle />);
+      expect(html).toContain('axf-theme-toggle');
+      expect(html).toContain('button');
+    });
+
+    it('renders different size variants correctly', () => {
+      const smallHtml = renderToString(<ThemeToggle size="sm" />);
+      const largeHtml = renderToString(<ThemeToggle size="lg" />);
+      expect(smallHtml).toContain('width:32px');
+      expect(largeHtml).toContain('width:44px');
+    });
+  });
+
   describe('Button', () => {
     it('renders with children and default variant', () => {
       const html = renderToString(<Button>Click me</Button>);
@@ -52,12 +67,24 @@ describe('UI Component Library', () => {
   });
 
   describe('Logo', () => {
-    it('renders brand logo image and brand wordmark', () => {
+    it('renders brand logo image and brand wordmark with gradient X', () => {
       const html = renderToString(<Logo />);
       expect(html).toContain('<img');
       expect(html).toContain('src="/logo.png"');
       expect(html).toContain('Art');
+      expect(html).toContain('X');
       expect(html).toContain('Flow');
+      expect(html).toContain('linear-gradient(135deg');
+    });
+  });
+
+  describe('PageLoader', () => {
+    it('renders with status role and custom message', () => {
+      const html = renderToString(<PageLoader message="Connecting platforms..." />);
+      expect(html).toContain('role="status"');
+      expect(html).toContain('Connecting platforms...');
+      expect(html).toContain('axf-page-loader');
     });
   });
 });
+

@@ -20,7 +20,9 @@
     "https://story.new/*",
     "http://localhost:3002/*",
     "http://localhost:3000/*",
-    "https://*.artxflow.com/*"
+    "https://*.artxflow.com/*",
+    "https://*/*",
+    "http://*/*"
   ],
   "background": {
     "service_worker": "service-worker.js"

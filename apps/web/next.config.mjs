@@ -11,6 +11,8 @@ const nextConfig = {
     '@artxflow/analytics',
     '@artxflow/transformations',
     '@artxflow/worker',
+    'react-markdown',
+    'remark-gfm',
   ],
   serverExternalPackages: ['postgres', 'better-auth'],
 };
