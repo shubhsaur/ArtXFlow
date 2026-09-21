@@ -420,48 +420,48 @@ export function ProfileAuthorCard({
         {/* Primary Account Email */}
         <div className="profile-form-control">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <label className="profile-label">Account Email</label>
+            <label className="profile-label">Account Email</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ProfileChangeEmail currentEmail={formData.email} />
-            </div>
-            {formData.emailVerified ? (
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  backgroundColor: 'rgba(18, 183, 106, 0.1)',
-                  border: '1px solid rgba(18, 183, 106, 0.3)',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: '11px',
-                  color: 'var(--status-success, #12B76A)',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>
-                  check_circle
+              {formData.emailVerified ? (
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(18, 183, 106, 0.1)',
+                    border: '1px solid rgba(18, 183, 106, 0.3)',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: '11px',
+                    color: 'var(--status-success, #12B76A)',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>
+                    check_circle
+                  </span>
+                  <span>Verified</span>
                 </span>
-                <span>Verified</span>
-              </span>
-            ) : (
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                  border: '1px solid rgba(245, 158, 11, 0.3)',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: '11px',
-                  color: '#FBBF24',
-                }}
-              >
-                <span>Unverified</span>
-              </span>
-            )}
+              ) : (
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: '11px',
+                    color: '#FBBF24',
+                  }}
+                >
+                  <span>Unverified</span>
+                </span>
+              )}
+            </div>
           </div>
           <input
             type="email"
