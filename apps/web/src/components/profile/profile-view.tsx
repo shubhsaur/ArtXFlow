@@ -6,6 +6,7 @@ import type { ProfileFormData, SecurityTelemetry } from './profile-types';
 import { ProfileNavRail, type SettingsTab } from './profile-nav-rail';
 import { ProfileHeader } from './profile-header';
 import { ProfileAuthorCard } from './profile-author-card';
+import { ProfileApiKeysCard } from './profile-api-keys-card';
 import { ProfileSecurityCard } from './profile-security-card';
 import { ProfileStickyBar } from './profile-sticky-bar';
 import { ConnectedPlatforms } from '../connected-platforms';
@@ -208,7 +209,10 @@ export function ProfileView({
                 isUploadingAvatar={isUploadingAvatar}
               />
 
-              {/* Section 2: Security & Authentication */}
+              {/* Section 2: API Keys */}
+              <ProfileApiKeysCard />
+
+              {/* Section 3: Security & Authentication */}
               <ProfileSecurityCard telemetry={telemetry} />
 
               {/* Sticky Bottom Save Bar */}
