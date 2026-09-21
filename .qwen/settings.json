@@ -5,7 +5,14 @@
       "Bash(pnpm *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(rm *)"
+      "Bash(rm *)",
+      "Bash(pkill *)",
+      "Bash(true)",
+      "Bash(echo *)",
+      "Bash(sleep *)",
+      "Bash(curl *)",
+      "Bash(kill *)",
+      "Bash(head *)"
     ]
   },
   "$version": 4

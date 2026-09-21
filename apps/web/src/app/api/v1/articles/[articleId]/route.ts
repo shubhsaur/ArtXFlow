@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { articleRepository, articleVersionRepository } from '@artxflow/database';
 import { authenticateApiKey, requireScope, forbiddenResponse } from '../../../../../lib/api-key-auth';
+import { isValidUuid } from '../../../../../lib/is-valid-uuid';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,11 @@ export async function GET(
     return forbiddenResponse();
   }
 
-  let article = await articleRepository.findArticleForOrganization(auth.organizationId, articleId);
+  let article: Awaited<ReturnType<typeof articleRepository.findBySlug>> | null = null;
+
+  if (isValidUuid(articleId)) {
+    article = await articleRepository.findArticleForOrganization(auth.organizationId, articleId);
+  }
 
   if (!article) {
     article = await articleRepository.findBySlug(auth.organizationId, articleId);
