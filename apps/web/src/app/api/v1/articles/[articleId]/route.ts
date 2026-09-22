@@ -17,14 +17,14 @@ export async function GET(
     return forbiddenResponse();
   }
 
-  let article: Awaited<ReturnType<typeof articleRepository.findBySlug>> | null = null;
+  let article: Awaited<ReturnType<typeof articleRepository.findWithCoverBySlug>> | null = null;
 
   if (isValidUuid(articleId)) {
-    article = await articleRepository.findArticleForOrganization(auth.organizationId, articleId);
+    article = await articleRepository.findWithCoverForOrganization(auth.organizationId, articleId);
   }
 
   if (!article) {
-    article = await articleRepository.findBySlug(auth.organizationId, articleId);
+    article = await articleRepository.findWithCoverBySlug(auth.organizationId, articleId);
   }
 
   if (!article) {
@@ -48,6 +48,7 @@ export async function GET(
       title: article.title,
       slug: article.slug,
       excerpt: article.excerpt,
+      coverImageUrl: article.coverImageUrl,
       status: article.status,
       content,
       contentFormat,

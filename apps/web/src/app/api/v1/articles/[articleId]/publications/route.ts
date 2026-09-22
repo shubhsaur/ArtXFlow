@@ -17,21 +17,21 @@ export async function GET(
     return forbiddenResponse();
   }
 
-  let article: Awaited<ReturnType<typeof articleRepository.findBySlug>> | null = null;
+  let article: Awaited<ReturnType<typeof articleRepository.findWithCoverBySlug>> | null = null;
 
   if (isValidUuid(articleId)) {
-    article = await articleRepository.findArticleForOrganization(auth.organizationId, articleId);
+    article = await articleRepository.findWithCoverForOrganization(auth.organizationId, articleId);
   }
 
   if (!article) {
-    article = await articleRepository.findBySlug(auth.organizationId, articleId);
+    article = await articleRepository.findWithCoverBySlug(auth.organizationId, articleId);
   }
 
   if (!article) {
     return NextResponse.json({ error: 'Article not found' }, { status: 404 });
   }
 
-  const publications = await publicationRepository.listByArticle(auth.organizationId, articleId);
+  const publications = await publicationRepository.listByArticle(auth.organizationId, article.id);
   const destinations = await destinationRepository.listByOrganization(auth.organizationId);
 
   const destinationMap = new Map(destinations.map((d) => [d.id, d]));

@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     return forbiddenResponse();
   }
 
-  const articles = await articleRepository.listByOrganization(auth.organizationId);
+  const articles = await articleRepository.listWithCoverByOrganization(auth.organizationId);
 
   return NextResponse.json({
     data: articles.map((article) => ({
@@ -20,6 +20,7 @@ export async function GET(request: Request) {
       title: article.title,
       slug: article.slug,
       excerpt: article.excerpt,
+      coverImageUrl: article.coverImageUrl,
       status: article.status,
       createdAt: article.createdAt,
       updatedAt: article.updatedAt,
