@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { SecondaryButton } from '../secondary-button';
 
 interface ProfileStickyBarProps {
   isDirty: boolean;
@@ -47,25 +48,12 @@ export function ProfileStickyBar({
           paddingTop: '16px',
         }}
       >
-        <button
-          type="button"
+        <SecondaryButton
           onClick={handleResetClick}
           disabled={isSaving}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '6px',
-            backgroundColor: 'var(--surface-base, #070B12)',
-            border: '1px solid var(--border-default, #243447)',
-            color: 'var(--text-secondary, #AAB5C4)',
-            fontSize: '13px',
-            fontWeight: 500,
-            cursor: isSaving ? 'not-allowed' : 'pointer',
-            opacity: isSaving ? 0.5 : 1,
-            transition: 'all 0.15s ease',
-          }}
         >
           Discard Changes
-        </button>
+        </SecondaryButton>
 
         <button
           type="button"

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { SecondaryButton } from '../secondary-button';
 
 interface ProfileHeaderProps {
   isDirty: boolean;
@@ -68,25 +69,12 @@ export function ProfileHeader({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-          <button
-            type="button"
+          <SecondaryButton
             onClick={handleResetClick}
             disabled={isSaving}
-            style={{
-              padding: '8px 14px',
-              borderRadius: '6px',
-              backgroundColor: 'var(--surface-raised, #0D1420)',
-              border: '1px solid var(--border-default, #243447)',
-              color: 'var(--text-secondary, #AAB5C4)',
-              fontSize: '13px',
-              fontWeight: 500,
-              cursor: isSaving ? 'not-allowed' : 'pointer',
-              opacity: isSaving ? 0.5 : 1,
-              transition: 'all 0.15s ease',
-            }}
           >
             Discard Changes
-          </button>
+          </SecondaryButton>
 
           <button
             type="button"

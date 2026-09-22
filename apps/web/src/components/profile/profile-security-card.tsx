@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ButtonSpinner } from '../button-spinner';
+import { SecondaryButton } from '../secondary-button';
 import type { SecurityTelemetry } from './profile-types';
 
 interface ProfileSecurityCardProps {
@@ -70,17 +71,6 @@ export function ProfileSecurityCard({ telemetry }: ProfileSecurityCardProps) {
     alignItems: 'center',
     justifyContent: 'center',
     border: '1px solid var(--border-subtle, #172333)',
-    flexShrink: 0,
-  };
-
-  const actionBtnStyle: React.CSSProperties = {
-    padding: '6px 12px',
-    borderRadius: '6px',
-    backgroundColor: 'var(--surface-base, #070B12)',
-    border: '1px solid var(--border-default, #243447)',
-    color: 'var(--text-secondary, #AAB5C4)',
-    fontSize: '13px',
-    cursor: 'pointer',
     flexShrink: 0,
   };
 
@@ -185,13 +175,11 @@ export function ProfileSecurityCard({ telemetry }: ProfileSecurityCardProps) {
               </div>
             </div>
           </div>
-          <button
-            type="button"
+          <SecondaryButton
             onClick={() => setShowPasswordModal(true)}
-            style={actionBtnStyle}
           >
             {telemetry.hasPassword ? 'Update Password' : 'Set Password'}
-          </button>
+          </SecondaryButton>
         </div>
       </div>
 

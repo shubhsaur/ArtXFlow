@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ButtonSpinner } from '../button-spinner';
+import { SecondaryButton } from '../secondary-button';
 
 interface ProfileChangeEmailProps {
   currentEmail: string;
@@ -57,21 +58,12 @@ export function ProfileChangeEmail({ currentEmail, onEmailChanged }: ProfileChan
 
   return (
     <>
-      <button
-        type="button"
+      <SecondaryButton
         onClick={() => setShowModal(true)}
-        style={{
-          padding: '4px 10px',
-          borderRadius: '6px',
-          backgroundColor: 'var(--surface-base, #070B12)',
-          border: '1px solid var(--border-default, #243447)',
-          color: 'var(--text-secondary, #AAB5C4)',
-          fontSize: '12px',
-          cursor: 'pointer',
-        }}
+        style={{ padding: '4px 10px', fontSize: '12px' }}
       >
         Change Email
-      </button>
+      </SecondaryButton>
 
       {showModal && (
         <div

@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Cropper from 'react-easy-crop';
 import { ProfileChangeEmail } from './profile-change-email';
+import { SecondaryButton } from '../secondary-button';
 import type { Point, Area } from 'react-easy-crop';
 import type { ProfileFormData } from './profile-types';
 
@@ -192,24 +193,9 @@ export function ProfileAuthorCard({
               style={{ display: 'none' }}
               onChange={handleFileSelected}
             />
-            <button
-              type="button"
+            <SecondaryButton
               disabled={isUploadingAvatar}
               onClick={() => fileInputRef.current?.click()}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '6px 14px',
-                borderRadius: '6px',
-                backgroundColor: 'var(--surface-container, #1C2027)',
-                border: '1px solid var(--border-default, #243447)',
-                color: 'var(--text-primary, #F5F7FA)',
-                fontSize: '13px',
-                fontWeight: 500,
-                cursor: isUploadingAvatar ? 'not-allowed' : 'pointer',
-                transition: 'all 0.15s ease',
-              }}
             >
               {isUploadingAvatar ? (
                 <span
@@ -221,15 +207,18 @@ export function ProfileAuthorCard({
                     border: '2px solid var(--text-muted, #66768D)',
                     borderTopColor: 'var(--text-primary, #F5F7FA)',
                     animation: 'spin 0.8s linear infinite',
+                    display: 'inline-block',
+                    verticalAlign: 'middle',
+                    marginRight: '8px',
                   }}
                 />
               ) : (
-                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', verticalAlign: 'middle', marginRight: '8px' }}>
                   upload_file
                 </span>
               )}
               <span>{isUploadingAvatar ? 'Uploading...' : 'Upload new picture'}</span>
-            </button>
+            </SecondaryButton>
 
             {formData.image && (
               <button
