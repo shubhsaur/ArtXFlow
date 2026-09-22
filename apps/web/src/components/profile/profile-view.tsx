@@ -22,6 +22,27 @@ interface ProfileViewProps {
     role: string;
   };
   connectedPlatformCount: number;
+  initialConnections?: Array<{
+    id: string;
+    organizationId: string;
+    provider: string;
+    status: string;
+    encryptedSecret: string;
+    tokenMetadata: Record<string, unknown>;
+    createdAt: string;
+    updatedAt: string;
+    accounts: Array<{
+      id: string;
+      connectionId: string;
+      externalId: string;
+      username: string;
+      displayName: string | null;
+      avatarUrl: string | null;
+      metadata: Record<string, unknown>;
+      createdAt: string;
+      updatedAt: string;
+    }>;
+  }>;
 }
 
 export function ProfileView({
@@ -29,6 +50,7 @@ export function ProfileView({
   telemetry,
   workspace,
   connectedPlatformCount,
+  initialConnections,
 }: ProfileViewProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
@@ -252,7 +274,7 @@ export function ProfileView({
                   Connect and configure publishing adapters for cross-platform syndication.
                 </p>
               </div>
-              <ConnectedPlatforms />
+              <ConnectedPlatforms initialConnections={initialConnections} />
             </div>
           )}
 

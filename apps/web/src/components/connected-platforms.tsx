@@ -91,26 +91,39 @@ const SUPPORTED_PLATFORMS: PlatformConfig[] = [
   },
 ];
 
-export function ConnectedPlatforms() {
-  const [connections, setConnections] = useState<PlatformConnection[]>([]);
-  const [_loading, setLoading] = useState(true);
+interface ConnectedPlatformsProps {
+  initialConnections?: PlatformConnection[];
+}
+
+export function ConnectedPlatforms({ initialConnections }: ConnectedPlatformsProps) {
+  const [connections, setConnections] = useState<PlatformConnection[]>(initialConnections ?? []);
+  const [_loading, setLoading] = useState(!initialConnections?.length);
   const [connectingProvider, setConnectingProvider] = useState<string | null>(null);
   const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
   const [secrets, setSecrets] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [hashnodePublishMode, setHashnodePublishMode] = useState<HashnodePublishMode>(
-    DEFAULT_HASHNODE_PUBLISH_MODE,
-  );
+  const [hashnodePublishMode, setHashnodePublishMode] = useState<HashnodePublishMode>(() => {
+    if (!initialConnections?.length) return DEFAULT_HASHNODE_PUBLISH_MODE;
+    const conn = initialConnections.find(
+      (c) => c.provider.toLowerCase() === 'hashnode' && c.status === 'CONNECTED',
+    );
+    return conn ? resolveHashnodePublishMode(conn.tokenMetadata) : DEFAULT_HASHNODE_PUBLISH_MODE;
+  });
   const [savingHashnodeMode, setSavingHashnodeMode] = useState(false);
-  const [mediumPublishMode, setMediumPublishMode] = useState<MediumPublishMode>(
-    DEFAULT_MEDIUM_PUBLISH_MODE,
-  );
+  const [mediumPublishMode, setMediumPublishMode] = useState<MediumPublishMode>(() => {
+    if (!initialConnections?.length) return DEFAULT_MEDIUM_PUBLISH_MODE;
+    const conn = initialConnections.find(
+      (c) => c.provider.toLowerCase() === 'medium' && c.status === 'CONNECTED',
+    );
+    return conn ? resolveMediumPublishMode(conn.tokenMetadata) : DEFAULT_MEDIUM_PUBLISH_MODE;
+  });
   const [savingMediumMode, setSavingMediumMode] = useState(false);
 
   useEffect(() => {
+    if (initialConnections?.length) return;
     fetchConnections();
-  }, []);
+  }, [initialConnections]);
 
   async function fetchConnections() {
     setLoading(true);

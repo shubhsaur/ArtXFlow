@@ -20,10 +20,10 @@ export default async function SettingsPage() {
     email: user.email,
   });
 
-  const [fullProfile, securityData, connections] = await Promise.all([
+  const [fullProfile, securityData, connectionsWithAccounts] = await Promise.all([
     profileRepository.getFullUserProfile(user.id),
     profileRepository.getSecurityTelemetry(user.id),
-    platformConnectionRepository.listByOrganization(organization.id),
+    platformConnectionRepository.listWithAccountsByOrganization(organization.id),
   ]);
 
   const initialProfile: ProfileFormData = {
@@ -41,6 +41,17 @@ export default async function SettingsPage() {
     ssoActive: Boolean(securityData.ssoProvider),
     hasPassword: securityData.hasPassword,
   };
+
+  const serializedConnections = connectionsWithAccounts.map((conn) => ({
+    ...conn,
+    createdAt: conn.createdAt.toISOString(),
+    updatedAt: conn.updatedAt.toISOString(),
+    accounts: conn.accounts.map((acc) => ({
+      ...acc,
+      createdAt: acc.createdAt.toISOString(),
+      updatedAt: acc.updatedAt.toISOString(),
+    })),
+  }));
 
   return (
     <div
@@ -62,7 +73,8 @@ export default async function SettingsPage() {
           slug: organization.slug,
           role: membership.role,
         }}
-        connectedPlatformCount={connections.length}
+        connectedPlatformCount={connectionsWithAccounts.length}
+        initialConnections={serializedConnections}
       />
     </div>
   );

@@ -13,6 +13,7 @@ import {
   isClientManagedMediumPublish,
   type MediumPublishMode,
 } from '@artxflow/publishing';
+import { platformConnectionRepository } from '@artxflow/database';
 import {
   devtoAdapter,
   mediumAdapter,
@@ -66,27 +67,8 @@ export async function GET() {
     email: session.user.email,
   });
 
-  const ctx = {
-    userId: session.user.id,
-    organizationId: organization.id,
-  };
-
-  const connections = await platformConnectionService.listConnections(ctx);
-  const connectionsWithAccounts = await Promise.all(
-    connections.map(async (conn) => {
-      try {
-        const accounts = await platformConnectionService.listAccounts(ctx, conn.id);
-        return {
-          ...conn,
-          accounts,
-        };
-      } catch {
-        return {
-          ...conn,
-          accounts: [],
-        };
-      }
-    }),
+  const connectionsWithAccounts = await platformConnectionRepository.listWithAccountsByOrganization(
+    organization.id,
   );
 
   return NextResponse.json({ connections: connectionsWithAccounts });

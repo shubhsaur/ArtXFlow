@@ -1,4 +1,4 @@
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, inArray } from 'drizzle-orm';
 import { getDb } from '../client';
 import type { DbExecutor } from './organization.repository';
 import {
@@ -11,6 +11,10 @@ import {
   type ConnectionStatus,
 } from '../schema/connections';
 import type { BaseRepository } from './index';
+
+export interface PlatformConnectionWithAccounts extends PlatformConnection {
+  accounts: PlatformAccount[];
+}
 
 export class PlatformConnectionRepository implements BaseRepository<PlatformConnection, string> {
   private customDb?: DbExecutor;
@@ -87,6 +91,41 @@ export class PlatformConnectionRepository implements BaseRepository<PlatformConn
       .from(platformConnections)
       .where(and(...conditions))
       .orderBy(desc(platformConnections.createdAt));
+  }
+
+  /**
+   * Lists all platform connections for an organization with their accounts.
+   * Uses 2 queries (connections + accounts) instead of N+1.
+   */
+  async listWithAccountsByOrganization(
+    organizationId: string,
+  ): Promise<PlatformConnectionWithAccounts[]> {
+    const connections = await this.db
+      .select()
+      .from(platformConnections)
+      .where(eq(platformConnections.organizationId, organizationId))
+      .orderBy(desc(platformConnections.createdAt));
+
+    if (connections.length === 0) return [];
+
+    const connectionIds = connections.map((c) => c.id);
+
+    const allAccounts = await this.db
+      .select()
+      .from(platformAccounts)
+      .where(inArray(platformAccounts.connectionId, connectionIds));
+
+    const accountsByConnection = new Map<string, PlatformAccount[]>();
+    for (const account of allAccounts) {
+      const existing = accountsByConnection.get(account.connectionId) || [];
+      existing.push(account);
+      accountsByConnection.set(account.connectionId, existing);
+    }
+
+    return connections.map((conn) => ({
+      ...conn,
+      accounts: accountsByConnection.get(conn.id) || [],
+    }));
   }
 
   /**
