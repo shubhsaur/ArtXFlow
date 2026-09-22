@@ -282,6 +282,39 @@ describe('HashnodeAdapter', () => {
       });
     });
 
+    it('surfaces Hashnode Pro-plan gating as an actionable non-retryable authorization error', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            errors: [
+              {
+                message:
+                  'Publication does not have an active Pro plan. Upgrade in your dashboard to access this via the API.',
+                extensions: { code: 'FORBIDDEN' },
+              },
+            ],
+          }),
+      });
+
+      const error = await adapter
+        .update({
+          publicationId: 'pub-pro-1',
+          externalResourceId: 'post-abc-123',
+          article: { title: 'Updated title', content: 'Updated body' },
+          credentials: { token: 'valid-token' },
+        })
+        .catch((err: unknown) => err);
+
+      expect(error).toMatchObject({
+        code: 'AUTHORIZATION_ERROR',
+        retryable: false,
+        statusCode: 403,
+      });
+      expect((error as Error).message).toMatch(/Pro plan/i);
+      expect((error as Error).message).toMatch(/browser-based publish mode/i);
+    });
+
     it('classifies BAD_USER_INPUT as VALIDATION_ERROR', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,

@@ -97,6 +97,11 @@ describe('Worker Publication Workflow with External Platform (DEV.to)', () => {
     vi.spyOn(destinationRepository, 'findForOrganization').mockResolvedValue(mockDestination);
     vi.spyOn(articleRepository, 'findById').mockResolvedValue(mockArticle);
     vi.spyOn(articleVersionRepository, 'findById').mockResolvedValue(mockVersion);
+    // Default: no previously published copy exists (fresh publish path).
+    vi.spyOn(
+      publicationRepository,
+      'findLatestPublishedForArticleAndDestination',
+    ).mockResolvedValue(null);
     vi.spyOn(platformConnectionService, 'getDecryptedSecret').mockResolvedValue(
       'decrypted_devto_key_123',
     );
@@ -121,7 +126,12 @@ describe('Worker Publication Workflow with External Platform (DEV.to)', () => {
   type InngestHandler = {
     fn: (
       ctx: ReturnType<typeof createMockInngestContext>,
-    ) => Promise<{ status: string; publicationId: string; externalUrl?: string | null }>;
+    ) => Promise<{
+      status: string;
+      publicationId: string;
+      externalUrl?: string | null;
+      mode?: 'CREATE' | 'UPDATE';
+    }>;
   };
   const executeHandler = (publicationRequested as unknown as InngestHandler).fn;
 
@@ -206,6 +216,118 @@ describe('Worker Publication Workflow with External Platform (DEV.to)', () => {
     );
 
     expect(result.status).toBe('PUBLISHED');
+  });
+
+  it('updates the previously published DEV.to article instead of creating a duplicate', async () => {
+    vi.spyOn(
+      publicationRepository,
+      'findLatestPublishedForArticleAndDestination',
+    ).mockResolvedValueOnce({
+      ...mockPublication,
+      id: 'pub-uuid-previous',
+      status: 'PUBLISHED',
+      externalResourceId: '98765',
+      externalUrl: 'https://dev.to/alice/cross-posting-98765',
+      publishedAt: new Date('2026-09-01T00:00:00Z'),
+    });
+
+    const publishSpy = vi.spyOn(devtoAdapter, 'publish');
+    const updateSpy = vi.spyOn(devtoAdapter, 'update').mockResolvedValueOnce({
+      externalResourceId: '98765',
+      externalUrl: 'https://dev.to/alice/cross-posting-98765',
+      publishedAt: '2026-09-20T10:00:00Z',
+    });
+
+    const ctx = createMockInngestContext();
+    const result = await executeHandler(ctx);
+
+    // Reuses the existing remote id rather than publishing a second article
+    expect(updateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        publicationId: pubId,
+        externalResourceId: '98765',
+        credentials: {
+          apiKey: 'decrypted_devto_key_123',
+          token: 'decrypted_devto_key_123',
+        },
+      }),
+    );
+    expect(publishSpy).not.toHaveBeenCalled();
+
+    expect(publicationRepository.updateStatus).toHaveBeenCalledWith(
+      pubId,
+      orgId,
+      expect.objectContaining({
+        status: 'PUBLISHED',
+        externalResourceId: '98765',
+        externalUrl: 'https://dev.to/alice/cross-posting-98765',
+      }),
+    );
+
+    expect(publicationEventRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        publicationId: pubId,
+        eventType: 'SUCCEEDED',
+        metadata: expect.objectContaining({
+          mode: 'UPDATE',
+          updatedExternalResourceId: '98765',
+        }),
+      }),
+    );
+
+    expect(result.status).toBe('PUBLISHED');
+    expect(result.mode).toBe('UPDATE');
+  });
+
+  it('creates a new post and flags the duplicate when the platform cannot update published content', async () => {
+    vi.spyOn(
+      publicationRepository,
+      'findLatestPublishedForArticleAndDestination',
+    ).mockResolvedValueOnce({
+      ...mockPublication,
+      id: 'pub-uuid-previous',
+      status: 'PUBLISHED',
+      externalResourceId: '98765',
+      externalUrl: 'https://dev.to/alice/cross-posting-98765',
+      publishedAt: new Date('2026-09-01T00:00:00Z'),
+    });
+
+    // Simulate a platform such as Medium, whose API has no update endpoint.
+    vi.spyOn(devtoAdapter, 'getCapabilities').mockReturnValueOnce({
+      create: true,
+      update: false,
+      delete: false,
+      analytics: false,
+      canonicalUrl: true,
+      images: false,
+      scheduling: false,
+    });
+
+    const updateSpy = vi.spyOn(devtoAdapter, 'update');
+    const publishSpy = vi.spyOn(devtoAdapter, 'publish').mockResolvedValueOnce({
+      externalResourceId: '99999',
+      externalUrl: 'https://dev.to/alice/cross-posting-99999',
+      publishedAt: '2026-09-20T10:00:00Z',
+    });
+
+    const ctx = createMockInngestContext();
+    const result = await executeHandler(ctx);
+
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(publishSpy).toHaveBeenCalled();
+
+    expect(publicationEventRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        publicationId: pubId,
+        eventType: 'SUCCEEDED',
+        metadata: expect.objectContaining({
+          mode: 'CREATE',
+          duplicateOf: '98765',
+        }),
+      }),
+    );
+
+    expect(result.mode).toBe('CREATE');
   });
 
   it('handles rate limiting (429) as retryable failure, setting status to RETRYING', async () => {

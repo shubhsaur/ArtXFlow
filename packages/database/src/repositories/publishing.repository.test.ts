@@ -311,6 +311,62 @@ describe('Publishing Schema & Repositories', () => {
       expect(result[0]?.articleVersionId).toBe(versionId);
     });
 
+    it('finds the latest published publication for an article and destination', async () => {
+      const publishedPublication: Publication = {
+        ...mockPublication,
+        status: 'PUBLISHED',
+        externalResourceId: '98765',
+        externalUrl: 'https://dev.to/alice/welcome-98765',
+        publishedAt: new Date('2026-01-01T01:00:00Z'),
+      };
+
+      const mockDb = {
+        select: vi.fn().mockReturnValue({
+          from: vi.fn().mockReturnValue({
+            where: vi.fn().mockReturnValue({
+              orderBy: vi.fn().mockReturnValue({
+                limit: vi.fn().mockResolvedValue([publishedPublication]),
+              }),
+            }),
+          }),
+        }),
+      } as unknown as DbClient;
+
+      const repo = new PublicationRepository(mockDb);
+      const result = await repo.findLatestPublishedForArticleAndDestination(
+        org1Id,
+        articleId,
+        mockDestination.id,
+        'pub-uuid-new-version',
+      );
+
+      expect(result).toEqual(publishedPublication);
+      expect(result?.externalResourceId).toBe('98765');
+    });
+
+    it('returns null when no published copy exists for the article destination pair', async () => {
+      const mockDb = {
+        select: vi.fn().mockReturnValue({
+          from: vi.fn().mockReturnValue({
+            where: vi.fn().mockReturnValue({
+              orderBy: vi.fn().mockReturnValue({
+                limit: vi.fn().mockResolvedValue([]),
+              }),
+            }),
+          }),
+        }),
+      } as unknown as DbClient;
+
+      const repo = new PublicationRepository(mockDb);
+      const result = await repo.findLatestPublishedForArticleAndDestination(
+        org1Id,
+        articleId,
+        mockDestination.id,
+      );
+
+      expect(result).toBeNull();
+    });
+
     it('updates publication status, external url, and attempts', async () => {
       const updatedPublication: Publication = {
         ...mockPublication,
