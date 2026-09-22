@@ -62,25 +62,11 @@ export function ChannelStatusWidget({ channels, hostedSiteUrl }: ChannelStatusWi
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div
-                  style={{
-                    width: '30px',
-                    height: '30px',
-                    borderRadius: '6px',
-                    backgroundColor: 'var(--surface, #0D1420)',
-                    border: '1px solid var(--border, #1C2A3A)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
-                >
-                  <PlatformIcon
-                    id={channel.id === 'site' ? 'artxflow' : channel.id}
-                    size={16}
-                    color={channel.id === 'site' ? channel.badgeColor : undefined}
-                  />
-                </div>
+                <PlatformIcon
+                  id={channel.id === 'site' ? 'artxflow' : channel.id}
+                  size={30}
+                  color={channel.id === 'site' ? channel.badgeColor : undefined}
+                />
 
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

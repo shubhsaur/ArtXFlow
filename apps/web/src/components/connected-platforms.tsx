@@ -372,21 +372,7 @@ export function ConnectedPlatforms() {
           const hasAccordion = true;
 
           const platformIcon = (
-            <div
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                backgroundColor: 'var(--surface-elevated, #131E2F)',
-                border: '1px solid var(--border, #1C2A3A)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <PlatformIcon id={platform.id as 'devto' | 'medium' | 'hashnode'} size={18} />
-            </div>
+            <PlatformIcon id={platform.id as 'devto' | 'medium' | 'hashnode'} size={32} />
           );
 
           const statusBadge = (
@@ -706,20 +692,7 @@ export function ConnectedPlatforms() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '8px',
-                    backgroundColor: 'var(--surface-elevated, #131E2F)',
-                    border: '1px solid var(--border, #1C2A3A)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <PlatformIcon id="artxflow" size={20} color="var(--axf-cyan, #19D7FE)" />
-                </div>
+                <PlatformIcon id="artxflow" size={36} color="var(--axf-cyan, #19D7FE)" />
                 <div>
                   <CardTitle style={{ fontSize: '16px' }}>ArtXFlow Hosted Site</CardTitle>
                   <CardDescription>

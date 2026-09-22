@@ -375,21 +375,7 @@ export function ProductShowcase() {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span
-                        style={{
-                          width: '28px',
-                          height: '28px',
-                          borderRadius: '6px',
-                          backgroundColor: `${platform.badgeColor}25`,
-                          color: platform.badgeColor,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          border: `1px solid ${platform.badgeColor}40`,
-                        }}
-                      >
-                        <PlatformIcon id={platform.platformId} size={16} />
-                      </span>
+                      <PlatformIcon id={platform.platformId} size={28} />
                       <span
                         style={{
                           fontWeight: 600,

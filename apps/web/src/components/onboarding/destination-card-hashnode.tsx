@@ -34,21 +34,7 @@ export function DestinationCardHashnode({
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '8px',
-              backgroundColor: 'var(--surface-elevated, #131E2F)',
-              border: '1px solid var(--border-default, #243447)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <PlatformIcon id="hashnode" size={22} />
-          </div>
+          <PlatformIcon id="hashnode" size={40} />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary, #F5F7FA)', margin: 0 }}>

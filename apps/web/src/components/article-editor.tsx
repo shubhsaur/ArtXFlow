@@ -1878,20 +1878,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                             }}
                           />
 
-                          <div
-                            style={{
-                              width: '32px',
-                              height: '32px',
-                              borderRadius: '6px',
-                              backgroundColor: 'var(--surface-elevated, #131E2F)',
-                              border: '1px solid var(--border, #1C2A3A)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <PlatformIcon id={iconId} size={18} />
-                          </div>
+                          <PlatformIcon id={iconId} size={32} />
 
                           <div>
                             <div
