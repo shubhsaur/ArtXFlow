@@ -360,23 +360,52 @@
           continue;
         }
 
-        // Tables (convert to subheader pipe-separated)
+        // Tables (convert to aligned monospaced code_block)
         if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
-          if (line.trim().match(/^\|[\s\-:|]+\|$/)) {
+          const tableLines = [];
+          while (i < lines.length && lines[i].trim().startsWith('|') && lines[i].trim().endsWith('|')) {
+            tableLines.push(lines[i].trim());
             i++;
-            continue;
           }
-          const cells = line
-            .trim()
-            .slice(1, -1)
-            .split('|')
-            .map((c) => removeInlineFormatting(c.trim()));
-          sections.push({
-            type: 'subheader',
-            content: [cells.join(' | ')],
-            level: 2,
-          });
-          i++;
+
+          if (tableLines.length >= 2) {
+            const parsedRows = tableLines
+              .filter((l) => !l.match(/^\|[\s\-:|]+\|$/))
+              .map((l) =>
+                l
+                  .slice(1, -1)
+                  .split('|')
+                  .map((c) => removeInlineFormatting(c.trim())),
+              );
+
+            if (parsedRows.length > 0) {
+              const colCount = Math.max(...parsedRows.map((r) => r.length));
+              const colWidths = Array(colCount).fill(3);
+              for (const r of parsedRows) {
+                for (let c = 0; c < colCount; c++) {
+                  colWidths[c] = Math.max(colWidths[c], (r[c] || '').length);
+                }
+              }
+              const pad = (str, len) => str + ' '.repeat(Math.max(0, len - str.length));
+              const formattedHeader =
+                '| ' + parsedRows[0].map((h, c) => pad(h, colWidths[c])).join(' | ') + ' |';
+              const formattedDivider =
+                '|-' + colWidths.map((w) => '-'.repeat(w)).join('-|-') + '-|';
+              const formattedData = parsedRows.slice(1).map(
+                (r) =>
+                  '| ' +
+                  Array.from({ length: colCount })
+                    .map((_, c) => pad(r[c] || '', colWidths[c]))
+                    .join(' | ') +
+                  ' |',
+              );
+              sections.push({
+                type: 'code_block',
+                content: [formattedHeader, formattedDivider, ...formattedData],
+                language: 'text',
+              });
+            }
+          }
           continue;
         }
 
@@ -388,10 +417,25 @@
             const url = match[2];
             const title = match[3] || '';
             sections.push({
-              type: 'link',
-              content: [altText || title || url],
+              type: 'image',
+              content: [url],
+              caption: altText || title || '',
               url,
             });
+
+            // If immediately followed by a matching caption line (e.g. *Dealopoly card shuffler*), skip it to avoid duplication
+            if (i + 1 < lines.length) {
+              const nextLine = lines[i + 1].trim();
+              const nextClean = removeInlineFormatting(nextLine).toLowerCase();
+              const captionClean = (altText || title).toLowerCase();
+              if (
+                nextLine.startsWith('*') &&
+                nextLine.endsWith('*') &&
+                (nextClean === captionClean || nextClean.includes(captionClean))
+              ) {
+                i++;
+              }
+            }
           }
           i++;
           continue;
@@ -782,6 +826,157 @@
     await insertText(linkText);
   }
 
+  // Helper to convert base64 data URL to a File object
+  function dataUrlToFile(dataUrl, filename = 'image.png', mimeType = 'image/png') {
+    try {
+      const arr = dataUrl.split(',');
+      const mime = arr[0].match(/:(.*?);/)?.[1] || mimeType;
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], filename, { type: mime });
+    } catch (e) {
+      console.warn('[Medium Automator] Failed to convert dataUrl to File:', e);
+      return null;
+    }
+  }
+
+  // Image insertion (fetches binary via service worker, pastes as File into Medium editor to create native figure)
+  async function insertImage(section) {
+    const url =
+      section.url || (Array.isArray(section.content) ? section.content[0] : section.content);
+    if (!url) return;
+
+    console.log('[Medium Automator] Inserting image:', url);
+
+    try {
+      // 1. Fetch image binary as data URL from background service worker (avoids CORS)
+      const fetchResponse = await new Promise((resolve) => {
+        chrome.runtime.sendMessage(
+          { type: 'FETCH_IMAGE_AS_DATA_URL', url },
+          (response) => {
+            if (chrome.runtime.lastError || !response || !response.success) {
+              console.warn(
+                '[Medium Automator] Service worker fetch image error:',
+                chrome.runtime.lastError || response?.error,
+              );
+              resolve(null);
+            } else {
+              resolve(response);
+            }
+          },
+        );
+      });
+
+      if (!fetchResponse || !fetchResponse.dataUrl) {
+        console.warn('[Medium Automator] Falling back to text URL insertion for image:', url);
+        await insertText(url);
+        if (section.caption) await insertText(section.caption);
+        return;
+      }
+
+      // 2. Convert to File object
+      const ext = fetchResponse.mimeType
+        ? fetchResponse.mimeType.split('/')[1]?.split('+')[0] || 'png'
+        : 'png';
+      const file = dataUrlToFile(
+        fetchResponse.dataUrl,
+        `medium-image-${Date.now()}.${ext}`,
+        fetchResponse.mimeType,
+      );
+
+      if (!file) {
+        await insertText(url);
+        if (section.caption) await insertText(section.caption);
+        return;
+      }
+
+      let selectedInput = document.querySelector('.is-selected') || document.activeElement;
+      if (!selectedInput) {
+        selectedInput = document.querySelector('article, [contenteditable="true"]');
+      }
+      if (selectedInput) {
+        selectedInput.focus();
+        await setCursorToEnd(selectedInput);
+      }
+
+      // Count figures before paste to detect when new figure is added
+      const figureCountBefore = document.querySelectorAll('figure, .graf--figure').length;
+
+      // 3. Dispatch synthetic paste event with DataTransfer containing binary File
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+
+      const pasteEvent = new ClipboardEvent('paste', {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        clipboardData: dataTransfer,
+      });
+
+      const targetElement = selectedInput || document.activeElement || document.body;
+      targetElement.dispatchEvent(pasteEvent);
+
+      // 4. Also try file input fallback if paste didn't immediately create a figure
+      await sleep(1500);
+      let figureCountAfter = document.querySelectorAll('figure, .graf--figure').length;
+
+      if (figureCountAfter <= figureCountBefore) {
+        const fileInputs = Array.from(document.querySelectorAll('input[type="file"]'));
+        const imageInput = fileInputs.find(
+          (inp) => inp.accept?.includes('image') || inp.className?.includes('image'),
+        );
+        if (imageInput) {
+          console.log('[Medium Automator] Attempting file input dispatch fallback...');
+          const inputDt = new DataTransfer();
+          inputDt.items.add(file);
+          imageInput.files = inputDt.files;
+          imageInput.dispatchEvent(new Event('change', { bubbles: true }));
+          await sleep(2000);
+          figureCountAfter = document.querySelectorAll('figure, .graf--figure').length;
+        }
+      }
+
+      // 5. If figure was successfully added and we have a caption, set the caption
+      if (figureCountAfter > figureCountBefore) {
+        console.log('[Medium Automator] Native image figure created in Medium editor.');
+        const allFigures = Array.from(document.querySelectorAll('figure, .graf--figure'));
+        const latestFigure = allFigures[allFigures.length - 1];
+
+        if (section.caption && latestFigure) {
+          const figcaption = latestFigure.querySelector(
+            'figcaption, [data-default-value*="caption" i], .imageCaption',
+          );
+          if (figcaption) {
+            figcaption.focus();
+            figcaption.textContent = section.caption;
+            figcaption.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        }
+
+        await sleep(500);
+        let nextBlock = document.querySelector('.is-selected');
+        if (!nextBlock || nextBlock === latestFigure) {
+          await keyEvent('down_key');
+          await keyEvent('enter');
+        }
+      } else {
+        console.warn(
+          '[Medium Automator] Paste event did not trigger figure creation; falling back to link insertion',
+        );
+        await insertText(url);
+        if (section.caption) await insertText(section.caption);
+      }
+    } catch (err) {
+      console.warn('[Medium Automator] Error in insertImage:', err);
+      await insertText(url);
+      if (section.caption) await insertText(section.caption);
+    }
+  }
+
   // Iterate over all parsed sections
   async function insertMarkdownContent(sections) {
     isFastPace = false;
@@ -818,6 +1013,9 @@
           break;
         case 'code_block':
           await insertCodeBlock(section);
+          break;
+        case 'image':
+          await insertImage(section);
           break;
         case 'link':
           await insertLink(section);

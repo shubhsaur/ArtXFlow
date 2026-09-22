@@ -8,4 +8,5 @@ import { inngest, inngestFunctions } from '@artxflow/worker';
 export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: inngestFunctions,
+  signingKey: process.env.INNGEST_SIGNING_KEY,
 });

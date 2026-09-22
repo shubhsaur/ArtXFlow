@@ -9,7 +9,12 @@ import {
   type NewArticle,
   type ArticleVersion,
 } from '../schema/articles';
+import { assets } from '../schema/assets';
 import type { BaseRepository } from './index';
+
+export interface ArticleWithCover extends Article {
+  coverImageUrl: string | null;
+}
 
 export interface CreateArticleWithVersionInput {
   article: Omit<NewArticle, 'id' | 'createdAt' | 'updatedAt'>;
@@ -67,6 +72,59 @@ export class ArticleRepository implements BaseRepository<Article, string> {
       .from(articles)
       .where(eq(articles.organizationId, organizationId))
       .orderBy(desc(articles.createdAt));
+  }
+
+  async listWithCoverByOrganization(organizationId: string): Promise<ArticleWithCover[]> {
+    const rows = await this.db
+      .select({
+        article: articles,
+        coverUrl: assets.url,
+      })
+      .from(articles)
+      .leftJoin(assets, eq(articles.coverAssetId, assets.id))
+      .where(eq(articles.organizationId, organizationId))
+      .orderBy(desc(articles.createdAt));
+
+    return rows.map((row) => ({
+      ...row.article,
+      coverImageUrl: row.coverUrl ?? null,
+    }));
+  }
+
+  async findWithCoverForOrganization(
+    organizationId: string,
+    id: string,
+  ): Promise<ArticleWithCover | null> {
+    const [row] = await this.db
+      .select({
+        article: articles,
+        coverUrl: assets.url,
+      })
+      .from(articles)
+      .leftJoin(assets, eq(articles.coverAssetId, assets.id))
+      .where(and(eq(articles.organizationId, organizationId), eq(articles.id, id)))
+      .limit(1);
+
+    if (!row) return null;
+    return { ...row.article, coverImageUrl: row.coverUrl ?? null };
+  }
+
+  async findWithCoverBySlug(
+    organizationId: string,
+    slug: string,
+  ): Promise<ArticleWithCover | null> {
+    const [row] = await this.db
+      .select({
+        article: articles,
+        coverUrl: assets.url,
+      })
+      .from(articles)
+      .leftJoin(assets, eq(articles.coverAssetId, assets.id))
+      .where(and(eq(articles.organizationId, organizationId), eq(articles.slug, slug)))
+      .limit(1);
+
+    if (!row) return null;
+    return { ...row.article, coverImageUrl: row.coverUrl ?? null };
   }
 
   /**

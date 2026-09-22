@@ -13,13 +13,40 @@ export const serverEnvSchema = z.object({
   ENCRYPTION_KEY: z
     .string()
     .min(32, { message: 'ENCRYPTION_KEY must be at least 32 characters long' }),
+  API_KEY_SECRET: z.string().optional(),
   INNGEST_EVENT_KEY: z.string().optional(),
   INNGEST_SIGNING_KEY: z.string().optional(),
   BETTER_AUTH_URL: z.string().url().optional(),
+  BREVO_API_KEY: z.string().optional(),
+  BREVO_FROM_EMAIL: z.string().email().optional(),
+  BREVO_FROM_NAME: z.string().optional(),
   GITHUB_CLIENT_ID: z.string().optional(),
   GITHUB_CLIENT_SECRET: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET_NAME: z.string().optional(),
+  R2_PUBLIC_URL: z.string().optional(),
+  UNSPLASH_ACCESS_KEY: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.NODE_ENV === 'production') {
+    if (!data.BETTER_AUTH_URL) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'BETTER_AUTH_URL is required in production',
+        path: ['BETTER_AUTH_URL'],
+      });
+    }
+    if (!data.API_KEY_SECRET || data.API_KEY_SECRET.length < 32) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'API_KEY_SECRET must be at least 32 characters long in production',
+        path: ['API_KEY_SECRET'],
+      });
+    }
+  }
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;

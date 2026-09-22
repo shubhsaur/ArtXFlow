@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
-import {
-  articleService,
-  DuplicateSlugError,
-  ValidationError,
-  UnauthorizedOrganizationAccessError,
-} from '@artxflow/content-core';
+import { articleService } from '@artxflow/content-core';
 import { articleRepository } from '@artxflow/database';
+import { handleApiError } from '@/lib/handle-api-error';
+import { parseJsonBody, createArticleSchema } from '@/lib/validation';
 
 export async function GET() {
   const headersList = await headers();
@@ -42,7 +39,9 @@ export async function POST(request: Request) {
   });
 
   try {
-    const body = await request.json();
+    const { data: body, error } = await parseJsonBody(request, createArticleSchema);
+    if (error) return error;
+
     const result = await articleService.createArticle(
       {
         userId: session.user.id,
@@ -52,26 +51,16 @@ export async function POST(request: Request) {
         title: body.title,
         slug: body.slug,
         excerpt: body.excerpt,
-        content: body.content,
+        // Service-level validation rejects missing content with a 400 error.
+        content: body.content as string,
         contentFormat: body.contentFormat,
-        coverAssetId: body.coverAssetId,
+        coverAssetId: body.coverAssetId ?? undefined,
         metadata: body.metadata,
       },
     );
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
-    if (error instanceof ValidationError) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-    if (error instanceof DuplicateSlugError) {
-      return NextResponse.json({ error: error.message }, { status: 409 });
-    }
-    if (error instanceof UnauthorizedOrganizationAccessError) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }

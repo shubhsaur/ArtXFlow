@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { generateOrgSlug, resolveUniqueSlug, bootstrapPersonalOrganization } from './bootstrap';
+import {
+  generateOrgSlug,
+  resolveUniqueSlug,
+  bootstrapPersonalOrganization,
+  _clearInFlightBootstrap,
+} from './bootstrap';
 import type * as DatabaseModule from '@artxflow/database';
 import {
   OrganizationRepository,
@@ -35,6 +40,7 @@ describe('Personal Organization Bootstrap', () => {
 
   beforeEach(() => {
     vi.restoreAllMocks();
+    _clearInFlightBootstrap();
   });
 
   describe('generateOrgSlug', () => {
@@ -199,6 +205,97 @@ describe('Personal Organization Bootstrap', () => {
       expect(result.organization).toEqual(mockOrg);
       expect(createOrgSpy).not.toHaveBeenCalled();
       expect(createMemSpy).not.toHaveBeenCalled();
+    });
+
+    it('deduplicates concurrent in-flight calls for the same user (e.g. Layout and Page SSR)', async () => {
+      let resolveFirstCall: () => void;
+      const firstCallGate = new Promise<void>((resolve) => {
+        resolveFirstCall = resolve;
+      });
+
+      vi.spyOn(MembershipRepository.prototype, 'listUserOrganizations').mockResolvedValue([]);
+      vi.spyOn(OrganizationRepository.prototype, 'findBySlug').mockResolvedValue(null);
+      const createOrgSpy = vi
+        .spyOn(OrganizationRepository.prototype, 'create')
+        .mockImplementation(async (data) => {
+          await firstCallGate;
+          return { ...mockOrg, ...data } as Organization;
+        });
+      const createMemSpy = vi
+        .spyOn(MembershipRepository.prototype, 'create')
+        .mockResolvedValue(mockMembership);
+
+      // Trigger two concurrent invocations simultaneously for user-123
+      const call1Promise = bootstrapPersonalOrganization({
+        userId: 'user-123',
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+      });
+      const call2Promise = bootstrapPersonalOrganization({
+        userId: 'user-123',
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+      });
+
+      resolveFirstCall!();
+
+      const [res1, res2] = await Promise.all([call1Promise, call2Promise]);
+
+      expect(res1).toBe(res2); // Exactly same reference from deduplication
+      expect(res1.organization.name).toBe("Jane Doe's Workspace");
+      expect(createOrgSpy).toHaveBeenCalledTimes(1); // Single database write
+      expect(createMemSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('recovers gracefully from organizations_slug_unique violation if another concurrent worker created the organization', async () => {
+      // First check outside and inside transaction find no org
+      vi.spyOn(MembershipRepository.prototype, 'listUserOrganizations')
+        .mockResolvedValueOnce([]) // Outside tx
+        .mockResolvedValueOnce([]) // Inside tx
+        .mockResolvedValueOnce([{ membership: mockMembership, organization: mockOrg }]); // After unique_violation catch
+
+      vi.spyOn(OrganizationRepository.prototype, 'findBySlug').mockResolvedValue(null);
+
+      // Simulate Postgres duplicate key error on insert
+      const postgresError = new Error('duplicate key value violates unique constraint "organizations_slug_unique"') as Error & { code: string };
+      postgresError.code = '23505';
+
+      vi.spyOn(OrganizationRepository.prototype, 'create').mockRejectedValue(postgresError);
+
+      const result = await bootstrapPersonalOrganization({
+        userId: 'user-123',
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+      });
+
+      expect(result.created).toBe(false);
+      expect(result.organization).toEqual(mockOrg);
+      expect(result.membership).toEqual(mockMembership);
+    });
+
+    it('retries with salted unique slug if organizations_slug_unique collides with another workspace', async () => {
+      // User never has an owned org in this scenario
+      vi.spyOn(MembershipRepository.prototype, 'listUserOrganizations').mockResolvedValue([]);
+      vi.spyOn(OrganizationRepository.prototype, 'findBySlug').mockResolvedValue(null);
+
+      const postgresError = new Error('duplicate key value violates unique constraint "organizations_slug_unique"') as Error & { code: string };
+      postgresError.code = '23505';
+
+      const createOrgSpy = vi
+        .spyOn(OrganizationRepository.prototype, 'create')
+        .mockRejectedValueOnce(postgresError) // First attempt hits collision
+        .mockResolvedValueOnce(mockOrg); // Second attempt succeeds
+
+      vi.spyOn(MembershipRepository.prototype, 'create').mockResolvedValue(mockMembership);
+
+      const result = await bootstrapPersonalOrganization({
+        userId: 'user-123',
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+      });
+
+      expect(result.created).toBe(true);
+      expect(createOrgSpy).toHaveBeenCalledTimes(2);
     });
   });
 });

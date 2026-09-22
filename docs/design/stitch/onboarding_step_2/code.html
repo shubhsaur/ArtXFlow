@@ -1,0 +1,417 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>ArtXFlow — Canonical Source Configuration (Step 2 of 4)</title>
+<!-- Google Fonts: Geist & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Configuration Verbatim -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary-container": "#362005",
+            "surface-raised": "#0d1420",
+            "secondary-container-deep": "#451a03",
+            "outline-variant": "#404754",
+            "inverse-surface": "#dee2ed",
+            "surface-container": "#1b2027",
+            "flow-cyan": "#19d7fe",
+            "surface-container-highest": "#31353d",
+            "surface-overlay": "#111a28",
+            "flow-purple": "#7a5cfd",
+            "surface-container-lowest": "#090e15",
+            "surface-base": "#070b12",
+            "on-tertiary-container": "#290089",
+            "border-subtle": "#172333",
+            "border-highlight": "rgba(25, 215, 254, 0.25)",
+            "background": "#0f141b",
+            "on-primary-fixed": "#001b3c",
+            "on-primary-container": "#002956",
+            "text-muted": "#66768d",
+            "surface-container-high": "#252a32",
+            "on-tertiary-fixed-variant": "#4718c9",
+            "secondary": "#ffb95f",
+            "on-background": "#dee2ed",
+            "status-info": "#0b87fe",
+            "surface-tint": "#a8c8ff",
+            "outline": "#8a919f",
+            "tertiary-container": "#937dff",
+            "secondary-fixed-dim": "#ffb95f",
+            "on-secondary-alt": "#1e1b4b",
+            "surface-dim": "#0f141b",
+            "surface-variant": "#30353d",
+            "error-container": "#93000a",
+            "primary": "#a8c8ff",
+            "on-secondary-fixed": "#2a1700",
+            "primary-fixed-dim": "#a8c8ff",
+            "primary-container": "#3790ff",
+            "primary-fixed": "#d6e3ff",
+            "on-primary": "#003062",
+            "on-tertiary-fixed": "#1b0062",
+            "on-error-container": "#ffdad6",
+            "on-surface-variant": "#c0c6d6",
+            "inverse-primary": "#005eb4",
+            "on-error": "#690005",
+            "on-primary-fixed-variant": "#00468a",
+            "flow-blue": "#0b87fe",
+            "tertiary-fixed": "#e6deff",
+            "text-primary": "#f5f7fa",
+            "text-secondary": "#aab5c4",
+            "error": "#ffb4ab",
+            "on-surface": "#dee2ed",
+            "surface-bright": "#353941",
+            "secondary-foreground-bright": "#fbbf24",
+            "on-secondary": "#ffffff",
+            "status-success": "#12b76a",
+            "status-error": "#d92d20",
+            "on-secondary-container": "#5b3800",
+            "surface": "#0f141b",
+            "surface-container-low": "#171c23",
+            "secondary-fixed": "#ffddb8",
+            "on-secondary-fixed-variant": "#653e00",
+            "tertiary": "#cabeff",
+            "border-default": "#243447",
+            "on-tertiary": "#30009b",
+            "tertiary-fixed-dim": "#cabeff",
+            "secondary-foreground": "#f59e0b",
+            "inverse-on-surface": "#2c3138",
+            "status-warning": "#f59e0b"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "gutter-lg": "1.5rem",
+            "space-md": "1rem",
+            "gutter": "1rem",
+            "space-xl": "2rem",
+            "margin-md": "1.5rem",
+            "margin": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "margin-lg": "2.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "caption": ["Geist"],
+            "label-md": ["JetBrains Mono"],
+            "display-mobile": ["Geist"],
+            "headline-lg-mobile": ["Geist"],
+            "body-lg": ["Geist"],
+            "headline-sm": ["Geist"],
+            "title-sm": ["Geist"],
+            "body-md": ["Geist"],
+            "title-md": ["Geist"],
+            "label-sm": ["JetBrains Mono"],
+            "headline-lg": ["Geist"],
+            "headline-md": ["Geist"],
+            "display": ["Geist"],
+            "body-sm": ["Geist"]
+          },
+          "fontSize": {
+            "caption": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "display-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "headline-sm": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "title-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "title-md": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-lg": ["36px", { "lineHeight": "42px", "letterSpacing": "-0.025em", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "display": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      display: inline-block;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Code block syntax highlight simulation */
+    .token-keyword { color: #cabeff; }
+    .token-string { color: #19d7fe; }
+    .token-attr { color: #ffb95f; }
+    .token-comment { color: #66768d; }
+  </style>
+</head>
+<body class="bg-surface-base text-text-primary min-h-screen flex flex-col font-body-md antialiased selection:bg-flow-blue selection:text-white">
+<!-- TOP HEADER (Focused Wizard Shell) -->
+<header class="flex justify-between items-center w-full px-margin-md h-14 bg-surface-raised border-b border-border-default z-40 shrink-0">
+<!-- Brand / Identity -->
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-2.5">
+<img alt="ArtXFlow Core Logo" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFn6P-RdXON4vOQeiH1S6GPOEYPnZAvGyql2-dgJA-K_bMY3UHUKtlPq4Tk3XnoAIgbR0YbhHp_eJ0CKItniodGg6GvvB-4AXi7LpBh0tRI1_vrAqhoKHOoSXg7EvTkPh3V_2O1204zAudu1T6MXGM2ZlY9MyJsczflgAtryBUnb4GOJpzBOplJ7Q896mskPJTy_EZIfRbCc20-_ThOgNvd0TFFr-9Ab4J0wXj5XEUeJniQRcrDVnz">
+<span class="font-title-md text-title-md font-bold tracking-tight text-text-primary">
+          Art<span class="text-transparent bg-clip-text bg-gradient-to-r from-flow-blue to-flow-cyan">X</span>Flow
+        </span>
+</div>
+<div class="h-4 w-px bg-border-subtle"></div>
+<div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-overlay border border-border-subtle">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-text-secondary">v2.4.0 • Onboarding Setup</span>
+</div>
+</div>
+<!-- Right Utility & Profile Cluster -->
+<div class="flex items-center gap-space-sm">
+<button class="flex items-center gap-1.5 px-space-sm py-1 rounded text-text-secondary hover:text-text-primary hover:bg-surface-container transition-colors duration-150 font-label-md text-label-md">
+<span class="material-symbols-outlined text-text-muted" style="font-size: 18px;">menu_book</span>
+<span class="">Docs &amp; Specs</span>
+</button>
+<button class="flex items-center gap-1.5 px-space-sm py-1 rounded text-text-muted hover:text-text-primary hover:bg-surface-container transition-colors duration-150 font-label-md text-label-md">
+<span class="">Save &amp; Exit</span>
+</button>
+<div class="h-4 w-px bg-border-subtle mx-1"></div>
+<!-- User avatar & Profile -->
+<div class="flex items-center gap-2 pl-1 cursor-pointer">
+<div class="w-7 h-7 rounded-full bg-gradient-to-tr from-surface-container-high to-surface-overlay border border-border-default flex items-center justify-center text-flow-cyan font-label-sm text-label-sm font-semibold">
+          AR
+        </div>
+<div class="flex flex-col text-left">
+<span class="font-label-sm text-label-sm text-text-primary leading-tight">Alex Rivera</span>
+<span class="font-caption text-caption text-text-muted leading-none">ScaleOps Tech</span>
+</div>
+</div>
+</div>
+</header>
+<!-- STEPPER PROGRESSION BAR -->
+<section class="w-full bg-surface-raised/80 backdrop-blur-md border-b border-border-default px-margin-md py-3 shrink-0">
+<div class="max-w-[1400px] mx-auto grid grid-cols-4 gap-3">
+<!-- STEP 1: COMPLETED -->
+<div class="flex items-center gap-3 p-2 rounded border border-status-success/30 bg-status-success/5 transition-all">
+<div class="w-6 h-6 rounded-full bg-status-success/20 text-status-success flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-base">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-status-success uppercase font-semibold">Step 1 • Completed</span>
+<span class="font-title-sm text-title-sm text-text-primary truncate">Workspace Profile</span>
+</div>
+</div>
+<!-- STEP 2: ACTIVE FOCUS -->
+<div class="flex items-center gap-3 p-2 rounded border border-flow-blue bg-surface-overlay shadow-[0_0_12px_-2px_rgba(11,135,254,0.3)] relative transition-all">
+<div class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-flow-cyan animate-ping"></div>
+<div class="w-6 h-6 rounded-full bg-flow-blue text-white flex items-center justify-center shrink-0 font-label-sm text-label-sm font-bold">
+          2
+        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-flow-cyan uppercase font-semibold flex items-center gap-1.5">
+            Step 2 of 4 • Active Focus
+          </span>
+<span class="font-title-sm text-title-sm text-text-primary truncate font-bold">Canonical Source</span>
+</div>
+</div>
+<!-- STEP 3: PENDING -->
+<div class="flex items-center gap-3 p-2 rounded border border-border-subtle bg-surface-container-low/40 opacity-70">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest text-text-muted flex items-center justify-center shrink-0 font-label-sm text-label-sm">
+          3
+        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-text-muted uppercase">Step 3 • Pending</span>
+<span class="font-title-sm text-title-sm text-text-secondary truncate">Connect Destinations</span>
+</div>
+</div>
+<!-- STEP 4: PENDING -->
+<div class="flex items-center gap-3 p-2 rounded border border-border-subtle bg-surface-container-low/40 opacity-70">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest text-text-muted flex items-center justify-center shrink-0 font-label-sm text-label-sm">
+          4
+        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-text-muted uppercase">Step 4 • Pending</span>
+<span class="font-title-sm text-title-sm text-text-secondary truncate">Verify &amp; Dispatch</span>
+</div>
+</div>
+</div>
+</section>
+<!-- MAIN CANVAS: Split 2-Column Layout with Right Telemetry Rail -->
+<main class="flex-1 overflow-y-auto px-margin-md py-6">
+<div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- LEFT COLUMN: Source Selection & Configuration (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col gap-6"><div>
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-flow-cyan bg-flow-blue/10 border border-flow-cyan/20 font-label-sm text-label-sm mb-2">
+<span class="material-symbols-outlined text-sm">database</span>
+<span class="">Step 2 Configuration</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text-primary tracking-tight font-bold">
+Choose Your Content Origin
+</h1>
+<p class="font-body-lg text-body-lg text-text-secondary mt-1">
+Select where your master articles originate. ArtXFlow automatically guarantees canonical SEO backlinks for every post.
+</p>
+</div>
+
+<div class="space-y-4">
+<!-- OPTION A: ArtXFlow Built-in Editor (Recommended) -->
+<div class="rounded-xl border-2 border-flow-blue bg-surface-raised p-space-lg relative shadow-[0_4px_24px_-4px_rgba(11,135,254,0.18)] cursor-pointer transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-flow-blue/20 border border-flow-blue flex items-center justify-center text-flow-cyan">
+<span class="material-symbols-outlined text-2xl">edit_note</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-title-md text-title-md font-bold text-text-primary">
+ArtXFlow Built-in Editor
+</h2>
+<span class="px-2 py-0.5 rounded-full text-flow-cyan bg-flow-blue/15 border border-flow-cyan/30 font-label-sm text-label-sm font-medium">
+Recommended
+</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary mt-0.5">
+Author directly in Markdown / MDX with instant live previews. Zero setup or git required.
+</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full bg-flow-blue flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-base">check</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm border-t border-border-default flex items-center gap-2 text-status-success font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span class="">Ready immediately — write first article after onboarding</span>
+</div>
+</div>
+
+<!-- OPTION B: GitHub Repository Sync -->
+<div class="rounded-xl border border-border-default bg-surface-container-low p-space-lg transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container border border-border-subtle flex items-center justify-center text-text-primary">
+<span class="material-symbols-outlined text-2xl text-flow-cyan">alt_route</span>
+</div>
+<div>
+<h2 class="font-title-md text-title-md font-semibold text-text-primary">
+GitHub Repository Sync
+</h2>
+<p class="font-body-sm text-body-sm text-text-secondary mt-0.5">
+Connect a GitHub repository to sync Markdown/MDX files automatically on push.
+</p>
+</div>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded bg-status-success/15 border border-status-success/30 text-status-success font-label-sm text-label-sm font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+<span class="">Connected</span>
+</div>
+</div>
+
+<!-- Clean Simple GitHub Fields -->
+<div class="mt-space-md pt-space-md border-t border-border-subtle grid grid-cols-1 md:grid-cols-3 gap-3">
+<div class="md:col-span-2">
+<label class="block font-label-sm text-label-sm text-text-secondary mb-1">
+Repository
+</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
+<span class="material-symbols-outlined text-base">folder_data</span>
+</div>
+<select class="w-full pl-9 pr-8 py-2 bg-surface-base border border-border-default rounded-lg font-label-md text-label-md text-text-primary focus:border-flow-blue focus:ring-1 focus:ring-flow-blue">
+<option selected="">scaleops/blog</option>
+<option>scaleops/engineering-blog</option>
+<option>scaleops/developer-docs</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-text-secondary mb-1">
+Branch
+</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
+<span class="material-symbols-outlined text-base">fork_right</span>
+</div>
+<input class="w-full pl-9 pr-3 py-2 bg-surface-base border border-border-default rounded-lg font-label-md text-label-md text-text-primary focus:border-flow-blue focus:ring-1 focus:ring-flow-blue" type="text" value="main">
+</div>
+</div>
+</div>
+</div>
+</div></div>
+<!-- RIGHT COLUMN: Telemetry & Canonical Rules Preview Rail (5 Cols) -->
+<div class="lg:col-span-5 flex flex-col gap-5"><!-- Reassuring Canonical SEO Card -->
+<div class="p-space-lg rounded-xl bg-surface-raised border border-border-default space-y-4">
+<div class="w-12 h-12 rounded-xl bg-flow-blue/15 border border-flow-cyan/30 flex items-center justify-center text-flow-cyan">
+<span class="material-symbols-outlined text-3xl">verified_user</span>
+</div>
+<div>
+<h3 class="font-title-md text-title-md font-bold text-text-primary">
+Canonical SEO Protection
+</h3>
+<p class="font-body-md text-body-md text-text-secondary mt-2 leading-relaxed">
+ArtXFlow automatically tags your articles so Google and search engines always credit your primary source.
+</p>
+</div>
+<div class="p-3 rounded-lg bg-surface-base border border-border-subtle flex items-center gap-2.5">
+<span class="material-symbols-outlined text-status-success text-base">lock</span>
+<span class="font-label-sm text-label-sm text-text-secondary">
+Rel=canonical automatically injected downstream
+</span>
+</div>
+</div>
+
+<!-- Simple Benefits List -->
+<div class="p-space-lg rounded-xl bg-surface-overlay border border-border-default space-y-3">
+<div class="font-title-sm text-title-sm font-semibold text-text-primary">
+What happens next?
+</div>
+<div class="space-y-2.5">
+<div class="flex items-start gap-2.5 font-body-sm text-body-sm text-text-secondary">
+<span class="material-symbols-outlined text-status-success text-base mt-0.5">check_circle</span>
+<span class="">You'll pick destination platforms (Dev.to, Hashnode, Medium).</span>
+</div>
+<div class="flex items-start gap-2.5 font-body-sm text-body-sm text-text-secondary">
+<span class="material-symbols-outlined text-status-success text-base mt-0.5">check_circle</span>
+<span class="">All syndicated versions point 100% SEO authority to your origin.</span>
+</div>
+<div class="flex items-start gap-2.5 font-body-sm text-body-sm text-text-secondary">
+<span class="material-symbols-outlined text-status-success text-base mt-0.5">check_circle</span>
+<span class="">Zero risk of duplicate content search penalties.</span>
+</div>
+</div>
+</div></div>
+</div>
+</main>
+<!-- FIXED BOTTOM WIZARD ACTION BAR -->
+<footer class="w-full bg-surface-raised border-t border-border-default px-margin-md py-3 shrink-0 z-40">
+<div class="max-w-[1400px] mx-auto flex items-center justify-between"><button class="flex items-center gap-2 px-space-md py-2 rounded-lg bg-surface-container border border-border-default text-text-secondary hover:text-text-primary hover:border-border-default/80 transition-all font-label-md text-label-md active:scale-[0.98]">
+<span class="material-symbols-outlined text-base">arrow_back</span>
+<span class="">Back: Workspace Profile</span>
+</button>
+<div class="flex items-center gap-space-md">
+<button class="font-label-md text-label-md text-text-muted hover:text-text-primary transition-colors">
+Skip for now
+</button>
+<button style="background-color: #0b62f5;" class="flex items-center gap-2 px-space-lg py-2.5 rounded-lg text-white font-label-md text-label-md font-semibold tracking-tight shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] hover:opacity-95 active:scale-[0.98] transition-all">
+<span class="">Continue to Connect Destinations</span>
+<span class="material-symbols-outlined text-base">arrow_forward</span>
+</button>
+</div></div>
+</footer>
+
+
+</body></html>

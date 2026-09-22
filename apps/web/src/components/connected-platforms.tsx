@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { PlatformAccordion } from './platform-accordion';
+import { PlatformIcon } from './platform-icons';
 import {
   Card,
   CardHeader,
@@ -89,26 +91,39 @@ const SUPPORTED_PLATFORMS: PlatformConfig[] = [
   },
 ];
 
-export function ConnectedPlatforms() {
-  const [connections, setConnections] = useState<PlatformConnection[]>([]);
-  const [_loading, setLoading] = useState(true);
+interface ConnectedPlatformsProps {
+  initialConnections?: PlatformConnection[];
+}
+
+export function ConnectedPlatforms({ initialConnections }: ConnectedPlatformsProps) {
+  const [connections, setConnections] = useState<PlatformConnection[]>(initialConnections ?? []);
+  const [_loading, setLoading] = useState(!initialConnections?.length);
   const [connectingProvider, setConnectingProvider] = useState<string | null>(null);
   const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
   const [secrets, setSecrets] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [hashnodePublishMode, setHashnodePublishMode] = useState<HashnodePublishMode>(
-    DEFAULT_HASHNODE_PUBLISH_MODE,
-  );
+  const [hashnodePublishMode, setHashnodePublishMode] = useState<HashnodePublishMode>(() => {
+    if (!initialConnections?.length) return DEFAULT_HASHNODE_PUBLISH_MODE;
+    const conn = initialConnections.find(
+      (c) => c.provider.toLowerCase() === 'hashnode' && c.status === 'CONNECTED',
+    );
+    return conn ? resolveHashnodePublishMode(conn.tokenMetadata) : DEFAULT_HASHNODE_PUBLISH_MODE;
+  });
   const [savingHashnodeMode, setSavingHashnodeMode] = useState(false);
-  const [mediumPublishMode, setMediumPublishMode] = useState<MediumPublishMode>(
-    DEFAULT_MEDIUM_PUBLISH_MODE,
-  );
+  const [mediumPublishMode, setMediumPublishMode] = useState<MediumPublishMode>(() => {
+    if (!initialConnections?.length) return DEFAULT_MEDIUM_PUBLISH_MODE;
+    const conn = initialConnections.find(
+      (c) => c.provider.toLowerCase() === 'medium' && c.status === 'CONNECTED',
+    );
+    return conn ? resolveMediumPublishMode(conn.tokenMetadata) : DEFAULT_MEDIUM_PUBLISH_MODE;
+  });
   const [savingMediumMode, setSavingMediumMode] = useState(false);
 
   useEffect(() => {
+    if (initialConnections?.length) return;
     fetchConnections();
-  }, []);
+  }, [initialConnections]);
 
   async function fetchConnections() {
     setLoading(true);
@@ -367,6 +382,282 @@ export function ConnectedPlatforms() {
           const account = conn?.accounts?.[0];
           const isConnecting = connectingProvider === platform.id;
           const isDisconnecting = conn && disconnectingId === conn.id;
+          const hasAccordion = true;
+
+          const platformIcon = (
+            <PlatformIcon id={platform.id as 'devto' | 'medium' | 'hashnode'} size={32} />
+          );
+
+          const statusBadge = (
+            <Badge variant={isConnected ? 'success' : 'default'}>
+              {isConnected ? 'Connected' : 'Not Connected'}
+            </Badge>
+          );
+
+          const publishModeBadge = isConnected && platform.id === 'medium' ? (
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                padding: '2px 8px',
+                borderRadius: '4px',
+                backgroundColor:
+                  mediumPublishMode === 'extension'
+                    ? 'rgba(25, 215, 254, 0.15)'
+                    : mediumPublishMode === 'medium_new'
+                      ? 'rgba(59, 130, 246, 0.15)'
+                      : mediumPublishMode === 'manual'
+                        ? 'rgba(168, 85, 247, 0.15)'
+                        : 'rgba(245, 158, 11, 0.15)',
+                color:
+                  mediumPublishMode === 'extension'
+                    ? 'var(--axf-cyan, #19D7FE)'
+                    : mediumPublishMode === 'medium_new'
+                      ? '#60A5FA'
+                      : mediumPublishMode === 'manual'
+                        ? '#C084FC'
+                        : '#F59E0B',
+                border: '1px solid currentColor',
+              }}
+            >
+              {mediumPublishMode === 'extension'
+                ? '⚡ Extension'
+                : mediumPublishMode === 'medium_new'
+                  ? '📋 new-story'
+                  : mediumPublishMode === 'manual'
+                    ? '🔗 Record URL'
+                    : '🔑 API'}
+            </span>
+          ) : isConnected && platform.id === 'hashnode' ? (
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                padding: '2px 8px',
+                borderRadius: '4px',
+                backgroundColor:
+                  hashnodePublishMode === 'extension'
+                    ? 'rgba(25, 215, 254, 0.15)'
+                    : hashnodePublishMode === 'hn_new'
+                      ? 'rgba(59, 130, 246, 0.15)'
+                      : hashnodePublishMode === 'manual'
+                        ? 'rgba(168, 85, 247, 0.15)'
+                        : 'rgba(245, 158, 11, 0.15)',
+                color:
+                  hashnodePublishMode === 'extension'
+                    ? 'var(--axf-cyan, #19D7FE)'
+                    : hashnodePublishMode === 'hn_new'
+                      ? '#60A5FA'
+                      : hashnodePublishMode === 'manual'
+                        ? '#C084FC'
+                        : '#F59E0B',
+                border: '1px solid currentColor',
+              }}
+            >
+              {hashnodePublishMode === 'extension'
+                ? '⚡ Extension'
+                : hashnodePublishMode === 'hn_new'
+                  ? '📋 hn.new'
+                  : hashnodePublishMode === 'manual'
+                    ? '🔗 Record URL'
+                    : '🔑 API'}
+            </span>
+          ) : null;
+
+          const accordionBadge = (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {publishModeBadge}
+              {statusBadge}
+            </div>
+          );
+
+          const connectedContent = (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '16px',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--surface-elevated, #131E2F)',
+                  border: '1px solid var(--border-subtle, #142232)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <Avatar
+                    src={account?.avatarUrl}
+                    name={account?.displayName || account?.username || platform.name}
+                    size="sm"
+                  />
+                  <div>
+                    <div
+                      style={{
+                        fontWeight: 600,
+                        fontSize: '14px',
+                        color: 'var(--text-primary, #F5F7FA)',
+                      }}
+                    >
+                      {account?.displayName || account?.username || 'Verified Account'}
+                    </div>
+                    {account?.username && (
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary, #AAB5C4)' }}>
+                        @{account.username}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Button
+                  variant="danger"
+                  size="sm"
+                  disabled={isDisconnecting}
+                  onClick={() => handleDisconnect(conn!.id, platform.name)}
+                >
+                  {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
+                </Button>
+              </div>
+
+              {platform.id === 'hashnode' && (
+                <HashnodePublishModePicker
+                  value={hashnodePublishMode}
+                  saving={savingHashnodeMode}
+                  disabled={savingHashnodeMode || Boolean(isDisconnecting)}
+                  onChange={(mode) => handleHashnodeModeChange(mode, conn!.id)}
+                />
+              )}
+
+              {platform.id === 'medium' && (
+                <MediumPublishModePicker
+                  value={mediumPublishMode}
+                  saving={savingMediumMode}
+                  disabled={savingMediumMode || Boolean(isDisconnecting)}
+                  onChange={(mode) => handleMediumModeChange(mode, conn!.id)}
+                />
+              )}
+            </div>
+          );
+
+          const disconnectedContent = (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {platform.id === 'hashnode' && (
+                <HashnodePublishModePicker
+                  value={hashnodePublishMode}
+                  disabled={isConnecting}
+                  onChange={setHashnodePublishMode}
+                />
+              )}
+
+              {platform.id === 'medium' && (
+                <MediumPublishModePicker
+                  value={mediumPublishMode}
+                  disabled={isConnecting}
+                  onChange={setMediumPublishMode}
+                />
+              )}
+
+              {platform.id === 'medium' && mediumPublishMode !== 'api' ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '12px',
+                    padding: '12px 14px',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(0, 171, 108, 0.08)',
+                    border: '1px solid rgba(0, 171, 108, 0.25)',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '13px',
+                      color: 'var(--text-secondary, #AAB5C4)',
+                      flex: 1,
+                      minWidth: '220px',
+                    }}
+                  >
+                    No API token required. Click connect to enable free browser-session
+                    publishing via the Chrome extension or web editor.
+                  </div>
+                  <Button
+                    size="md"
+                    disabled={isConnecting}
+                    loading={isConnecting}
+                    onClick={() => handleConnect(platform.id)}
+                  >
+                    ⚡ Connect Medium (Free)
+                  </Button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <input
+                    type="password"
+                    placeholder={platform.secretPlaceholder}
+                    aria-label={platform.secretLabel}
+                    value={secrets[platform.id] || ''}
+                    onChange={(e) =>
+                      setSecrets((prev) => ({ ...prev, [platform.id]: e.target.value }))
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleConnect(platform.id);
+                      }
+                    }}
+                    style={{
+                      flex: 1,
+                      minWidth: '240px',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      backgroundColor: 'var(--surface-elevated, #131E2F)',
+                      border: '1px solid var(--border, #1C2A3A)',
+                      color: 'var(--text-primary, #F5F7FA)',
+                      fontSize: '14px',
+                      fontFamily: "var(--font-mono, 'Geist Mono', monospace)",
+                      outline: 'none',
+                    }}
+                  />
+                  <Button
+                    size="md"
+                    disabled={isConnecting}
+                    loading={isConnecting}
+                    onClick={() => handleConnect(platform.id)}
+                  >
+                    {isConnecting ? 'Verifying...' : `Connect ${platform.name}`}
+                  </Button>
+                </div>
+              )}
+
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary, #AAB5C4)' }}>
+                <span>{platform.helpText} — </span>
+                <a
+                  href={platform.helpLink}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  style={{ color: 'var(--axf-cyan, #19D7FE)', textDecoration: 'none' }}
+                >
+                  Open settings ↗
+                </a>
+              </div>
+            </div>
+          );
+
+          if (hasAccordion) {
+            return (
+              <PlatformAccordion
+                key={platform.id}
+                title={platform.name}
+                icon={platformIcon}
+                badge={accordionBadge}
+                defaultOpen={isConnected}
+              >
+                {isConnected ? connectedContent : disconnectedContent}
+              </PlatformAccordion>
+            );
+          }
 
           return (
             <Card key={platform.id} style={{ overflow: 'hidden' }}>
@@ -381,23 +672,7 @@ export function ConnectedPlatforms() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div
-                      style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '8px',
-                        backgroundColor: 'var(--surface-elevated, #131E2F)',
-                        border: '1px solid var(--border, #1C2A3A)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 700,
-                        fontSize: '14px',
-                        color: platform.badgeColor,
-                      }}
-                    >
-                      {platform.name.substring(0, 2).toUpperCase()}
-                    </div>
+                    {platformIcon}
                     <div>
                       <CardTitle style={{ fontSize: '16px' }}>{platform.name}</CardTitle>
                       <CardDescription>{platform.description}</CardDescription>
@@ -405,257 +680,13 @@ export function ConnectedPlatforms() {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {isConnected && platform.id === 'medium' && (
-                      <span
-                        style={{
-                          fontSize: '11px',
-                          fontWeight: 600,
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          backgroundColor:
-                            mediumPublishMode === 'extension'
-                              ? 'rgba(25, 215, 254, 0.15)'
-                              : mediumPublishMode === 'medium_new'
-                                ? 'rgba(59, 130, 246, 0.15)'
-                                : mediumPublishMode === 'manual'
-                                  ? 'rgba(168, 85, 247, 0.15)'
-                                  : 'rgba(245, 158, 11, 0.15)',
-                          color:
-                            mediumPublishMode === 'extension'
-                              ? 'var(--axf-cyan, #19D7FE)'
-                              : mediumPublishMode === 'medium_new'
-                                ? '#60A5FA'
-                                : mediumPublishMode === 'manual'
-                                  ? '#C084FC'
-                                  : '#F59E0B',
-                          border: '1px solid currentColor',
-                        }}
-                      >
-                        {mediumPublishMode === 'extension'
-                          ? '⚡ Extension'
-                          : mediumPublishMode === 'medium_new'
-                            ? '📋 new-story'
-                            : mediumPublishMode === 'manual'
-                              ? '🔗 Record URL'
-                              : '🔑 API'}
-                      </span>
-                    )}
-                    {isConnected && platform.id === 'hashnode' && (
-                      <span
-                        style={{
-                          fontSize: '11px',
-                          fontWeight: 600,
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          backgroundColor:
-                            hashnodePublishMode === 'extension'
-                              ? 'rgba(25, 215, 254, 0.15)'
-                              : hashnodePublishMode === 'hn_new'
-                                ? 'rgba(59, 130, 246, 0.15)'
-                                : hashnodePublishMode === 'manual'
-                                  ? 'rgba(168, 85, 247, 0.15)'
-                                  : 'rgba(245, 158, 11, 0.15)',
-                          color:
-                            hashnodePublishMode === 'extension'
-                              ? 'var(--axf-cyan, #19D7FE)'
-                              : hashnodePublishMode === 'hn_new'
-                                ? '#60A5FA'
-                                : hashnodePublishMode === 'manual'
-                                  ? '#C084FC'
-                                  : '#F59E0B',
-                          border: '1px solid currentColor',
-                        }}
-                      >
-                        {hashnodePublishMode === 'extension'
-                          ? '⚡ Extension'
-                          : hashnodePublishMode === 'hn_new'
-                            ? '📋 hn.new'
-                            : hashnodePublishMode === 'manual'
-                              ? '🔗 Record URL'
-                              : '🔑 API'}
-                      </span>
-                    )}
-                    <Badge variant={isConnected ? 'success' : 'default'}>
-                      {isConnected ? 'Connected' : 'Not Connected'}
-                    </Badge>
+                    {statusBadge}
                   </div>
                 </div>
               </CardHeader>
 
               <CardContent>
-                {isConnected && conn ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        flexWrap: 'wrap',
-                        gap: '16px',
-                        padding: '12px 16px',
-                        borderRadius: 'var(--radius-md, 8px)',
-                        backgroundColor: 'var(--surface-elevated, #131E2F)',
-                        border: '1px solid var(--border-subtle, #142232)',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <Avatar
-                          src={account?.avatarUrl}
-                          name={account?.displayName || account?.username || platform.name}
-                          size="sm"
-                        />
-                        <div>
-                          <div
-                            style={{
-                              fontWeight: 600,
-                              fontSize: '14px',
-                              color: 'var(--text-primary, #F5F7FA)',
-                            }}
-                          >
-                            {account?.displayName || account?.username || 'Verified Account'}
-                          </div>
-                          {account?.username && (
-                            <div
-                              style={{ fontSize: '12px', color: 'var(--text-secondary, #AAB5C4)' }}
-                            >
-                              @{account.username}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        disabled={isDisconnecting}
-                        onClick={() => handleDisconnect(conn.id, platform.name)}
-                      >
-                        {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
-                      </Button>
-                    </div>
-
-                    {platform.id === 'hashnode' && (
-                      <HashnodePublishModePicker
-                        value={hashnodePublishMode}
-                        saving={savingHashnodeMode}
-                        disabled={savingHashnodeMode || Boolean(isDisconnecting)}
-                        onChange={(mode) => handleHashnodeModeChange(mode, conn.id)}
-                      />
-                    )}
-
-                    {platform.id === 'medium' && (
-                      <MediumPublishModePicker
-                        value={mediumPublishMode}
-                        saving={savingMediumMode}
-                        disabled={savingMediumMode || Boolean(isDisconnecting)}
-                        onChange={(mode) => handleMediumModeChange(mode, conn.id)}
-                      />
-                    )}
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {platform.id === 'hashnode' && (
-                      <HashnodePublishModePicker
-                        value={hashnodePublishMode}
-                        disabled={isConnecting}
-                        onChange={setHashnodePublishMode}
-                      />
-                    )}
-
-                    {platform.id === 'medium' && (
-                      <MediumPublishModePicker
-                        value={mediumPublishMode}
-                        disabled={isConnecting}
-                        onChange={setMediumPublishMode}
-                      />
-                    )}
-
-                    {platform.id === 'medium' && mediumPublishMode !== 'api' ? (
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '12px',
-                          padding: '12px 14px',
-                          borderRadius: 'var(--radius-md, 8px)',
-                          backgroundColor: 'rgba(0, 171, 108, 0.08)',
-                          border: '1px solid rgba(0, 171, 108, 0.25)',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontSize: '13px',
-                            color: 'var(--text-secondary, #AAB5C4)',
-                            flex: 1,
-                            minWidth: '220px',
-                          }}
-                        >
-                          No API token required. Click connect to enable free browser-session
-                          publishing via the Chrome extension or web editor.
-                        </div>
-                        <Button
-                          size="md"
-                          disabled={isConnecting}
-                          loading={isConnecting}
-                          onClick={() => handleConnect(platform.id)}
-                        >
-                          ⚡ Connect Medium (Free)
-                        </Button>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                        <input
-                          type="password"
-                          placeholder={platform.secretPlaceholder}
-                          aria-label={platform.secretLabel}
-                          value={secrets[platform.id] || ''}
-                          onChange={(e) =>
-                            setSecrets((prev) => ({ ...prev, [platform.id]: e.target.value }))
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              handleConnect(platform.id);
-                            }
-                          }}
-                          style={{
-                            flex: 1,
-                            minWidth: '240px',
-                            padding: '10px 14px',
-                            borderRadius: 'var(--radius-md, 8px)',
-                            backgroundColor: 'var(--surface-elevated, #131E2F)',
-                            border: '1px solid var(--border, #1C2A3A)',
-                            color: 'var(--text-primary, #F5F7FA)',
-                            fontSize: '14px',
-                            fontFamily: "var(--font-mono, 'Geist Mono', monospace)",
-                            outline: 'none',
-                          }}
-                        />
-                        <Button
-                          size="md"
-                          disabled={isConnecting}
-                          loading={isConnecting}
-                          onClick={() => handleConnect(platform.id)}
-                        >
-                          {isConnecting ? 'Verifying...' : `Connect ${platform.name}`}
-                        </Button>
-                      </div>
-                    )}
-
-                    <div style={{ fontSize: '12px', color: 'var(--text-secondary, #AAB5C4)' }}>
-                      <span>{platform.helpText} — </span>
-                      <a
-                        href={platform.helpLink}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        style={{ color: 'var(--axf-cyan, #19D7FE)', textDecoration: 'none' }}
-                      >
-                        Open settings ↗
-                      </a>
-                    </div>
-                  </div>
-                )}
+                {isConnected ? connectedContent : disconnectedContent}
               </CardContent>
             </Card>
           );
@@ -674,23 +705,7 @@ export function ConnectedPlatforms() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '8px',
-                    backgroundColor: 'var(--surface-elevated, #131E2F)',
-                    border: '1px solid var(--border, #1C2A3A)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700,
-                    fontSize: '14px',
-                    color: 'var(--axf-cyan, #19D7FE)',
-                  }}
-                >
-                  AXF
-                </div>
+                <PlatformIcon id="artxflow" size={36} color="var(--axf-cyan, #19D7FE)" />
                 <div>
                   <CardTitle style={{ fontSize: '16px' }}>ArtXFlow Hosted Site</CardTitle>
                   <CardDescription>

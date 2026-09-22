@@ -1,0 +1,289 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>ArtXFlow - Workspace Onboarding &amp; Stepper Wizard</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary": "#ffffff",
+            "outline": "#8a919f",
+            "on-primary-container": "#002956",
+            "on-surface-variant": "#c0c6d6",
+            "surface-container": "#1c2027",
+            "background": "#0f141b",
+            "outline-variant": "#404754",
+            "on-surface": "#dee2ed",
+            "tertiary-fixed-dim": "#cabeff",
+            "on-secondary-container": "#5b3800",
+            "primary-fixed": "#d6e3ff",
+            "on-tertiary-container": "#290089",
+            "border-subtle": "#172333",
+            "on-background": "#dee2ed",
+            "inverse-primary": "#005eb4",
+            "surface-bright": "#353941",
+            "border-highlight": "rgba(25, 215, 254, 0.25)",
+            "surface-dim": "#0f141b",
+            "tertiary-fixed": "#e6deff",
+            "on-primary-fixed": "#001b3c",
+            "surface-raised": "#0d1420",
+            "on-tertiary-fixed-variant": "#4718c9",
+            "on-tertiary": "#30009b",
+            "primary-fixed-dim": "#a8c8ff",
+            "text-muted": "#66768d",
+            "secondary-fixed-dim": "#ffb95f",
+            "on-secondary-alt": "#1e1b4b",
+            "on-primary": "#003062",
+            "error": "#ffb4ab",
+            "on-secondary-fixed": "#2a1700",
+            "text-primary": "#f5f7fa",
+            "surface-container-highest": "#30353d",
+            "tertiary-container": "#937dff",
+            "secondary-fixed": "#ffddb8",
+            "error-container": "#93000a",
+            "surface": "#0f141b",
+            "text-secondary": "#aab5c4",
+            "surface-overlay": "#111a28",
+            "secondary": "#ffb95f",
+            "surface-container-low": "#181c23",
+            "border-default": "#243447",
+            "surface-container-lowest": "#090e15",
+            "status-warning": "#f59e0b",
+            "primary": "#0b87fe",
+            "on-secondary-fixed-variant": "#653e00",
+            "on-primary-fixed-variant": "#00468a",
+            "inverse-surface": "#dee2ed",
+            "secondary-container": "#362005",
+            "surface-tint": "#a8c8ff",
+            "on-error": "#690005",
+            "secondary-foreground-bright": "#fbbf24",
+            "flow-blue": "#0b87fe",
+            "flow-cyan": "#19d7fe",
+            "flow-purple": "#7a5cfd",
+            "status-info": "#0b87fe",
+            "inverse-on-surface": "#2c3138",
+            "surface-variant": "#30353d",
+            "surface-container-high": "#262a32",
+            "primary-container": "#3790ff",
+            "surface-base": "#070b12",
+            "status-success": "#12b76a",
+            "tertiary": "#cabeff",
+            "status-error": "#d92d20",
+            "secondary-container-deep": "#451a03",
+            "on-error-container": "#ffdad6",
+            "secondary-foreground": "#f59e0b",
+            "on-tertiary-fixed": "#1b0062"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "gutter": "1rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "margin-md": "1.5rem",
+            "margin-lg": "2.5rem",
+            "space-xl": "2rem",
+            "gutter-lg": "1.5rem",
+            "margin": "1rem",
+            "space-sm": "0.5rem"
+          },
+          "fontFamily": {
+            "title-sm": ["Geist"],
+            "body-sm": ["Geist"],
+            "caption": ["Geist"],
+            "title-md": ["Geist"],
+            "headline-md": ["Geist"],
+            "body-lg": ["Geist"],
+            "label-md": ["JetBrains Mono"],
+            "headline-lg-mobile": ["Geist"],
+            "headline-sm": ["Geist"],
+            "display": ["Geist"],
+            "body-md": ["Geist"],
+            "display-mobile": ["Geist"],
+            "headline-lg": ["Geist"],
+            "label-sm": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "title-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "caption": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "title-md": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-sm": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "display": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "display-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "headline-lg": ["36px", { "lineHeight": "42px", "letterSpacing": "-0.025em", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    }
+    .text-x-gradient {
+      background: linear-gradient(135deg, #19d7fe 0%, #7a5cfd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stepper-glow {
+      box-shadow: 0 0 0 1px #0b87fe, 0 0 18px -2px rgba(11, 135, 254, 0.45);
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #070b12;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #243447;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="bg-surface-base text-text-primary min-h-screen flex flex-col font-body-md antialiased selection:bg-flow-blue/30 selection:text-white">
+<!-- TOP APP BAR -->
+<header class="h-14 w-full bg-surface-raised border-b border-border-default px-6 flex items-center justify-between sticky top-0 z-50">
+<!-- Brand / Node Status -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2.5">
+<img alt="ArtXFlow Official Logo" class="h-6 w-auto object-contain brightness-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxsnEXsKp72RL8odNkeuqpMZsfspQy4HTqtSwidgmIT86vW9hLxYwLBG8k3O-4PgvJad_JOPVM1HULP7hflotm9iqvXGNGhxJIGIy-IQUlH-s8MmkuTAbFp69PLXI4ZsFg1DT7nnVJpB5nhCf7GZhQmX765gBz6q5NVWbRL2E-H3BGfw0GFA8BUHWzmzuf666PwvY3OqGfH1LTrlyzBtsqJPkgNQmjyd0TV-lndMZpyi_Nrk3vzyQI">
+<span class="font-title-md text-title-md tracking-tight text-text-primary flex items-center">
+          Art<span class="text-x-gradient font-extrabold">X</span>Flow
+        </span>
+</div>
+<div class="h-4 w-px bg-border-default"></div>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-container border border-border-subtle font-label-sm text-label-sm text-text-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success animate-pulse"></span>
+          v2.4.0 • Onboarding Setup
+        </span>
+</div>
+</div>
+<!-- Actions & User Profile -->
+<div class="flex items-center gap-3">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-default bg-surface-container-low hover:bg-surface-container text-text-secondary hover:text-text-primary font-label-sm text-label-sm transition-all duration-150">
+<span class="material-symbols-outlined text-[16px]">help</span>
+<span class="">Docs &amp; Specs</span>
+</button>
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border-default bg-surface-overlay hover:bg-surface-container text-text-secondary hover:text-text-primary font-label-sm text-label-sm transition-all duration-150">
+<span class="material-symbols-outlined text-[16px]">save</span>
+<span class="">Save &amp; Exit</span>
+</button>
+<div class="h-4 w-px bg-border-default mx-1"></div>
+<!-- User Badge -->
+<div class="flex items-center gap-2.5 pl-1.5 pr-2 py-1 rounded-lg bg-surface-container-low border border-border-subtle">
+<div class="w-6 h-6 rounded-full bg-gradient-to-tr from-flow-blue to-flow-purple flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-wider">
+          AR
+        </div>
+<div class="flex flex-col text-left">
+<span class="font-title-sm text-[12px] leading-tight text-text-primary">Alex Rivera</span>
+<span class="font-label-sm text-[10px] leading-none text-text-muted">alex@scaleops.io</span>
+</div>
+</div>
+</div>
+</header>
+<!-- WIZARD SHELL CONTAINER -->
+<main class="flex-1 w-full max-w-[1360px] mx-auto p-6 md:p-8 flex flex-col gap-6">
+<!-- STEPPER HEADER PROGRESS COMPONENT -->
+<div class="w-full bg-surface-raised border border-border-default rounded-xl p-5 shadow-2xl relative overflow-hidden">
+<!-- Glow background filament -->
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 w-96 h-20 bg-flow-blue/10 blur-3xl pointer-events-none"></div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative z-10">
+<!-- Step 1: Completed -->
+<div class="flex items-center gap-3 p-2.5 rounded-lg bg-surface-container-lowest/70 border border-status-success/20 transition-all">
+<div class="w-8 h-8 rounded-full bg-status-success/15 border border-status-success/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-status-success text-[18px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-status-success uppercase font-semibold">Step 1 • Completed</span>
+<span class="font-title-sm text-title-sm text-text-primary truncate">Workspace Profile</span>
+</div>
+</div>
+<!-- Step 2: Completed -->
+<div class="flex items-center gap-3 p-2.5 rounded-lg bg-surface-container-lowest/70 border border-status-success/20 transition-all">
+<div class="w-8 h-8 rounded-full bg-status-success/15 border border-status-success/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-status-success text-[18px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-status-success uppercase font-semibold">Step 2 • Completed</span>
+<span class="font-title-sm text-title-sm text-text-primary truncate">Canonical Source</span>
+</div>
+</div>
+<!-- Step 3: Active Focus -->
+<div class="flex items-center gap-3 p-2.5 rounded-lg bg-surface-overlay stepper-glow border border-flow-blue transition-all">
+<div class="w-8 h-8 rounded-full bg-flow-blue text-white flex items-center justify-center shrink-0 font-label-sm text-label-sm font-bold shadow-md shadow-flow-blue/30">
+            3
+          </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-flow-cyan uppercase font-bold tracking-wider">Step 3 of 4</span>
+<span class="w-1.5 h-1.5 rounded-full bg-flow-cyan animate-ping"></span>
+</div>
+<span class="font-title-sm text-title-sm text-text-primary truncate">Connect Destinations</span>
+</div>
+</div>
+<!-- Step 4: Upcoming -->
+<div class="flex items-center gap-3 p-2.5 rounded-lg bg-surface-container-lowest/40 border border-border-subtle opacity-70">
+<div class="w-8 h-8 rounded-full bg-surface-container border border-border-default text-text-muted flex items-center justify-center shrink-0 font-label-sm text-label-sm">
+            4
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-text-muted uppercase">Step 4 • Pending</span>
+<span class="font-title-sm text-title-sm text-text-muted truncate">Verify &amp; Dispatch</span>
+</div>
+</div>
+</div>
+</div>
+<!-- MAIN TWO-COLUMN CONTENT REGION -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- LEFT: Primary Adapter Staging Canvas (8 cols) -->
+<section class="lg:col-span-8 flex flex-col gap-5"><div class="p-6 bg-surface-raised border border-border-default rounded-xl"><div class="flex items-start justify-between"><div class="space-y-1 max-w-2xl"><h1 class="font-headline-sm text-headline-sm text-text-primary tracking-tight">Connect Initial Publishing Destinations</h1><p class="font-body-md text-body-md text-text-secondary">Select where you want your canonical articles syndicated. Connect your accounts with a simple token or extension pairing now, or configure anytime later.</p></div><span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded bg-surface-overlay border border-border-highlight font-label-sm text-label-sm text-flow-cyan"><span class="material-symbols-outlined text-[14px]">bolt</span>Multi-Platform</span></div></div><div class="bg-surface-container-low border border-status-success/40 rounded-xl p-5 transition-all duration-150"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><div class="flex items-center gap-3.5"><div class="w-10 h-10 rounded-lg bg-black border border-border-default flex items-center justify-center text-white font-label-md text-[14px] font-bold tracking-tight shrink-0">DEV</div><div><div class="flex items-center gap-2"><h3 class="font-title-md text-title-md text-text-primary">DEV Community</h3><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-status-success/10 border border-status-success/30 text-status-success font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>Connected</span></div><p class="font-body-sm text-body-sm text-text-secondary mt-0.5">dev_tok_••••••••984b</p></div></div><div class="flex items-center gap-3"><label class="flex items-center gap-2 cursor-pointer text-text-secondary hover:text-text-primary select-none font-body-sm text-body-sm"><input checked="" class="w-4 h-4 rounded bg-surface-base border-border-default text-flow-blue focus:ring-flow-blue focus:ring-offset-0 focus:ring-1" type="checkbox"><span class="">Draft mode</span></label><button class="px-3 py-1.5 rounded border border-border-default bg-surface-overlay hover:bg-surface-container text-text-secondary hover:text-text-primary font-label-sm text-label-sm flex items-center gap-1.5 transition-colors"><span class="material-symbols-outlined text-[15px] text-status-success">check_circle</span>Active</button></div></div></div><div class="bg-surface-raised border border-border-default rounded-xl p-5"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3"><div class="flex items-center gap-3.5"><div class="w-10 h-10 rounded-lg bg-blue-950/60 border border-blue-600/40 flex items-center justify-center text-flow-cyan font-bold text-lg shrink-0"><span class="material-symbols-outlined text-[24px]">hub</span></div><div><div class="flex items-center gap-2"><h3 class="font-title-md text-title-md text-text-primary">Hashnode</h3><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container/40 border border-status-warning/30 text-secondary-foreground-bright font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-status-warning animate-pulse"></span>Ready to Connect</span></div><p class="font-body-sm text-body-sm text-text-secondary mt-0.5">Auto-publishes to alexrivera.hashnode.dev</p></div></div><a class="font-label-sm text-label-sm text-flow-cyan hover:underline flex items-center gap-1 shrink-0" href="#">Get Token<span class="material-symbols-outlined text-[13px]">open_in_new</span></a></div><div class="flex gap-2 pt-2 border-t border-border-subtle"><div class="relative flex-1"><input class="w-full bg-surface-base border border-border-default rounded px-3 py-2 text-text-primary font-label-sm text-label-sm focus:border-flow-blue focus:ring-1 focus:ring-flow-blue outline-none transition-all" placeholder="Paste Personal Access Token (hn_pat_...)" type="password" value="hn_pat_902ffaa783021948bd019"></div><button class="px-4 py-2 rounded bg-flow-blue hover:bg-blue-600 text-white font-label-sm text-label-sm font-semibold transition-colors shrink-0 flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px]">link</span>Connect</button></div></div><div class="bg-surface-container-low border border-border-default rounded-xl p-5 hover:border-border-highlight transition-all"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><div class="flex items-center gap-3.5"><div class="w-10 h-10 rounded-lg bg-surface-container-highest border border-border-default flex items-center justify-center text-text-primary font-serif font-bold text-xl shrink-0">M</div><div><div class="flex items-center gap-2"><h3 class="font-title-md text-title-md text-text-primary">Medium</h3><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-flow-purple/15 border border-flow-purple/30 text-flow-purple font-label-sm text-label-sm font-semibold">Chrome Extension</span></div><p class="font-body-sm text-body-sm text-text-secondary mt-0.5">Connected as medium.com/@alexrivera_ops</p></div></div><div class="flex items-center gap-2"><div class="flex items-center gap-1.5 text-status-success font-label-sm text-label-sm bg-status-success/10 px-3 py-1.5 rounded border border-status-success/20"><span class="material-symbols-outlined text-[15px]">extension</span><span class="">Extension Paired</span></div></div></div></div><p class="text-body-sm text-text-muted text-center pt-2">Need custom Ghost, Substack, or webhook endpoints? You can configure extra targets anytime in Workspace Settings.</p></section>
+<!-- RIGHT: Side Inspection & Distribution Health Panel (4 cols) -->
+<aside class="lg:col-span-4 flex flex-col gap-5 sticky top-20"><div class="bg-surface-raised border border-border-default rounded-xl p-5 shadow-xl"><div class="flex items-center justify-between pb-3.5 border-b border-border-default"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-flow-cyan text-[20px]">checklist</span><h2 class="font-title-md text-title-md text-text-primary">Destination Setup</h2></div><span class="px-2 py-0.5 rounded bg-status-success/10 border border-status-success/30 text-status-success font-label-sm text-label-sm font-semibold">2 of 3 Ready</span></div><div class="py-4 space-y-3"><div class="p-3 rounded-lg bg-surface-base border border-border-subtle flex items-center justify-between"><div class="flex items-center gap-2.5"><div class="w-5 h-5 rounded-full bg-status-success/15 flex items-center justify-center text-status-success shrink-0"><span class="material-symbols-outlined text-[14px]">check</span></div><span class="font-title-sm text-title-sm text-text-primary">DEV Community</span></div><span class="font-label-sm text-label-sm text-status-success">Ready</span></div><div class="p-3 rounded-lg bg-surface-base border border-border-subtle flex items-center justify-between"><div class="flex items-center gap-2.5"><div class="w-5 h-5 rounded-full bg-secondary-container flex items-center justify-center text-secondary-foreground-bright shrink-0"><span class="material-symbols-outlined text-[14px]">pending</span></div><span class="font-title-sm text-title-sm text-text-primary">Hashnode</span></div><span class="font-label-sm text-label-sm text-secondary-foreground-bright">Token ready</span></div><div class="p-3 rounded-lg bg-surface-base border border-border-subtle flex items-center justify-between"><div class="flex items-center gap-2.5"><div class="w-5 h-5 rounded-full bg-status-success/15 flex items-center justify-center text-status-success shrink-0"><span class="material-symbols-outlined text-[14px]">check</span></div><span class="font-title-sm text-title-sm text-text-primary">Medium</span></div><span class="font-label-sm text-label-sm text-status-success">Paired</span></div></div><div class="pt-3.5 border-t border-border-subtle"><div class="flex items-start gap-2 text-text-muted font-body-sm text-body-sm"><span class="material-symbols-outlined text-flow-cyan text-[18px] shrink-0 mt-0.5">verified</span><span class="">Canonical URLs are automatically injected to prevent SEO duplicate penalties across all channels.</span></div></div></div><div class="bg-surface-raised border border-border-default rounded-xl p-4 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-text-secondary shrink-0"><span class="material-symbols-outlined text-[18px]">published_with_changes</span></div><div class="flex flex-col"><span class="font-title-sm text-title-sm text-text-primary">Flexible Configuration</span><span class="font-body-sm text-body-sm text-text-muted">Platforms and keys can be modified or disconnected anytime in settings.</span></div></div></aside>
+</div>
+<!-- WIZARD STICKY FOOTER ACTIONS BAR -->
+<div class="mt-auto pt-6 pb-2 border-t border-border-default flex flex-col sm:flex-row items-center justify-between gap-4">
+<!-- Left: Previous Step Action -->
+<button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-border-default bg-surface-raised hover:bg-surface-container-high text-text-secondary hover:text-text-primary font-title-sm text-title-sm transition-all duration-150">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span class="">Back: Canonical Source</span>
+</button>
+<!-- Center & Right Actions -->
+<div class="flex items-center gap-4 w-full sm:w-auto justify-end">
+<button class="font-body-md text-body-md text-text-muted hover:text-text-primary px-3 py-2 transition-colors">
+          Skip for now
+        </button>
+<!-- Primary Stepper Action CTA -->
+<button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-flow-blue hover:bg-blue-600 active:scale-[0.98] text-white font-title-sm text-title-sm font-semibold shadow-lg shadow-flow-blue/25 transition-all duration-150 border-t border-white/20"><span class="">Continue to Verification &amp; Launch</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>
+</div>
+</div>
+</main>
+<script>
+    // Lightweight toggle and interaction micro-behaviors
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('ArtXFlow Setup Wizard initialized. Live node v2.4.0 active.');
+    });
+  </script>
+
+
+</body></html>

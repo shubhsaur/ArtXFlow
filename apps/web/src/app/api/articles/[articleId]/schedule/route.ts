@@ -1,19 +1,10 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
-import {
-  ScheduleArticleService,
-  ArticleNotFoundError,
-  ArticleNotPublishableError,
-  InvalidDestinationConfigurationError,
-  UnauthorizedTenantAccessError,
-  ScheduleNotFoundError,
-  InvalidScheduleStateError,
-  InvalidTimezoneError,
-  PastScheduledTimeError,
-} from '@artxflow/publishing';
+import { ScheduleArticleService } from '@artxflow/publishing';
 import { createInngestJobQueue } from '@artxflow/worker';
-import type { DestinationOverrides } from '@artxflow/types';
+import { handleApiError } from '@/lib/handle-api-error';
+import { scheduleArticleSchema } from '@/lib/validation';
 
 export async function POST(request: Request, props: { params: Promise<{ articleId: string }> }) {
   const { articleId } = await props.params;
@@ -31,17 +22,22 @@ export async function POST(request: Request, props: { params: Promise<{ articleI
   });
 
   try {
-    const body = (await request.json()) as {
-      scheduledAt?: string;
-      timezone?: string;
-      destinationIds?: string[];
-      articleVersionId?: string;
-      destinationOverrides?: Record<string, DestinationOverrides>;
-    };
-
-    if (!body.scheduledAt) {
-      return NextResponse.json({ error: 'scheduledAt is required' }, { status: 400 });
+    let rawBody: unknown = {};
+    try {
+      rawBody = await request.json();
+    } catch {
+      // handled by schema below
     }
+
+    const parsed = scheduleArticleSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      const firstIssue = parsed.error.issues[0];
+      return NextResponse.json(
+        { error: firstIssue?.message || 'Validation failed' },
+        { status: 400 },
+      );
+    }
+    const body = parsed.data;
 
     const queue = createInngestJobQueue();
     const service = new ScheduleArticleService({ jobQueue: queue });
@@ -63,26 +59,7 @@ export async function POST(request: Request, props: { params: Promise<{ articleI
 
     return NextResponse.json(schedule, { status: 201 });
   } catch (error) {
-    if (error instanceof ArticleNotFoundError || error instanceof ScheduleNotFoundError) {
-      return NextResponse.json({ error: error.message }, { status: 404 });
-    }
-    if (
-      error instanceof ArticleNotPublishableError ||
-      error instanceof PastScheduledTimeError ||
-      error instanceof InvalidTimezoneError ||
-      error instanceof InvalidScheduleStateError
-    ) {
-      return NextResponse.json({ error: error.message }, { status: 422 });
-    }
-    if (error instanceof InvalidDestinationConfigurationError) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-    if (error instanceof UnauthorizedTenantAccessError) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }
 
@@ -113,11 +90,7 @@ export async function GET(_request: Request, props: { params: Promise<{ articleI
 
     return NextResponse.json({ schedules }, { status: 200 });
   } catch (error) {
-    if (error instanceof UnauthorizedTenantAccessError) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }
 
@@ -163,17 +136,6 @@ export async function DELETE(request: Request, _props: { params: Promise<{ artic
 
     return NextResponse.json(canceled, { status: 200 });
   } catch (error) {
-    if (error instanceof ScheduleNotFoundError) {
-      return NextResponse.json({ error: error.message }, { status: 404 });
-    }
-    if (error instanceof InvalidScheduleStateError) {
-      return NextResponse.json({ error: error.message }, { status: 422 });
-    }
-    if (error instanceof UnauthorizedTenantAccessError) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }

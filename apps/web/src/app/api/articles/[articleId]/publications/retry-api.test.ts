@@ -14,6 +14,7 @@ vi.mock('next/headers', () => ({
 vi.mock('@artxflow/auth', () => ({
   getSession: vi.fn(),
   bootstrapPersonalOrganization: vi.fn(),
+  UnauthorizedError: class UnauthorizedError extends Error {},
 }));
 
 describe('POST /api/articles/[articleId]/publications/[publicationId]/retry', () => {

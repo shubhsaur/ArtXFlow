@@ -14,6 +14,7 @@ import type {
   PlatformMetrics,
 } from '../contract';
 import { PlatformError } from '../errors';
+import { stripFrontmatter, formatMediumMarkdown } from '../transformers';
 
 export interface MediumAdapterOptions {
   baseUrl?: string;
@@ -90,9 +91,12 @@ export class MediumAdapter implements PlatformAdapter {
       .filter((tag) => tag.length > 0)
       .slice(0, 5);
 
+    const cleanMarkdown = stripFrontmatter(article.markdown || '');
+    const formattedContent = formatMediumMarkdown(cleanMarkdown);
+
     return {
       title: article.title,
-      content: article.markdown,
+      content: formattedContent,
       description: article.excerpt ?? undefined,
       canonicalUrl: article.canonicalUrl ?? undefined,
       coverImageUrl: article.coverImage?.url ?? undefined,

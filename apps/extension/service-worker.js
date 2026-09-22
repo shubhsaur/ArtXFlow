@@ -369,6 +369,32 @@ async function waitForMediumLiveStoryUrl(tabId, timeoutMs = 35000) {
 
 // Listen for messages from ArtXFlow bridge content script or popup
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type === 'FETCH_IMAGE_AS_DATA_URL') {
+    (async () => {
+      try {
+        const { url } = message;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Failed to fetch image: HTTP ${res.status}`);
+        const blob = await res.blob();
+        const mimeType = blob.type || 'image/jpeg';
+        const buffer = await blob.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        let binary = '';
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64 = btoa(binary);
+        const dataUrl = `data:${mimeType};base64,${base64}`;
+        sendResponse({ success: true, dataUrl, mimeType });
+      } catch (err) {
+        console.warn('[ArtXFlow ServiceWorker] Error fetching image:', err);
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
+    return true;
+  }
+
   if (message.type === 'CHECK_HASHNODE_LOGIN') {
     (async () => {
       let tabId = null;

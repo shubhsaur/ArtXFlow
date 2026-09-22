@@ -1,0 +1,545 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Sign in to ArtXFlow — Developer Syndication Engine</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary-container": "#5b3800",
+            "primary-fixed": "#d6e3ff",
+            "secondary-foreground": "#f59e0b",
+            "on-secondary": "#ffffff",
+            "border-highlight": "rgba(25, 215, 254, 0.25)",
+            "surface-container-highest": "#31353d",
+            "inverse-primary": "#005eb4",
+            "flow-purple": "#7a5cfd",
+            "surface-container-lowest": "#090e15",
+            "on-background": "#dee2ed",
+            "secondary-container": "#362005",
+            "primary-container": "#3790ff",
+            "on-secondary-alt": "#1e1b4b",
+            "status-success": "#12b76a",
+            "primary": "#a8c8ff",
+            "secondary": "#ffb95f",
+            "on-primary-fixed": "#001b3c",
+            "surface-container": "#1c2027",
+            "on-error": "#690005",
+            "surface-container-high": "#262a32",
+            "background": "#0f141b",
+            "on-tertiary-fixed": "#1b0062",
+            "status-error": "#d92d20",
+            "text-muted": "#66768d",
+            "outline": "#8a919f",
+            "surface-variant": "#30353d",
+            "surface-dim": "#0f141b",
+            "flow-cyan": "#19d7fe",
+            "on-surface": "#dee2ed",
+            "text-primary": "#f5f7fa",
+            "surface-container-low": "#171c23",
+            "secondary-fixed-dim": "#ffb95f",
+            "on-primary": "#003062",
+            "on-error-container": "#ffdad6",
+            "surface-tint": "#a8c8ff",
+            "tertiary-fixed-dim": "#cabeff",
+            "secondary-container-deep": "#451a03",
+            "status-warning": "#f59e0b",
+            "tertiary": "#cabeff",
+            "on-primary-fixed-variant": "#00468a",
+            "tertiary-container": "#937dff",
+            "border-subtle": "#172333",
+            "error": "#ffb4ab",
+            "primary-fixed-dim": "#a8c8ff",
+            "on-primary-container": "#002956",
+            "surface-bright": "#353941",
+            "on-secondary-fixed": "#2a1700",
+            "status-info": "#0b87fe",
+            "secondary-fixed": "#ffddb8",
+            "error-container": "#93000a",
+            "text-secondary": "#aab5c4",
+            "flow-blue": "#0b87fe",
+            "inverse-surface": "#dee2ed",
+            "surface-base": "#070b12",
+            "surface-raised": "#0d1420",
+            "on-secondary-fixed-variant": "#653e00",
+            "outline-variant": "#404754",
+            "on-tertiary-container": "#290089",
+            "inverse-on-surface": "#2c3138",
+            "surface": "#0f141b",
+            "tertiary-fixed": "#e6deff",
+            "on-tertiary": "#30009b",
+            "border-default": "#243447",
+            "secondary-foreground-bright": "#fbbf24",
+            "surface-overlay": "#111a28",
+            "on-tertiary-fixed-variant": "#4718c9"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "gutter-lg": "1.5rem",
+            "margin-md": "1.5rem",
+            "gutter": "1rem",
+            "margin": "1rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "margin-lg": "2.5rem",
+            "space-xl": "2rem",
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "display": ["Geist"],
+            "headline-md": ["Geist"],
+            "title-sm": ["Geist"],
+            "label-md": ["JetBrains Mono"],
+            "display-mobile": ["Geist"],
+            "headline-lg-mobile": ["Geist"],
+            "body-sm": ["Geist"],
+            "body-md": ["Geist"],
+            "body-lg": ["Geist"],
+            "headline-sm": ["Geist"],
+            "caption": ["Geist"],
+            "headline-lg": ["Geist"],
+            "title-md": ["Geist"],
+            "label-sm": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "display": ["48px", {"lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700"}],
+            "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+            "title-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "-0.005em", "fontWeight": "600"}],
+            "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+            "display-mobile": ["32px", {"lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "700"}],
+            "headline-lg-mobile": ["26px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+            "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "body-md": ["14px", {"lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "body-lg": ["16px", {"lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400"}],
+            "headline-sm": ["20px", {"lineHeight": "26px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+            "caption": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+            "headline-lg": ["36px", {"lineHeight": "42px", "letterSpacing": "-0.025em", "fontWeight": "600"}],
+            "title-md": ["16px", {"lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+            "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500"}]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .brand-gradient-x {
+      background: linear-gradient(135deg, #00d2ff 0%, #3b82f6 50%, #d946ef 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .tech-grid-bg {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(23, 35, 51, 0.45) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(23, 35, 51, 0.45) 1px, transparent 1px);
+    }
+    .primary-glow {
+      box-shadow: 0 0 45px -10px rgba(11, 135, 254, 0.35);
+    }
+  </style>
+</head>
+<body class="bg-surface-base text-text-primary antialiased font-body-md h-screen w-screen overflow-hidden select-none">
+<div class="h-full w-full flex flex-col md:flex-row">
+<!-- LEFT PANEL: Brand, Mission & Distribution Engine Pipeline Preview -->
+<div class="hidden md:flex md:w-1/2 h-full flex-col justify-between p-10 lg:p-12 relative bg-surface-base border-r border-border-subtle overflow-y-auto">
+<!-- Background Ambience & Grids -->
+<div class="absolute inset-0 tech-grid-bg pointer-events-none opacity-60"></div>
+<div class="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-flow-blue/15 blur-[120px] pointer-events-none"></div>
+<div class="absolute top-1/2 left-1/4 w-80 h-80 rounded-full bg-flow-purple/10 blur-[140px] pointer-events-none"></div>
+<!-- Top Brand Header -->
+<div class="relative z-10">
+<div class="flex items-center gap-3">
+<img alt="ArtXFlow Core Logo" class="h-10 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuPKudT6eZDeIwmrK6V35NNLurGVDyX6-DIBKZVAinX1npJys3smywKDEerv3sjcKY-VJGlwlaUhO3lNXVPyWkkyjf7mz6QpA6786ja9Fs0kYeTS8zXloiAyq5CyXOYnZiBzWYYKB6rxTvUSpWABm_qz4jnP74UFOGlhpoDg8pjp7PdN26COKUHhvpDVS6cqWVF17565Szs2Zbba9A-D5BQLIaELHBF4dB3uQvdmQTHz0qJTFxiDg0">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-bold tracking-tight text-text-primary leading-none">
+              Art<span class="brand-gradient-x font-extrabold">X</span>Flow
+            </span>
+<span class="font-label-sm text-label-sm text-flow-cyan tracking-wide font-medium mt-1">
+              v2.4.0-stable • Enterprise
+            </span>
+</div>
+</div>
+<div class="mt-8 max-w-lg">
+<div class="inline-flex items-center gap-2 px-space-sm py-0.5 rounded-full bg-surface-raised border border-border-default mb-3">
+<span class="w-1.5 h-1.5 rounded-full bg-flow-cyan animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-text-secondary">Kinetic Multi-Platform Runtime</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text-primary tracking-tight font-bold">
+            Write once.<br>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-flow-cyan via-primary-container to-flow-purple">
+              Flow everywhere.
+            </span>
+</h1>
+<p class="font-body-md text-body-md text-text-secondary mt-3 leading-relaxed">
+            The open-source multi-destination distribution engine for engineering blogs, technical publications, and developer advocates.
+          </p>
+</div>
+</div>
+<!-- Center Dynamic Graphic: Branching Distribution Pipeline -->
+<div class="relative z-10 my-6">
+<div class="rounded-xl bg-surface-raised border border-border-default p-5 primary-glow backdrop-blur-md relative overflow-hidden">
+<!-- Live Pipeline Header -->
+<div class="flex items-center justify-between pb-3 border-b border-border-subtle">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-flow-cyan text-[18px]" data-icon="alt_route">alt_route</span>
+<span class="font-label-sm text-label-sm text-text-primary font-medium tracking-wide">CANONICAL DISPATCH PIPELINE</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-status-success bg-status-success/10 px-2 py-0.5 rounded border border-status-success/20">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+                14ms p99 Latency
+              </span>
+</div>
+</div>
+<!-- Branching Flow Representation -->
+<div class="py-4 space-y-3">
+<!-- Source Node -->
+<div class="flex items-center gap-3 p-2.5 rounded-lg bg-surface-overlay border border-border-subtle">
+<div class="w-8 h-8 rounded-md bg-flow-blue/20 border border-flow-blue/40 flex items-center justify-center text-flow-cyan">
+<span class="material-symbols-outlined text-[18px]" data-icon="markdown">markdown</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-title-sm text-title-sm text-text-primary truncate">canonical_spec.mdx</span>
+<span class="font-label-sm text-label-sm text-text-muted">AST Parsed</span>
+</div>
+<div class="font-caption text-caption text-text-secondary flex items-center gap-2 mt-0.5">
+<span class="">SHA: 9f4e82b</span>
+<span class="">•</span>
+<span class="text-flow-cyan">Frontmatter Verified</span>
+</div>
+</div>
+</div>
+<!-- Flow Divider Visual -->
+<div class="flex items-center justify-center -my-1 text-text-muted">
+<span class="material-symbols-outlined text-[16px]" data-icon="south">south</span>
+</div>
+<!-- Multi-Destination Grid -->
+<div class="grid grid-cols-2 gap-2">
+<!-- Destination 1: DEV.to -->
+<div class="p-2 rounded-lg bg-surface-base border border-border-subtle flex items-center justify-between hover:border-flow-cyan/30 transition-colors">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-success"></span>
+<span class="font-label-sm text-label-sm text-text-primary">DEV.to API</span>
+</div>
+<span class="font-label-sm text-label-sm text-text-muted">Synced</span>
+</div>
+<!-- Destination 2: Hashnode -->
+<div class="p-2 rounded-lg bg-surface-base border border-border-subtle flex items-center justify-between hover:border-flow-cyan/30 transition-colors">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-success"></span>
+<span class="font-label-sm text-label-sm text-text-primary">Hashnode GQL</span>
+</div>
+<span class="font-label-sm text-label-sm text-text-muted">Synced</span>
+</div>
+<!-- Destination 3: Medium -->
+<div class="p-2 rounded-lg bg-surface-base border border-border-subtle flex items-center justify-between hover:border-flow-cyan/30 transition-colors">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-success"></span>
+<span class="font-label-sm text-label-sm text-text-primary">Medium v1</span>
+</div>
+<span class="font-label-sm text-label-sm text-text-muted">Canonical OK</span>
+</div>
+<!-- Destination 4: Substack / Custom RSS -->
+<div class="p-2 rounded-lg bg-surface-base border border-border-subtle flex items-center justify-between hover:border-flow-cyan/30 transition-colors">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-flow-cyan"></span>
+<span class="font-label-sm text-label-sm text-text-primary">Custom Webhook</span>
+</div>
+<span class="font-label-sm text-label-sm text-flow-cyan font-mono">200 OK</span>
+</div>
+</div>
+</div>
+<!-- Bottom Micro Terminal Stream -->
+<div class="mt-2 pt-2 border-t border-border-subtle/80 flex items-center justify-between font-label-sm text-label-sm text-text-secondary">
+<span class="flex items-center gap-1.5 font-mono text-xs">
+<span class="text-flow-cyan">$</span> artxflow dispatch --all-targets --verify-seo
+            </span>
+<span class="text-status-success flex items-center gap-1 font-mono text-xs">
+<span class="material-symbols-outlined text-[14px]" data-icon="check_circle">check_circle</span> 0 errors
+            </span>
+</div>
+</div>
+<!-- Social Proof Quote Box -->
+<div class="mt-4 p-3.5 rounded-xl bg-surface-overlay/80 border border-border-subtle backdrop-blur-sm">
+<p class="font-body-sm text-body-sm text-text-secondary italic leading-snug">
+            “ArtXFlow streamlined our weekly tech blog syndication across 4 destinations without ever breaking canonical SEO URLs.”
+          </p>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-border-subtle/40">
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-surface-container flex items-center justify-center font-label-sm text-label-sm text-flow-cyan">
+                SO
+              </div>
+<span class="font-label-sm text-label-sm text-text-primary">Lead Developer Advocate</span>
+<span class="font-label-sm text-label-sm text-text-muted">at ScaleOps</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary-foreground font-mono">Verified Deployer</span>
+</div>
+</div>
+</div>
+<!-- Bottom Architectural Badges -->
+<div class="relative z-10 flex flex-wrap items-center gap-3 pt-4 border-t border-border-subtle">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-text-secondary">
+<span class="material-symbols-outlined text-flow-cyan text-[16px]" data-icon="shield">shield</span>
+<span class="">Better Auth v1.1</span>
+</div>
+<span class="text-border-default">•</span>
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-text-secondary">
+<span class="material-symbols-outlined text-flow-cyan text-[16px]" data-icon="lock">lock</span>
+<span class="">End-to-End Encryption</span>
+</div>
+<span class="text-border-default">•</span>
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-text-secondary">
+<span class="material-symbols-outlined text-flow-cyan text-[16px]" data-icon="terminal">terminal</span>
+<span class="">Open Source MIT</span>
+</div>
+</div>
+</div>
+<!-- RIGHT PANEL: Authentication Workspace -->
+<div class="w-full md:w-1/2 h-full flex flex-col justify-between p-6 sm:p-10 lg:p-12 overflow-y-auto bg-surface-raised relative">
+<!-- Top Meta Bar -->
+<div class="w-full flex items-center justify-between pb-4">
+<!-- Mobile Logo View -->
+<div class="flex md:hidden items-center gap-2">
+<img alt="ArtXFlow Logo" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAepq9APKztGlDL8qFsrNvVVijGHiOCX3vQ4vgURflH_En6xPsYwptvhYKmeNDtSsc0bx6_EYf4PusEI1GBrz4GeavE56GjS9KAN_TK0lUc0WWOYLKJXxacI5CI2pJDLz06m24MB5VuRMVPz-CkzNQLNG8Y_0bDnPQD8FHhfhwCvtTKtr_Ln70rEjBdaIpuQBPgwMza3M6ghwHWuOzGpLhEi_g0xfy6RV3ckbbETpqINKMGvQ3F17IB">
+<span class="font-headline-sm text-headline-sm font-bold tracking-tight text-text-primary">
+            Art<span class="brand-gradient-x">X</span>Flow
+          </span>
+</div>
+<div class="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-base border border-border-subtle font-label-sm text-label-sm text-text-secondary">
+<span class="w-2 h-2 rounded-full bg-status-success animate-pulse"></span>
+<span class="">Cloud Runtime v2.4</span>
+<span class="text-text-muted">•</span>
+<span class="font-mono text-text-muted">US-East (IAD)</span>
+</div>
+<a class="font-body-sm text-body-sm text-text-secondary hover:text-flow-cyan flex items-center gap-1 transition-colors group" href="#docs">
+<span class="">Need help? Read Documentation</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-0.5 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Centered Modern Auth Form Container -->
+<div class="max-w-md w-full mx-auto my-auto py-6">
+<!-- Auth Header -->
+<div class="mb-6"><h2 class="font-headline-md text-headline-md text-text-primary tracking-tight font-bold">Create your ArtXFlow Workspace</h2>
+<p class="font-body-sm text-body-sm text-text-secondary mt-1">Start orchestrating multi-platform canonical publishing.</p></div>
+<!-- Mode Tab Switcher -->
+<div class="flex p-1 bg-surface-base rounded-lg border border-border-subtle mb-6" role="tablist"><button aria-selected="false" class="flex-1 py-2 text-center font-title-sm text-title-sm rounded-md transition-all font-medium text-text-secondary hover:text-text-primary flex items-center justify-center gap-1.5" id="tab-signin" onclick="switchAuthTab('signin')" role="tab" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="login">login</span>
+            Sign In
+          </button>
+<button aria-selected="true" class="flex-1 py-2 text-center font-title-sm text-title-sm rounded-md transition-all font-medium text-text-primary bg-surface-raised shadow-sm border border-border-subtle/80 flex items-center justify-center gap-1.5" id="tab-signup" onclick="switchAuthTab('signup')" role="tab" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="add_box">add_box</span>
+            Create Workspace
+          </button></div>
+<!-- OAuth Providers -->
+<div class="space-y-2.5">
+<!-- GitHub OAuth (Primary Dev Preferred) -->
+<button class="w-full h-11 px-4 rounded-lg bg-surface-base hover:bg-surface-overlay border border-border-default hover:border-flow-blue/60 text-text-primary font-title-sm text-title-sm flex items-center justify-between transition-all duration-150 active:scale-[0.99] group" type="button">
+<div class="flex items-center gap-3">
+<svg class="w-5 h-5 fill-current text-text-primary" viewBox="0 0 24 24">
+<path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path>
+</svg>
+<span class="">Continue with GitHub</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-flow-blue/15 text-flow-cyan border border-flow-blue/30 font-mono">
+              FASTEST
+            </span>
+</button>
+<!-- Google OAuth -->
+<div class="grid grid-cols-2 gap-2.5">
+<button class="h-10 px-3 rounded-lg bg-surface-base hover:bg-surface-overlay border border-border-default hover:border-border-highlight text-text-primary font-title-sm text-title-sm flex items-center justify-center gap-2.5 transition-all duration-150" type="button">
+<svg class="w-4 h-4" viewBox="0 0 24 24">
+<path d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z" fill="#EA4335"></path>
+<path d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" fill="#4285F4"></path>
+<path d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z" fill="#FBBC05"></path>
+<path d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.4 7.5 23 12 23z" fill="#34A853"></path>
+</svg>
+<span class="">Google</span>
+</button>
+<!-- GitLab / SSO -->
+<button class="h-10 px-3 rounded-lg bg-surface-base hover:bg-surface-overlay border border-border-default hover:border-border-highlight text-text-primary font-title-sm text-title-sm flex items-center justify-center gap-2 transition-all duration-150" type="button">
+<span class="material-symbols-outlined text-[18px] text-flow-cyan" data-icon="hub">hub</span>
+<span class="">GitLab / SSO</span>
+</button>
+</div>
+</div>
+<!-- Divider -->
+<div class="relative my-5">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-border-subtle"></div>
+</div>
+<div class="relative flex justify-center">
+<span class="bg-surface-raised px-3 font-label-sm text-label-sm text-text-muted uppercase tracking-wider">
+              or continue with work email
+            </span>
+</div>
+</div>
+<!-- Dynamic Form Fields: Sign In View -->
+
+<!-- Dynamic Form Fields: Create Workspace / Sign Up View (Hidden initially) -->
+<form class="space-y-3.5" id="auth-form-signup" onsubmit="event.preventDefault();">
+<!-- 1. Full Name -->
+<div>
+<label class="block font-title-sm text-title-sm text-text-primary mb-1.5 font-medium" for="signup-name">
+              Full Name
+            </label>
+<div class="relative rounded-lg">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
+<span class="material-symbols-outlined text-[18px]" data-icon="person">person</span>
+</div>
+<input class="w-full pl-10 pr-10 py-2.5 bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-text-muted font-body-sm text-body-sm focus:outline-none focus:border-flow-blue focus:ring-2 focus:ring-flow-blue/20 transition-all" id="signup-name" type="text" value="Alex Rivera">
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-status-success">
+<span class="material-symbols-outlined text-[18px]" data-icon="check_circle">check_circle</span>
+</div>
+</div>
+</div>
+<!-- 2. Work Email Address -->
+<div>
+<label class="block font-title-sm text-title-sm text-text-primary mb-1.5 font-medium" for="signup-email">
+              Work Email Address
+            </label>
+<div class="relative rounded-lg">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
+<span class="material-symbols-outlined text-[18px]" data-icon="mail">mail</span>
+</div>
+<input class="w-full pl-10 pr-10 py-2.5 bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-text-muted font-body-sm text-body-sm focus:outline-none focus:border-flow-blue focus:ring-2 focus:ring-flow-blue/20 transition-all" id="signup-email" type="email" value="alex@scaleops.io">
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-status-success">
+<span class="material-symbols-outlined text-[18px]" data-icon="check_circle">check_circle</span>
+</div>
+</div>
+</div>
+<!-- 3. Password with Strength Meter -->
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<label class="font-title-sm text-title-sm text-text-primary font-medium" for="signup-password">
+                Password
+              </label>
+<span class="font-label-sm text-label-sm text-status-warning font-medium">Weak (min. 8 chars, 1 uppercase, 1 symbol)</span>
+</div>
+<div class="relative rounded-lg">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
+<span class="material-symbols-outlined text-[18px]" data-icon="lock">lock</span>
+</div>
+<input class="w-full pl-10 pr-10 py-2.5 bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-text-muted font-body-sm text-body-sm focus:outline-none focus:border-flow-blue focus:ring-2 focus:ring-flow-blue/20 transition-all" id="signup-password" type="password" value="••••••••">
+<button class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-text-primary" onclick="togglePasswordVisibility('signup-password', 'signup-pw-icon')" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="visibility" id="signup-pw-icon">visibility</span>
+</button>
+</div>
+<!-- Segmented Strength Meter -->
+<div class="mt-2 space-y-1.5">
+<div class="grid grid-cols-3 gap-1.5">
+<div class="h-1.5 rounded-full bg-status-warning"></div>
+<div class="h-1.5 rounded-full bg-surface-container-highest"></div>
+<div class="h-1.5 rounded-full bg-surface-container-highest"></div>
+</div>
+<p class="font-caption text-caption text-text-muted">Add an uppercase letter, number, and symbol to increase security.</p>
+</div>
+</div>
+<!-- 4. Confirm Password with Validation Error State -->
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<label class="font-title-sm text-title-sm text-text-primary font-medium" for="signup-confirm-password">
+                Confirm Password
+              </label>
+</div>
+<div class="relative rounded-lg">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-status-error">
+<span class="material-symbols-outlined text-[18px]" data-icon="lock_reset">lock_reset</span>
+</div>
+<input class="w-full pl-10 pr-10 py-2.5 bg-surface-base border border-status-error focus:ring-2 focus:ring-status-error/30 rounded-lg text-text-primary placeholder-text-muted font-body-sm text-body-sm focus:outline-none transition-all" id="signup-confirm-password" type="password" value="••••••••">
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-status-error">
+<span class="material-symbols-outlined text-[18px]" data-icon="error">error</span>
+</div>
+</div>
+<p class="font-caption text-caption text-status-error flex items-center gap-1 mt-1.5">
+<span class="material-symbols-outlined text-[14px]" data-icon="warning">warning</span>
+<span class="">Passwords do not match. Please verify your password.</span>
+</p>
+</div>
+<!-- Primary Create Workspace CTA -->
+<button class="w-full h-11 mt-2 rounded-lg bg-[#0B62F5] hover:bg-[#0b54d1] text-white font-title-sm text-title-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-[#0B62F5]/25 hover:shadow-[#0B62F5]/40 transition-all duration-150 active:scale-[0.99]" type="submit">
+<span class="">Create Workspace &amp; Deploy Flow</span>
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<p class="font-caption text-caption text-text-muted text-center pt-1 leading-relaxed">
+By continuing, you agree to our <a href="#terms" class="text-flow-cyan hover:underline">Terms of Service</a> and <a href="#privacy" class="text-flow-cyan hover:underline">Privacy Policy</a>.
+</p>
+</form>
+<!-- Staging & Community Self-Hosted Link -->
+<div class="mt-6 pt-5 border-t border-border-subtle flex flex-col items-center text-center space-y-3">
+<a class="group inline-flex items-center gap-1.5 font-label-sm text-label-sm text-secondary-foreground hover:text-secondary font-mono transition-colors" href="#self-hosted">
+<span class="w-2 h-2 rounded-full bg-status-warning"></span>
+<span class="">Looking for Self-Hosted Community Edition? Connect Local Daemon</span>
+<span class="material-symbols-outlined text-[14px] group-hover:translate-x-0.5 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</a>
+<p class="font-caption text-caption text-text-muted max-w-xs leading-relaxed">
+            Protected by enterprise session guards &amp; WebAuthn ready. By signing in you agree to Terms of Service and Privacy Policy.
+          </p>
+</div>
+</div>
+<!-- Footer Bar -->
+<div class="w-full pt-4 flex flex-col sm:flex-row items-center justify-between text-text-muted font-label-sm text-label-sm border-t border-border-subtle/50">
+<div class="flex items-center gap-4">
+<span class="hover:text-text-secondary cursor-pointer">Status: 99.99% Operational</span>
+<span class="">•</span>
+<span class="hover:text-text-secondary cursor-pointer">SOC2 Type II Certified</span>
+</div>
+<div class="mt-2 sm:mt-0">
+<span class="">ArtXFlow Core Cluster Engine © 2025</span>
+</div>
+</div>
+</div>
+</div>
+<script>
+    function switchAuthTab(mode) {
+      const btnSignIn = document.getElementById('tab-signin');
+      const btnSignUp = document.getElementById('tab-signup');
+      const formSignIn = document.getElementById('auth-form-signin');
+      const formSignUp = document.getElementById('auth-form-signup');
+
+      if (mode === 'signin') {
+        btnSignIn.className = "flex-1 py-2 text-center font-title-sm text-title-sm rounded-md transition-all font-medium text-text-primary bg-surface-raised shadow-sm border border-border-subtle/80 flex items-center justify-center gap-1.5";
+        btnSignUp.className = "flex-1 py-2 text-center font-title-sm text-title-sm rounded-md transition-all font-medium text-text-secondary hover:text-text-primary flex items-center justify-center gap-1.5";
+        btnSignIn.setAttribute('aria-selected', 'true');
+        btnSignUp.setAttribute('aria-selected', 'false');
+        formSignIn.classList.remove('hidden');
+        formSignUp.classList.add('hidden');
+      } else {
+        btnSignUp.className = "flex-1 py-2 text-center font-title-sm text-title-sm rounded-md transition-all font-medium text-text-primary bg-surface-raised shadow-sm border border-border-subtle/80 flex items-center justify-center gap-1.5";
+        btnSignIn.className = "flex-1 py-2 text-center font-title-sm text-title-sm rounded-md transition-all font-medium text-text-secondary hover:text-text-primary flex items-center justify-center gap-1.5";
+        btnSignUp.setAttribute('aria-selected', 'true');
+        btnSignIn.setAttribute('aria-selected', 'false');
+        formSignUp.classList.remove('hidden');
+        formSignIn.classList.add('hidden');
+      }
+    }
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = 'visibility_off';
+      } else {
+        input.type = 'password';
+        icon.textContent = 'visibility';
+      }
+    }
+  </script>
+
+
+</body></html>

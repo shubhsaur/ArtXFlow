@@ -1,18 +1,49 @@
 import React from 'react';
 
-export type CardProps = React.HTMLAttributes<HTMLDivElement>;
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'glass' | 'elevated';
+}
 
-export function Card({ children, style, className = '', ...props }: CardProps) {
+export function Card({
+  children,
+  variant = 'default',
+  style,
+  className = '',
+  ...props
+}: CardProps) {
+  const getVariantStyles = (): React.CSSProperties => {
+    switch (variant) {
+      case 'glass':
+        return {
+          backgroundColor: 'var(--surface-glass, rgba(13, 20, 32, 0.8))',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.2)',
+        };
+      case 'elevated':
+        return {
+          backgroundColor: 'var(--surface-elevated, #131E2F)',
+          boxShadow: '0 12px 36px -4px rgba(0, 0, 0, 0.25)',
+        };
+      case 'default':
+      default:
+        return {
+          backgroundColor: 'var(--surface, #0D1420)',
+          boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.15)',
+        };
+    }
+  };
+
   return (
     <div
-      className={`axf-card ${className}`}
+      className={`axf-card axf-card-${variant} ${className}`}
       style={{
-        backgroundColor: 'var(--surface, #0D1420)',
         border: '1px solid var(--border, #1C2A3A)',
         borderRadius: 'var(--radius-lg, 12px)',
         padding: '24px',
         color: 'var(--text-primary, #F5F7FA)',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2)',
+        transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        ...getVariantStyles(),
         ...style,
       }}
       {...props}

@@ -14,6 +14,7 @@ import type {
   PlatformMetrics,
 } from '../contract';
 import { PlatformError } from '../errors';
+import { stripFrontmatter } from '../transformers';
 
 export interface HashnodeAdapterOptions {
   apiUrl?: string;
@@ -149,9 +150,11 @@ export class HashnodeAdapter implements PlatformAdapter {
       .filter((tag) => tag.length > 0)
       .slice(0, 5);
 
+    const cleanMarkdown = stripFrontmatter(article.markdown || '');
+
     return {
       title: article.title,
-      content: article.markdown,
+      content: cleanMarkdown,
       description: article.excerpt ?? undefined,
       canonicalUrl: article.canonicalUrl ?? undefined,
       coverImageUrl: article.coverImage?.url ?? undefined,

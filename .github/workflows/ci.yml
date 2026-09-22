@@ -35,6 +35,9 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres_password@localhost:5432/artxflow_test
       BETTER_AUTH_SECRET: test-better-auth-secret-minimum-32-characters-long
       ENCRYPTION_KEY: test-encryption-key-minimum-32-characters-long
+      # `next build` forces NODE_ENV=production, and production env validation
+      # requires API_KEY_SECRET (min 32 chars) — test-only placeholder, not a real secret.
+      API_KEY_SECRET: test-api-key-secret-minimum-32-characters-long
       NEXT_PUBLIC_APP_URL: http://localhost:3000
 
     steps:
@@ -68,10 +71,25 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Security & Secret Scan (No Production Secrets in Preview/CI)
+        shell: bash
         run: |
           echo "Scanning for accidental production secret commits..."
-          ! grep -rn "sk_live_" . --exclude-dir=node_modules --exclude-dir=.git || exit 1
-          ! grep -rn "prod_medium_key" . --exclude-dir=node_modules --exclude-dir=.git || exit 1
+
+          FAILED=0
+
+          # Patterns match real secret formats; test fixtures use short fake values.
+          for pattern in 'sk_live_' 'prod_medium_key' 'xkeysib-[a-zA-Z0-9]{20,}'; do
+            if git grep -n -E "$pattern" -- ':!.github/workflows/ci.yml' ':!pnpm-lock.yaml'; then
+              echo "::error::Found a production secret pattern matching: $pattern"
+              FAILED=1
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            exit 1
+          fi
+
+          echo "No production secrets found."
 
       - name: Lint
         run: pnpm lint

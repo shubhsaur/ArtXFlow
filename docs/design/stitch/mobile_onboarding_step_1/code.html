@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>ArtXFlow - Mobile Onboarding Step 1: Workspace Profile</title>
+<!-- Fonts: Geist & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed": "#e6deff",
+            "error": "#ffb4ab",
+            "tertiary-fixed-dim": "#cabeff",
+            "secondary-fixed": "#ffddb8",
+            "on-primary-fixed-variant": "#00468a",
+            "on-tertiary": "#30009b",
+            "on-background": "#dee2ed",
+            "surface-bright": "#353941",
+            "tertiary-container": "#937dff",
+            "status-success": "#12b76a",
+            "on-surface-variant": "#c0c6d6",
+            "inverse-surface": "#dee2ed",
+            "inverse-primary": "#005eb4",
+            "flow-cyan": "#19d7fe",
+            "surface-container": "#1b2027",
+            "primary-container": "#3790ff",
+            "surface-variant": "#30353d",
+            "on-secondary": "#ffffff",
+            "surface-container-high": "#262a32",
+            "on-surface": "#dee2ed",
+            "on-secondary-fixed": "#2a1700",
+            "status-warning": "#f59e0b",
+            "border-default": "#243447",
+            "secondary": "#ffb95f",
+            "secondary-foreground-bright": "#fbbf24",
+            "status-error": "#d92d20",
+            "secondary-container": "#ee9800",
+            "surface-container-highest": "#30353d",
+            "text-muted": "#66768d",
+            "tertiary": "#cabeff",
+            "surface-container-lowest": "#0a0e15",
+            "on-tertiary-fixed-variant": "#4718c9",
+            "on-secondary-fixed-variant": "#653e00",
+            "on-tertiary-fixed": "#1b0062",
+            "surface": "#0f141b",
+            "primary": "#a8c8ff",
+            "border-highlight": "rgba(25, 215, 254, 0.25)",
+            "outline": "#8a919f",
+            "on-primary-container": "#002956",
+            "status-info": "#0b87fe",
+            "surface-base": "#070b12",
+            "surface-dim": "#0f141b",
+            "text-secondary": "#aab5c4",
+            "surface-container-low": "#171c23",
+            "on-error": "#690005",
+            "secondary-foreground": "#f59e0b",
+            "secondary-fixed-dim": "#ffb95f",
+            "on-tertiary-container": "#290089",
+            "primary-fixed-dim": "#a8c8ff",
+            "inverse-on-surface": "#2c3138",
+            "primary-fixed": "#d6e3ff",
+            "surface-overlay": "#111a28",
+            "on-primary-fixed": "#001b3c",
+            "border-subtle": "#172333",
+            "on-primary": "#003062",
+            "surface-raised": "#0d1420",
+            "flow-purple": "#7a5cfd",
+            "surface-tint": "#a8c8ff",
+            "flow-blue": "#0b87fe",
+            "on-error-container": "#ffdad6",
+            "on-secondary-container": "#5b3800",
+            "text-primary": "#f5f7fa",
+            "error-container": "#93000a",
+            "on-secondary-alt": "#1e1b4b",
+            "background": "#0f141b",
+            "outline-variant": "#404754",
+            "secondary-container-deep": "#451a03"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "margin": "1rem",
+            "margin-lg": "2.5rem",
+            "space-lg": "1.5rem",
+            "margin-md": "1.5rem",
+            "space-xl": "2rem",
+            "gutter": "1rem",
+            "gutter-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem"
+          },
+          "fontFamily": {
+            "body-md": ["Geist"],
+            "label-md": ["JetBrains Mono"],
+            "headline-lg-mobile": ["Geist"],
+            "title-md": ["Geist"],
+            "display": ["Geist"],
+            "caption": ["Geist"],
+            "body-lg": ["Geist"],
+            "display-mobile": ["Geist"],
+            "headline-md": ["Geist"],
+            "label-sm": ["JetBrains Mono"],
+            "headline-sm": ["Geist"],
+            "title-sm": ["Geist"],
+            "body-sm": ["Geist"],
+            "headline-lg": ["Geist"]
+          },
+          "fontSize": {
+            "body-md": ["14px", {"lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+            "headline-lg-mobile": ["26px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+            "title-md": ["16px", {"lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+            "display": ["48px", {"lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700"}],
+            "caption": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+            "body-lg": ["16px", {"lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400"}],
+            "display-mobile": ["32px", {"lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "700"}],
+            "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+            "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+            "headline-sm": ["20px", {"lineHeight": "26px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+            "title-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "-0.005em", "fontWeight": "600"}],
+            "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "headline-lg": ["36px", {"lineHeight": "42px", "letterSpacing": "-0.025em", "fontWeight": "600"}]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Subtle glow and custom touch styles */
+    .primary-gradient-btn {
+      background: linear-gradient(135deg, #0b87fe 0%, #19d7fe 50%, #7a5cfd 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 16px -2px rgba(11, 135, 254, 0.4);
+    }
+    .x-gradient {
+      background: linear-gradient(135deg, #0b87fe 0%, #19d7fe 50%, #7a5cfd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    /* Hide horizontal scrollbar for compact stepper */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-surface-base text-text-primary antialiased font-body-md min-h-screen flex flex-col justify-between selection:bg-flow-blue selection:text-white">
+<!-- Top App Bar (Header Anchor for Onboarding) -->
+<header class="sticky top-0 z-40 bg-surface-raised border-b border-border-subtle px-gutter h-14 flex items-center justify-between shadow-sm">
+<div class="flex items-center space-x-2">
+<!-- ArtXFlow brand mark logo -->
+<img alt="ArtXFlow Logo" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKpPTRpldVGvNb4zZT3K_184tDUKS2PP9sMENaSHDte6Uq2v_bvq8gH9SUcmGhWewBOPFoF-L1OZuoqy_PZQ1F8OMs8Upa00Y53_7E_Tnf2zZwdeLspNomxKPzLsDrnhtZOLfZbaeThnq-ATiOcfieFMH07cUpT3gfBiEBBUNoAoGv2FT0NMLZwkHXZUc726IpWT_C7QKUG-edfTEZI-c4QBNIvg-YSGO3D2cKRZhfsOaZgNUKr9XP"/>
+<div class="flex items-baseline space-x-1.5">
+<span class="font-headline-sm text-headline-sm font-bold tracking-tight text-text-primary">
+          Art<span class="x-gradient font-black">X</span>Flow
+        </span>
+<span class="font-label-sm text-label-sm text-text-muted bg-surface-container-high px-1.5 py-0.5 rounded border border-border-subtle">
+          v2.4.0 Setup
+        </span>
+</div>
+</div>
+<!-- Save & Exit Action Button -->
+<button class="px-2.5 py-1 rounded bg-surface-raised border border-border-default text-text-secondary hover:text-text-primary hover:border-flow-blue active:scale-95 transition-all duration-150 font-label-sm text-label-sm flex items-center space-x-1" type="button">
+<span>Save &amp; Exit</span>
+</button>
+</header>
+<!-- Main Scrollable Content Container -->
+<main class="flex-1 w-full max-w-lg mx-auto px-gutter pt-4 pb-28 flex flex-col">
+<!-- Stepper Navigation (Compact Mobile Stepper) -->
+<nav aria-label="Wizard Progress" class="w-full mb-6">
+<div class="flex items-center justify-between no-scrollbar overflow-x-auto pb-1 gap-2">
+<!-- Step 1 (Active) -->
+<div class="flex items-center space-x-1.5 flex-shrink-0">
+<div class="flex items-center justify-center w-5 h-5 rounded-full bg-status-info text-white font-label-sm text-[10px] font-bold shadow-[0_0_10px_rgba(11,135,254,0.5)]">
+            1
+          </div>
+<span class="font-label-sm text-label-sm font-semibold text-flow-cyan">
+            Workspace
+          </span>
+</div>
+<div class="h-[1px] w-4 bg-border-default flex-shrink-0"></div>
+<!-- Step 2 (Pending) -->
+<div class="flex items-center space-x-1.5 flex-shrink-0 opacity-50">
+<div class="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container-high text-text-muted font-label-sm text-[10px] border border-border-subtle">
+            2
+          </div>
+<span class="font-label-sm text-label-sm text-text-muted">
+            Source
+          </span>
+</div>
+<div class="h-[1px] w-4 bg-border-default flex-shrink-0"></div>
+<!-- Step 3 (Pending) -->
+<div class="flex items-center space-x-1.5 flex-shrink-0 opacity-50">
+<div class="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container-high text-text-muted font-label-sm text-[10px] border border-border-subtle">
+            3
+          </div>
+<span class="font-label-sm text-label-sm text-text-muted">
+            Destinations
+          </span>
+</div>
+<div class="h-[1px] w-4 bg-border-default flex-shrink-0"></div>
+<!-- Step 4 (Pending) -->
+<div class="flex items-center space-x-1.5 flex-shrink-0 opacity-50">
+<div class="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container-high text-text-muted font-label-sm text-[10px] border border-border-subtle">
+            4
+          </div>
+<span class="font-label-sm text-label-sm text-text-muted">
+            Launch
+          </span>
+</div>
+</div>
+<!-- Progress Bar Track -->
+<div class="w-full h-1 bg-surface-container-high rounded-full mt-2.5 overflow-hidden">
+<div class="h-full bg-gradient-to-r from-flow-blue to-flow-cyan w-1/4 rounded-full transition-all duration-300"></div>
+</div>
+</nav>
+<!-- Content Workspace Card -->
+<div class="bg-surface-raised border border-border-subtle rounded-xl p- space-y-5 shadow-sm relative overflow-hidden">
+<!-- Ambient light hairline accent -->
+<div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-flow-cyan/30 to-transparent"></div>
+<!-- Card Title & Description -->
+<div class="space-y-1.5 pt-1">
+<div class="inline-flex items-center gap-1.5 text-secondary-foreground-bright font-label-sm text-label-sm bg-[#362005] border border-status-warning/30 px-2 py-0.5 rounded">
+<span class="w-1.5 h-1.5 rounded-full bg-status-warning animate-pulse"></span>
+          Step 1 of 4: Configuration
+        </div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold tracking-tight text-text-primary pt-1">
+          Workspace Profile
+        </h1>
+<p class="font-body-sm text-body-sm text-text-secondary leading-relaxed">
+          Create your publishing workspace. You can invite team members and adjust domain routing anytime in Settings.
+        </p>
+</div>
+<!-- Form Elements Section -->
+<form class="space-y-4" onsubmit="event.preventDefault();">
+<!-- Field 1: Workspace Name -->
+<div class="space-y-1.5">
+<label class="block font-title-sm text-title-sm text-text-primary" for="workspace-name">
+            Workspace Name
+          </label>
+<div class="relative flex items-center">
+<input class="w-full bg-surface-raised border border-border-default rounded-lg px-3.5 py-2.5 text-text-primary font-body-md text-body-md placeholder-text-muted focus:border-flow-blue focus:ring-2 focus:ring-flow-blue/20 focus:outline-none transition-all pr-9" id="workspace-name" placeholder="e.g. Acme Engineering" type="text" value="ScaleOps Engineering Blog"/>
+<button aria-label="Clear workspace name" class="absolute right-2.5 text-text-muted hover:text-text-primary transition-colors flex items-center justify-center p-1 rounded hover:bg-surface-container" onclick="document.getElementById('workspace-name').value=''" type="button">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+</button>
+</div>
+<span class="font-caption text-caption text-text-muted">
+            The internal label displayed in dashboards, webhooks, and deployment logs.
+          </span>
+</div>
+<!-- Field 2: Workspace URL / Slug -->
+<div class="space-y-1.5 pt-1">
+<div class="flex items-center justify-between">
+<label class="block font-title-sm text-title-sm text-text-primary" for="workspace-slug">
+              Workspace URL / Slug
+            </label>
+<!-- Green Badge: Slug Available -->
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-status-success bg-status-success/10 border border-status-success/30 px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+              Slug available
+            </span>
+</div>
+<div class="flex rounded-lg overflow-hidden border border-border-default focus-within:border-flow-blue focus-within:ring-2 focus-within:ring-flow-blue/20 transition-all bg-surface-raised">
+<div class="bg-surface-container-high px-3 py-2.5 text-text-muted font-label-sm text-label-sm border-r border-border-subtle flex items-center select-none">
+              artxflow.dev/
+            </div>
+<input class="flex-1 bg-transparent px-3 py-2.5 text-text-primary font-label-sm text-label-sm placeholder-text-muted focus:outline-none border-0" id="workspace-slug" placeholder="slug-name" type="text" value="scaleops-eng"/>
+</div>
+<span class="font-caption text-caption text-text-muted">
+            Canonical host routing base identifier. Alphanumeric &amp; hyphens permitted.
+          </span>
+</div>
+</form>
+<!-- Encouraging Visual Info Banner -->
+<div class="mt-4 bg-[#362005] border border-status-warning/40 rounded-lg p-3 flex items-start space-x-2.5 shadow-[0_0_16px_-4px_rgba(245,158,11,0.15)]">
+<span class="material-symbols-outlined text-status-warning text-[20px] flex-shrink-0 mt-0.5">
+          verified
+        </span>
+<div class="text-secondary-foreground-bright font-body-sm text-body-sm leading-snug">
+          Protected with automatic <span class="font-label-sm text-label-sm font-semibold text-white bg-black/30 px-1 py-0.5 rounded">rel=canonical</span> tags on all future syndications.
+        </div>
+</div>
+</div>
+<!-- Micro Metadata Status indicator -->
+<div class="mt-4 px-2 flex items-center justify-between font-label-sm text-label-sm text-text-muted">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+        Sync Engine: Ready
+      </span>
+<span>Tier: Developer Pro</span>
+</div>
+</main>
+<!-- Sticky Mobile Footer Bar -->
+<footer class="fixed bottom-0 left-0 w-full z-50 bg-surface-raised/95 backdrop-blur-md border-t border-border-subtle px-gutter py-3">
+<div class="max-w-lg mx-auto flex items-center justify-between gap-4">
+<!-- Skip setup link -->
+<button class="font-label-sm text-label-sm text-text-secondary hover:text-text-primary active:scale-95 transition-all py-2 px-1 underline-offset-4 hover:underline" type="button">
+        Skip setup
+      </button>
+<!-- Primary Continue Button -->
+<button class="primary-gradient-btn flex-1 max-w-[220px] py-2.5 px-4 rounded-lg font-title-sm text-title-sm text-white font-semibold flex items-center justify-center space-x-1.5 active:scale-[0.97] transition-all duration-150" type="button">
+<span>Continue to Source</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</footer>
+</body></html>

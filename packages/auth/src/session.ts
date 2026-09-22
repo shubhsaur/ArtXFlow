@@ -62,3 +62,4 @@ export async function requireUser(headers?: Headers): Promise<AuthSession['user'
   }
   return user;
 }
+

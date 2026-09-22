@@ -1,133 +1,92 @@
 import React from 'react';
-import Link from 'next/link';
-import { Logo, Button } from '@artxflow/ui';
+import { headers } from 'next/headers';
+import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
+import { Navbar } from '../components/navbar';
+import { Footer } from '../components/footer';
+import { HeroBackdrop } from '../components/hero-backdrop';
+import { LandingHero } from '../components/landing/landing-hero';
+import { LandingProofBar } from '../components/landing/landing-proof-bar';
+import { LandingHeroVisual } from '../components/landing/landing-hero-visual';
+import { LandingComparison } from '../components/landing/landing-comparison';
+import { LandingPipelineBar } from '../components/landing/landing-pipeline-bar';
+import { LandingSeoProtection } from '../components/landing/landing-seo-protection';
+import { LandingAstRewrites } from '../components/landing/landing-ast-rewrites';
+import { LandingArchitectureCards } from '../components/landing/landing-architecture-cards';
+import { LandingCompetitiveMatrix } from '../components/landing/landing-competitive-matrix';
+import { LandingDeveloperSection } from '../components/landing/landing-developer-section';
+import { LandingCommunityMetrics } from '../components/landing/landing-community-metrics';
+import { LandingCta } from '../components/landing/landing-cta';
 
-export default function HomePage() {
+export const dynamic = 'force-dynamic';
+
+export default async function HomePage() {
+  const headersList = await headers();
+  const session = await getSession(headersList);
+
+  let user = null;
+  let organization = null;
+  let membership = null;
+
+  if (session?.user) {
+    user = session.user;
+    const bootstrapResult = await bootstrapPersonalOrganization({
+      userId: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+    });
+    organization = bootstrapResult.organization;
+    membership = bootstrapResult.membership;
+  }
+
   return (
     <div
       style={{
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: 'var(--bg-primary, #070B12)',
+        backgroundColor: 'var(--surface-base, #070B12)',
+        color: 'var(--text-primary, #F5F7FA)',
+        position: 'relative',
+        overflowX: 'clip',
       }}
     >
-      {/* Navigation Header */}
-      <header
-        role="banner"
-        style={{
-          height: '64px',
-          borderBottom: '1px solid var(--border, #1C2A3A)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 32px',
-        }}
-      >
-        <Logo size={32} showWordmark={true} />
-        <nav aria-label="Landing Navigation">
-          <Link href="/login">
-            <Button variant="secondary" size="sm">
-              Sign In
-            </Button>
-          </Link>
-        </nav>
-      </header>
+      {/* Dynamic Ambient Background */}
+      <HeroBackdrop />
 
-      {/* Hero Section */}
+      {/* Sticky Top Header Navigation */}
+      <Navbar
+        user={user}
+        organizationName={organization?.name}
+        role={membership?.role}
+      />
+
+      {/* Main Landing Flow */}
       <main
         id="main-content"
-        tabIndex={-1}
         style={{
+          position: 'relative',
+          zIndex: 1,
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          padding: '48px 24px',
-          maxWidth: '800px',
-          margin: '0 auto',
         }}
       >
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '6px 14px',
-            borderRadius: 'var(--radius-full, 9999px)',
-            backgroundColor: 'rgba(11, 135, 254, 0.1)',
-            border: '1px solid rgba(11, 135, 254, 0.25)',
-            color: 'var(--axf-cyan, #19D7FE)',
-            fontSize: '13px',
-            fontWeight: 500,
-            marginBottom: '24px',
-          }}
-        >
-          <span>✦ Developer-first content distribution</span>
-        </div>
-
-        <h1
-          style={{
-            fontSize: 'clamp(36px, 6vw, 64px)',
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            lineHeight: 1.1,
-            color: 'var(--text-primary, #F5F7FA)',
-            marginBottom: '20px',
-          }}
-        >
-          Write once.{' '}
-          <span
-            style={{
-              background:
-                'var(--axf-gradient, linear-gradient(135deg, #0B87FE 0%, #19D7FE 45%, #7A5CFD 100%))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            Flow everywhere.
-          </span>
-        </h1>
-
-        <p
-          style={{
-            fontSize: 'clamp(16px, 2vw, 19px)',
-            color: 'var(--text-secondary, #AAB5C4)',
-            lineHeight: 1.6,
-            maxWidth: '620px',
-            marginBottom: '36px',
-          }}
-        >
-          ArtXFlow is the canonical source of truth for technical articles. Author once and
-          distribute seamlessly to DEV.to, Medium, Hashnode, and your own hosted publication.
-        </p>
-
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Link href="/login">
-            <Button size="lg">Get Started Free →</Button>
-          </Link>
-          <Link href="/dashboard">
-            <Button variant="secondary" size="lg">
-              Go to Dashboard
-            </Button>
-          </Link>
-        </div>
+        <LandingHero />
+        <LandingProofBar />
+        <LandingHeroVisual />
+        <LandingComparison />
+        <LandingPipelineBar />
+        <LandingSeoProtection />
+        <LandingAstRewrites />
+        <LandingArchitectureCards />
+        <LandingCompetitiveMatrix />
+        <LandingDeveloperSection />
+        <LandingCommunityMetrics />
+        <LandingCta />
       </main>
 
-      {/* Footer */}
-      <footer
-        style={{
-          padding: '24px',
-          borderTop: '1px solid var(--border, #1C2A3A)',
-          textAlign: 'center',
-          fontSize: '13px',
-          color: 'var(--text-secondary, #AAB5C4)',
-        }}
-      >
-        © {new Date().getFullYear()} ArtXFlow. Open-source developer-first publishing platform.
-      </footer>
+      {/* Enterprise Global Footer */}
+      <Footer />
     </div>
   );
 }

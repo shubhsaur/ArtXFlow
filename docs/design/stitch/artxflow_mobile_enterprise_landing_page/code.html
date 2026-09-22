@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>ArtXFlow - Write once. Flow everywhere.</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Geist & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-tint": "#b3c5ff",
+            "error": "#ffb4ab",
+            "on-secondary": "#472a00",
+            "surface-overlay": "#111A28",
+            "on-surface": "#dee2ed",
+            "text-muted": "#66768D",
+            "secondary-fixed-dim": "#ffb95f",
+            "tertiary": "#cabeff",
+            "flow-cyan": "#19D7FE",
+            "surface-container-high": "#252a32",
+            "secondary-container": "#ee9800",
+            "surface-raised": "#0D1420",
+            "on-tertiary-container": "#f5efff",
+            "border-default": "#243447",
+            "on-secondary-container": "#5b3800",
+            "on-error-container": "#ffdad6",
+            "on-error": "#690005",
+            "secondary": "#ffb95f",
+            "outline-variant": "#424655",
+            "primary-fixed-dim": "#b3c5ff",
+            "on-primary-fixed": "#00184a",
+            "surface-container": "#1b2027",
+            "surface-container-highest": "#30353d",
+            "on-secondary-fixed": "#2a1700",
+            "background": "#0f141b",
+            "primary-fixed": "#dbe1ff",
+            "on-primary-fixed-variant": "#003fa5",
+            "surface": "#0f141b",
+            "outline": "#8c90a1",
+            "tertiary-container": "#6f50f1",
+            "secondary-fixed": "#ffddb8",
+            "border-highlight": "rgba(11, 98, 245, 0.35)",
+            "secondary-container-deep": "#451A03",
+            "on-primary-container": "#eef0ff",
+            "secondary-foreground-bright": "#FBBF24",
+            "surface-bright": "#353941",
+            "on-background": "#dee2ed",
+            "status-warning": "#F59E0B",
+            "secondary-foreground": "#F59E0B",
+            "error-container": "#93000a",
+            "status-error": "#D92D20",
+            "surface-container-low": "#171c23",
+            "text-secondary": "#AAB5C4",
+            "inverse-surface": "#dee2ed",
+            "surface-base": "#070B12",
+            "on-tertiary-fixed": "#1b0062",
+            "on-tertiary-fixed-variant": "#4718c9",
+            "primary-container": "#0b62f5",
+            "on-secondary-fixed-variant": "#653e00",
+            "on-surface-variant": "#c2c6d8",
+            "status-info": "#0B62F5",
+            "on-tertiary": "#30009b",
+            "primary": "#b3c5ff",
+            "surface-container-lowest": "#090e15",
+            "inverse-primary": "#0054d8",
+            "tertiary-fixed-dim": "#cabeff",
+            "surface-variant": "#30353d",
+            "tertiary-fixed": "#e6deff",
+            "on-primary": "#002a76",
+            "status-success": "#12B76A",
+            "border-subtle": "#172333",
+            "text-primary": "#F5F7FA",
+            "inverse-on-surface": "#2c3138",
+            "surface-dim": "#0f141b"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xl": "2rem",
+            "margin-lg": "2.5rem",
+            "margin": "1rem",
+            "gutter-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "margin-md": "1.5rem",
+            "gutter": "1rem",
+            "space-xs": "0.25rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem"
+          },
+          "fontFamily": {
+            "title-sm": ["Geist", "sans-serif"],
+            "headline-lg-mobile": ["Geist", "sans-serif"],
+            "body-md": ["Geist", "sans-serif"],
+            "headline-sm": ["Geist", "sans-serif"],
+            "display-mobile": ["Geist", "sans-serif"],
+            "body-sm": ["Geist", "sans-serif"],
+            "label-sm": ["JetBrains Mono", "monospace"],
+            "body-lg": ["Geist", "sans-serif"],
+            "caption": ["Geist", "sans-serif"],
+            "display": ["Geist", "sans-serif"],
+            "headline-lg": ["Geist", "sans-serif"],
+            "title-md": ["Geist", "sans-serif"],
+            "headline-md": ["Geist", "sans-serif"],
+            "label-md": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "title-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-sm": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "display-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "caption": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "display": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "headline-lg": ["36px", { "lineHeight": "42px", "letterSpacing": "-0.025em", "fontWeight": "600" }],
+            "title-md": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "500" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #070B12;
+      color: #dee2ed;
+      font-family: 'Geist', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .material-symbols-outlined {
+      font-size: 18px;
+      line-height: 1;
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .glow-cobalt {
+      box-shadow: 0 0 24px -4px rgba(11, 98, 245, 0.4);
+    }
+    .glow-cyan-box {
+      box-shadow: 0 0 28px -6px rgba(25, 215, 254, 0.25);
+    }
+    .code-grid {
+      background-size: 24px 24px;
+      background-image: 
+        linear-gradient(to right, rgba(23, 35, 51, 0.4) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(23, 35, 51, 0.4) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-surface-base text-on-surface antialiased min-h-screen flex flex-col selection:bg-primary-container selection:text-white">
+<!-- 1. TopAppBar Component (from Shared Components JSON) -->
+<header class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-margin py-space-sm max-w-full backdrop-blur-md bg-surface-raised/90 border-b border-border-subtle">
+<div class="flex items-center gap-space-xs">
+<img alt="ArtXFlow" class="h-6 w-auto object-contain mr-1.5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsbqJa6aWu3nmwoMOVj7eplXfyCKVI6pJPF9Yhg-qb2xzSYPd0Y7ov7HLx2vL4Ad6op5JRaYTyc3JJv_mmQ1rU6HTs2aK2mbpVePPzAQZ-6Q2iZJ0HAe4mF9e2WIWOkNPEPJHQM3BqLyDZ6NhM2ayeBHsjBzmO_Oc5G-835Q9hOefVs-Upc6NEdRtz09VFRxkvvUQFm8ZygZDOCut_3EynsL4bxZ3Ie1OzcHWIKTXFjXLNKA87O5ex"/>
+<span class="text-title-md font-title-md font-bold text-text-primary tracking-tight flex items-center">
+        Art<span class="text-flow-cyan font-extrabold">X</span>Flow
+      </span>
+<span class="ml-1.5 px-1.5 py-0.5 rounded bg-surface-container-high border border-border-default text-text-secondary text-label-sm font-label-sm">
+        v2.4.0
+      </span>
+</div>
+<div class="flex items-center gap-space-xs">
+<a class="flex items-center gap-1 px-2 py-1 rounded bg-surface-overlay border border-border-default hover:border-primary text-text-secondary hover:text-text-primary transition-all text-label-sm font-label-sm" href="https://github.com/shubhsaur/ArtXFlow" rel="noreferrer" target="_blank">
+<span class="text-secondary-foreground">★</span>
+<span>1.4k</span>
+</a>
+<a class="flex items-center gap-1 px-3 py-1 rounded bg-primary-container text-white font-title-sm text-title-sm hover:opacity-90 active:scale-95 transition-all shadow-[0_0_12px_rgba(11,98,245,0.4)]" href="#deploy">
+<span>Launch</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</header>
+<main class="flex-1 pt-20 pb-16 px-margin overflow-x-hidden w-full max-w-md mx-auto code-grid">
+<!-- 2. Mobile Hero Section -->
+<section class="flex flex-col items-start gap-space-md pt-space-md pb-space-lg">
+<!-- Announcement Tag -->
+<div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-surface-raised border border-border-default">
+<span class="flex h-2 w-2 rounded-full bg-status-success animate-pulse"></span>
+<span class="text-label-sm font-label-sm text-text-secondary">v2.4.0 is Live • Distribution Engine</span>
+</div>
+<!-- Main Headline -->
+<h1 class="text-display-mobile font-display-mobile tracking-tight text-text-primary">
+        Write Once.<br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-flow-cyan via-primary to-tertiary">Flow Everywhere.</span>
+</h1>
+<!-- Body Copy -->
+<p class="text-body-md font-body-md text-text-secondary leading-relaxed">
+        The open-source content distribution engine for technical creators. Author markdown once, preserve strict canonical SEO attribution, and syndicate seamlessly across DEV.to, Hashnode, Medium, and custom blogs.
+      </p>
+<!-- Dual Action CTAs -->
+<div class="w-full flex flex-col gap-space-xs pt-1">
+<a class="w-full h-11 flex items-center justify-center gap-2 rounded bg-primary-container hover:bg-primary-container/90 text-white font-title-sm text-title-sm glow-cobalt active:scale-[0.98] transition-all" href="#pipeline">
+<span>Get Started Free</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+<a class="w-full h-11 flex items-center justify-center gap-2 rounded bg-surface-raised border border-border-default hover:border-primary text-text-primary font-title-sm text-title-sm active:scale-[0.98] transition-all" href="https://github.com/shubhsaur/ArtXFlow">
+<span class="material-symbols-outlined text-text-muted">terminal</span>
+<span>Explore GitHub Repo</span>
+</a>
+</div>
+<!-- Copyable CLI Command Badge -->
+<div class="w-full mt-2 p-2.5 rounded bg-surface-base border border-border-default flex items-center justify-between font-label-sm text-label-sm group">
+<div class="flex items-center gap-2 overflow-hidden text-text-secondary">
+<span class="text-flow-cyan font-bold select-none">$</span>
+<code class="text-text-primary truncate">npx create-artxflow@latest</code>
+</div>
+<button class="text-text-muted hover:text-flow-cyan px-2 py-0.5 rounded text-[11px] bg-surface-raised border border-border-subtle transition-colors flex-shrink-0" onclick="navigator.clipboard.writeText('npx create-artxflow@latest'); this.innerText='Copied!';">
+          copy
+        </button>
+</div>
+<!-- Partner / Trust Section -->
+<div class="w-full pt-4">
+<p class="text-label-sm font-label-sm text-text-muted tracking-wider text-center">ARCHITECTED FOR ENGINEERS AT</p>
+<div class="flex items-center justify-between pt-3 px-2 opacity-65 grayscale contrast-125">
+<span class="font-title-sm font-semibold tracking-tighter text-text-secondary">▲ Vercel</span>
+<span class="font-title-sm font-semibold tracking-tight text-text-secondary">⚡ Supabase</span>
+<span class="font-title-sm font-semibold tracking-tight text-text-secondary">☁ Cloudflare</span>
+<span class="font-title-sm font-semibold tracking-tight text-text-secondary">🐙 GitHub</span>
+</div>
+</div>
+</section>
+<!-- 3. Hero Product Visual Frame -->
+<section class="my-space-md">
+<div class="relative rounded-xl overflow-hidden border border-flow-cyan/30 bg-surface-raised glow-cyan-box">
+<div class="flex items-center justify-between px-3 py-2 border-b border-border-subtle bg-surface-base/80">
+<div class="flex items-center gap-1.5">
+<div class="w-2.5 h-2.5 rounded-full bg-status-error/80"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-status-warning/80"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-status-success/80"></div>
+</div>
+<span class="text-label-sm font-label-sm text-text-muted">distribution-telemetry.ts</span>
+<div class="w-3"></div>
+</div>
+<div class="p-2 relative bg-surface-container-lowest">
+<img class="w-full h-auto rounded object-cover border border-border-subtle" data-alt="High-density isometric 3D visualization of ArtXFlow engine core box with glass glowing pipelines fanning out deterministic content to Dev.to, Medium, and Hashnode platforms in dark obsidian workspace with cyan and electric cobalt accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9rW-OnzE2gW5Az6BP-OGzZUaq-RRMok7Ae6CvI-zHx1uuqDb4q-_NHbcEJK956ZGd6C3oAplgfYr7gKamUvU6dDSelR2IOyvLYH2GIOSlOPhDfC051WaW3_pMItKRw2_ANumQtpeM446ouUJUF7I_NWdG0FALoRVQBKKYuFSkXMB8HSzQ79kw_Fs8g5Ns0qe9-T80rU3O9zzhP3CTP6vlfFkY9rSLmrdRCiH7GV8"/>
+</div>
+<!-- Floating Stats Pills Overlay -->
+<div class="grid grid-cols-3 gap-1.5 p-2 bg-surface-raised border-t border-border-subtle text-center">
+<div class="p-1.5 rounded bg-surface-base border border-border-subtle flex flex-col items-center">
+<span class="text-label-sm font-label-sm text-flow-cyan font-bold">120ms</span>
+<span class="text-[10px] text-text-muted font-caption leading-tight">Fan-out speed</span>
+</div>
+<div class="p-1.5 rounded bg-surface-base border border-border-subtle flex flex-col items-center">
+<span class="text-label-sm font-label-sm text-status-success font-bold">Enforced</span>
+<span class="text-[10px] text-text-muted font-caption leading-tight">rel=canonical</span>
+</div>
+<div class="p-1.5 rounded bg-surface-base border border-border-subtle flex flex-col items-center">
+<span class="text-label-sm font-label-sm text-tertiary font-bold">5+ Targets</span>
+<span class="text-[10px] text-text-muted font-caption leading-tight">Native Sync</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. The Cost of Manual Cross-Posting vs ArtXFlow -->
+<section class="py-space-md flex flex-col gap-space-sm">
+<div class="text-left mb-1">
+<span class="text-label-sm font-label-sm text-flow-cyan font-semibold">PARADIGM SHIFT</span>
+<h2 class="text-headline-sm font-headline-sm text-text-primary">Engineered to Kill Redundancy</h2>
+</div>
+<!-- Card 1: Negative State -->
+<div class="p-4 rounded-xl bg-surface-raised border border-status-error/30 relative overflow-hidden">
+<div class="flex items-center justify-between mb-2">
+<span class="text-title-sm font-title-sm text-status-error font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-status-error text-[16px]">cancel</span>
+            Manual Cross-Posting
+          </span>
+<span class="px-2 py-0.5 rounded bg-status-error/10 text-status-error text-label-sm font-label-sm">-45m per post</span>
+</div>
+<ul class="space-y-2 text-body-sm font-body-sm text-text-muted">
+<li class="flex items-start gap-2">
+<span class="text-status-error text-sm mt-0.5">✕</span>
+<span>Broken markdown indents and clipped syntax code blocks</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="text-status-error text-sm mt-0.5">✕</span>
+<span>Missing canonical tags causing severe duplicate SEO penalties</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="text-status-error text-sm mt-0.5">✕</span>
+<span>Un-synced errata and divergent typo fixes across 4 tabs</span>
+</li>
+</ul>
+</div>
+<!-- Card 2: ArtXFlow Positive State -->
+<div class="p-4 rounded-xl bg-surface-raised border border-flow-cyan/50 glow-cyan-box relative overflow-hidden">
+<div class="absolute -right-8 -top-8 w-24 h-24 bg-primary-container/20 rounded-full blur-xl pointer-events-none"></div>
+<div class="flex items-center justify-between mb-2">
+<span class="text-title-sm font-title-sm text-flow-cyan font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-flow-cyan text-[16px]">check_circle</span>
+            ArtXFlow Canonical Flow
+          </span>
+<span class="px-2 py-0.5 rounded bg-flow-cyan/10 text-flow-cyan text-label-sm font-label-sm">Deterministic</span>
+</div>
+<ul class="space-y-2 text-body-sm font-body-sm text-text-primary">
+<li class="flex items-start gap-2">
+<span class="text-flow-cyan text-sm mt-0.5">✓</span>
+<span>Automated AST compiler handles platform idiosyncrasies</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="text-flow-cyan text-sm mt-0.5">✓</span>
+<span>Strict <code class="text-label-sm text-flow-cyan font-label-sm">rel=canonical</code> locked to original source domain</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="text-flow-cyan text-sm mt-0.5">✓</span>
+<span>Single Git commit triggers atomic background re-sync</span>
+</li>
+</ul>
+</div>
+</section>
+<!-- 5. Deterministic 5-Stage Pipeline -->
+<section class="py-space-md" id="pipeline">
+<div class="mb-3">
+<span class="text-label-sm font-label-sm text-flow-cyan font-semibold">ARCHITECTURE</span>
+<h2 class="text-headline-sm font-headline-sm text-text-primary">Deterministic Pipeline</h2>
+<p class="text-body-sm font-body-sm text-text-secondary">How your canonical markdown fans out safely.</p>
+</div>
+<div class="space-y-2 relative before:absolute before:left-3.5 before:top-4 before:bottom-4 before:w-[1px] before:bg-border-default">
+<!-- Stage 01 -->
+<div class="p-3 pl-8 rounded-lg bg-surface-raised border border-border-subtle relative flex flex-col">
+<span class="absolute left-2.5 top-3.5 w-2 h-2 rounded-full bg-flow-cyan -translate-x-1/2"></span>
+<div class="flex items-center justify-between">
+<span class="text-title-sm font-title-sm text-text-primary">01. Source Layer</span>
+<span class="text-label-sm font-label-sm text-text-muted">Markdown + Frontmatter</span>
+</div>
+<p class="text-caption font-caption text-text-muted mt-0.5">Parses localized YAML headers and isolates canonical base domain.</p>
+</div>
+<!-- Stage 02 -->
+<div class="p-3 pl-8 rounded-lg bg-surface-raised border border-border-subtle relative flex flex-col">
+<span class="absolute left-2.5 top-3.5 w-2 h-2 rounded-full bg-primary-container -translate-x-1/2"></span>
+<div class="flex items-center justify-between">
+<span class="text-title-sm font-title-sm text-text-primary">02. AST Transformation</span>
+<span class="text-label-sm font-label-sm text-text-muted">Prism / Shiki</span>
+</div>
+<p class="text-caption font-caption text-text-muted mt-0.5">Rewrites embedded links, image URLs, and precomputes syntax trees.</p>
+</div>
+<!-- Stage 03 -->
+<div class="p-3 pl-8 rounded-lg bg-surface-raised border border-border-subtle relative flex flex-col">
+<span class="absolute left-2.5 top-3.5 w-2 h-2 rounded-full bg-flow-cyan -translate-x-1/2"></span>
+<div class="flex items-center justify-between">
+<span class="text-title-sm font-title-sm text-text-primary">03. Adapter Fan-out</span>
+<span class="text-label-sm font-label-sm text-text-muted">Inngest Worker</span>
+</div>
+<p class="text-caption font-caption text-text-muted mt-0.5">Asynchronous dispatch across authenticated platform adapter endpoints.</p>
+</div>
+<!-- Stage 04 -->
+<div class="p-3 pl-8 rounded-lg bg-surface-raised border border-border-subtle relative flex flex-col">
+<span class="absolute left-2.5 top-3.5 w-2 h-2 rounded-full bg-status-warning -translate-x-1/2"></span>
+<div class="flex items-center justify-between">
+<span class="text-title-sm font-title-sm text-text-primary">04. Rate Limiting &amp; Retry</span>
+<span class="text-label-sm font-label-sm text-secondary-foreground">Exponential Backoff</span>
+</div>
+<p class="text-caption font-caption text-text-muted mt-0.5">Idempotent execution protecting against Medium and Dev.to quotas.</p>
+</div>
+<!-- Stage 05 -->
+<div class="p-3 pl-8 rounded-lg bg-surface-raised border border-border-subtle relative flex flex-col">
+<span class="absolute left-2.5 top-3.5 w-2 h-2 rounded-full bg-status-success -translate-x-1/2"></span>
+<div class="flex items-center justify-between">
+<span class="text-title-sm font-title-sm text-text-primary">05. Telemetry &amp; Ingestion</span>
+<span class="text-label-sm font-label-sm text-status-success">Drizzle ORM</span>
+</div>
+<p class="text-caption font-caption text-text-muted mt-0.5">Consolidates read stats, referral loops, and platform post IDs.</p>
+</div>
+</div>
+</section>
+<!-- 6. Core Feature Showcase 1: Strict rel=canonical -->
+<section class="py-space-md">
+<div class="p-4 rounded-xl bg-surface-raised border border-border-default flex flex-col gap-3">
+<div>
+<div class="inline-flex items-center gap-1.5 text-label-sm font-label-sm text-flow-cyan bg-flow-cyan/10 px-2 py-0.5 rounded border border-flow-cyan/20">
+<span class="material-symbols-outlined text-[13px]">format_image_left</span>
+            ZERO SEO DEPRECIATION
+          </div>
+<h3 class="text-headline-sm font-headline-sm text-text-primary mt-2">Strict rel=canonical Preservation</h3>
+<p class="text-body-sm font-body-sm text-text-secondary mt-1">
+            Google penalizes duplicate content unless properly signed. ArtXFlow automatically embeds and verifies canonical tags at the target API level.
+          </p>
+</div>
+<div class="rounded-lg overflow-hidden border border-border-subtle bg-surface-base p-2">
+<img class="w-full h-auto rounded border border-border-subtle" data-alt="Technical illustration diagram displaying canonical markdown source routing with low latency indicators 50ms, 120ms, and 80ms to Dev.to, Medium, and Hashnode with rel=canonical verified tags in deep obsidian dark mode styling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqmkmf4fOS6YYdeHA9MpkUrVNvNp_GCD563TGt8OicZsk8za-i0HPoBA0BT4_6-JA1IdIhCcrSWXPlyVL7N9e4qx5QUUnfhlZEyeZp0sOj_v4OSOP2BLqlZcI5HhNG1QYd5Kg4jD56471U3gYW6zT1TXja5Gy-VLrid2z0tpmI9q_nrFSat0EzNRJoSneqgfQOXQIT8booLzzie8ijLil7o0Y3mMU8V078hYOv7gI"/>
+</div>
+<!-- Platform Status Matrix -->
+<div class="space-y-1.5 pt-1">
+<div class="flex items-center justify-between p-2 rounded bg-surface-overlay border border-border-subtle">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-success"></span>
+<span class="text-title-sm font-title-sm text-text-primary">DEV.to API</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-label-sm font-label-sm text-status-success">canonical_url ✓</span>
+<span class="text-label-sm font-label-sm text-text-muted">50ms</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-surface-overlay border border-border-subtle">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-success"></span>
+<span class="text-title-sm font-title-sm text-text-primary">Medium Bridge</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-label-sm font-label-sm text-status-success">canonicalUrl ✓</span>
+<span class="text-label-sm font-label-sm text-text-muted">120ms</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-surface-overlay border border-border-subtle">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-success"></span>
+<span class="text-title-sm font-title-sm text-text-primary">Hashnode GraphQL</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-label-sm font-label-sm text-status-success">originalArticleUrl ✓</span>
+<span class="text-label-sm font-label-sm text-text-muted">80ms</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 7. Core Feature Showcase 2: Smart AST Rewrites -->
+<section class="py-space-md">
+<div class="p-4 rounded-xl bg-surface-raised border border-border-default flex flex-col gap-3">
+<div>
+<div class="inline-flex items-center gap-1.5 text-label-sm font-label-sm text-flow-cyan bg-flow-cyan/10 px-2 py-0.5 rounded border border-flow-cyan/20">
+<span class="material-symbols-outlined text-[13px]">code_blocks</span>
+            ISOLATED PLATFORM ADAPTERS
+          </div>
+<h3 class="text-headline-sm font-headline-sm text-text-primary mt-2">Smart AST Markdown Rewrites</h3>
+<p class="text-body-sm font-body-sm text-text-secondary mt-1">
+            Adapters translate generic markdown into destination-specific dialect without breaking tabs, math formulas, or syntax fences.
+          </p>
+</div>
+<!-- Syntax comparison card -->
+<div class="rounded-lg bg-surface-base border border-border-subtle p-3 font-label-sm text-[12px] space-y-2 overflow-x-auto">
+<div class="flex items-center justify-between text-text-muted pb-1 border-b border-border-subtle text-[11px]">
+<span>TRANSFORMATION AST</span>
+<span class="text-status-success">✓ Zero Syntax Loss</span>
+</div>
+<div class="text-text-muted">
+<span class="text-status-error font-bold">- // Generic Markdown code block</span><br/>
+<span class="text-text-secondary">typescript:lib/parser.ts</span>
+</div>
+<div class="text-flow-cyan bg-flow-cyan/5 p-2 rounded border border-flow-cyan/20">
+<span class="text-status-success font-bold">+ // Dev.to Liquid Tag AST injection:</span><br/>
+<span class="text-text-primary">{% github shubhsaur/ArtXFlow %}</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-1.5 pt-1">
+<span class="px-2 py-1 rounded bg-surface-overlay border border-border-subtle text-label-sm font-label-sm text-text-secondary">DEV Community v1</span>
+<span class="px-2 py-1 rounded bg-surface-overlay border border-border-subtle text-label-sm font-label-sm text-text-secondary">Hashnode GQL</span>
+<span class="px-2 py-1 rounded bg-surface-overlay border border-border-subtle text-label-sm font-label-sm text-text-secondary">Medium REST</span>
+<span class="px-2 py-1 rounded bg-surface-overlay border border-border-subtle text-label-sm font-label-sm text-text-secondary">Ghost Admin</span>
+<span class="px-2 py-1 rounded bg-surface-overlay border border-border-subtle text-label-sm font-label-sm text-text-secondary">Git Submodules</span>
+</div>
+</div>
+</section>
+<!-- 8. Competitive Comparison Matrix -->
+<section class="py-space-md">
+<div class="mb-3">
+<span class="text-label-sm font-label-sm text-flow-cyan font-semibold">DIFFERENTIATION</span>
+<h2 class="text-headline-sm font-headline-sm text-text-primary">Why ArtXFlow is Built Different</h2>
+<p class="text-body-sm font-body-sm text-text-secondary">Engineered for code bases, not marketing fluff.</p>
+</div>
+<div class="space-y-3">
+<!-- Metric 1 -->
+<div class="p-3 rounded-lg bg-surface-raised border border-border-subtle flex flex-col gap-2">
+<span class="text-title-sm font-title-sm text-text-primary">Canonical SEO Safeguards</span>
+<div class="grid grid-cols-2 gap-2 text-label-sm font-label-sm">
+<div class="p-2 rounded bg-flow-cyan/10 border border-flow-cyan/30 text-flow-cyan">
+<span class="block text-[10px] text-text-muted">ArtXFlow</span>
+              Automated &amp; Verified
+            </div>
+<div class="p-2 rounded bg-surface-base border border-border-subtle text-text-muted">
+<span class="block text-[10px] text-text-muted">Buffer / Manual</span>
+              None / Error-Prone
+            </div>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="p-3 rounded-lg bg-surface-raised border border-border-subtle flex flex-col gap-2">
+<span class="text-title-sm font-title-sm text-text-primary">Syntax Fence &amp; AST Parsing</span>
+<div class="grid grid-cols-2 gap-2 text-label-sm font-label-sm">
+<div class="p-2 rounded bg-flow-cyan/10 border border-flow-cyan/30 text-flow-cyan">
+<span class="block text-[10px] text-text-muted">ArtXFlow</span>
+              Full AST + Shiki Tree
+            </div>
+<div class="p-2 rounded bg-surface-base border border-border-subtle text-text-muted">
+<span class="block text-[10px] text-text-muted">Schedulers</span>
+              Strips Indentation
+            </div>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="p-3 rounded-lg bg-surface-raised border border-border-subtle flex flex-col gap-2">
+<span class="text-title-sm font-title-sm text-text-primary">Native Developer Platforms</span>
+<div class="grid grid-cols-2 gap-2 text-label-sm font-label-sm">
+<div class="p-2 rounded bg-flow-cyan/10 border border-flow-cyan/30 text-flow-cyan">
+<span class="block text-[10px] text-text-muted">ArtXFlow</span>
+              Dev.to, Medium, Hashnode
+            </div>
+<div class="p-2 rounded bg-surface-base border border-border-subtle text-text-muted">
+<span class="block text-[10px] text-text-muted">Social SaaS</span>
+              Twitter / LinkedIn Only
+            </div>
+</div>
+</div>
+<!-- Metric 4 -->
+<div class="p-3 rounded-lg bg-surface-raised border border-border-subtle flex flex-col gap-2">
+<span class="text-title-sm font-title-sm text-text-primary">License &amp; Infrastructure</span>
+<div class="grid grid-cols-2 gap-2 text-label-sm font-label-sm">
+<div class="p-2 rounded bg-flow-cyan/10 border border-flow-cyan/30 text-flow-cyan">
+<span class="block text-[10px] text-text-muted">ArtXFlow</span>
+              100% MIT Monorepo
+            </div>
+<div class="p-2 rounded bg-surface-base border border-border-subtle text-text-muted">
+<span class="block text-[10px] text-text-muted">Closed SaaS</span>
+              $99 / month paywalls
+            </div>
+</div>
+</div>
+</div>
+</section>
+<!-- 9. Developer CLI Execution Console -->
+<section class="py-space-md">
+<div class="rounded-xl bg-surface-base border border-border-default overflow-hidden">
+<div class="px-3 py-2 bg-surface-raised border-b border-border-subtle flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<div class="w-2.5 h-2.5 rounded-full bg-status-error/70"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-status-warning/70"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-status-success/70"></div>
+</div>
+<span class="text-label-sm font-label-sm text-text-muted">terminal - zsh</span>
+<span class="material-symbols-outlined text-[14px] text-text-muted">terminal</span>
+</div>
+<div class="p-3 font-label-sm text-label-sm space-y-1.5 leading-tight">
+<div class="flex items-center gap-2 text-text-secondary">
+<span class="text-flow-cyan font-bold select-none">$</span>
+<span class="text-text-primary">artxflow publish ./content/post.md</span>
+</div>
+<div class="text-text-muted text-[11px] pt-1">
+            [00:00:01] Parsing AST and extracting canonical_url...
+          </div>
+<div class="text-status-success flex items-center gap-1.5 pt-0.5">
+<span>✓</span>
+<span>DEV.to: published (rel=canonical verified)</span>
+</div>
+<div class="text-status-success flex items-center gap-1.5">
+<span>✓</span>
+<span>Hashnode: published (post: 67b5e82a...)</span>
+</div>
+<div class="text-status-success flex items-center gap-1.5">
+<span>✓</span>
+<span>Medium: published (id: 4a276b91...)</span>
+</div>
+<div class="text-flow-cyan pt-1 flex items-center gap-1.5">
+<span>⚡</span>
+<span>All 3 destinations synced deterministically in 128ms</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 10. Open Source Community Banner -->
+<section class="my-space-md p-5 rounded-2xl bg-gradient-to-b from-surface-raised to-surface-overlay border border-flow-cyan/30 text-center flex flex-col items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-flow-cyan/10 border border-flow-cyan/30 flex items-center justify-center text-flow-cyan">
+<span class="material-symbols-outlined text-[20px]">hub</span>
+</div>
+<div>
+<h3 class="text-headline-sm font-headline-sm text-text-primary">Built in Public with Creators</h3>
+<p class="text-body-sm font-body-sm text-text-secondary mt-1">
+          Open-source, extensible adapters, zero lock-in. Powered by Turborepo &amp; Next.js.
+        </p>
+</div>
+<div class="grid grid-cols-2 gap-2 w-full pt-1">
+<div class="p-2 rounded bg-surface-base border border-border-subtle flex flex-col">
+<span class="text-title-sm font-title-sm text-text-primary font-bold">1.4k+</span>
+<span class="text-[10px] text-text-muted font-label-sm">GitHub Stars</span>
+</div>
+<div class="p-2 rounded bg-surface-base border border-border-subtle flex flex-col">
+<span class="text-title-sm font-title-sm text-text-primary font-bold">100%</span>
+<span class="text-[10px] text-text-muted font-label-sm">MIT License</span>
+</div>
+</div>
+<a class="w-full mt-1 py-2.5 rounded bg-primary-container hover:bg-primary-container/90 text-white font-title-sm text-title-sm glow-cobalt transition-all flex items-center justify-center gap-2" href="https://github.com/shubhsaur/ArtXFlow">
+<span class="material-symbols-outlined text-[16px]">star</span>
+<span>Star on GitHub ⭐</span>
+</a>
+</section>
+</main>
+<!-- 11. Footer Component (from Shared Components JSON) -->
+<footer class="w-full px-margin py-space-xl flex flex-col gap-space-md max-w-screen-md mx-auto bg-surface-base border-t border-border-subtle">
+<!-- Brand / Tagline -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<img alt="ArtXFlow" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWZxTmFA04xnWNF7nss71oaX5koppV3VJKwX8NQ7OageF2afnJBSj_P9Ag7MjrXxRcIgGdp1jKX1RiZLil0jvP-LJv9v6-bdhOv5L4-euvySSThc1z-rbO7om5S7PqKEAiArie8rlKqcuMoTd-rF0EowEHx3v-SuiZ7Mk6RYj1sZH8rosmv_KFWbNmyjjyTkeXEXAOoqHykHn1OHEgbG6COd9bqWmdAY-7Up3HayrV2C1avZB1iLC1"/>
+<span class="text-title-md font-title-md font-bold text-text-primary">ArtXFlow</span>
+</div>
+<p class="text-body-sm font-body-sm text-text-secondary">Write once. Flow everywhere.</p>
+</div>
+<!-- Health telemetry indicator -->
+<div class="flex items-center gap-2 text-label-sm font-label-sm text-text-muted">
+<span class="w-2 h-2 rounded-full bg-status-success animate-ping"></span>
+<span class="text-status-success font-medium">All systems operational</span>
+<span class="text-text-muted">(99.99% uptime)</span>
+</div>
+<!-- Links from JSON -->
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 text-body-sm font-body-sm">
+<a class="text-text-muted hover:text-primary transition-colors duration-150" href="#">Documentation</a>
+<a class="text-text-muted hover:text-primary transition-colors duration-150" href="#">CLI Reference</a>
+<a class="text-text-muted hover:text-primary transition-colors duration-150" href="https://github.com/shubhsaur/ArtXFlow">GitHub</a>
+<a class="text-text-muted hover:text-primary transition-colors duration-150" href="#">Discord</a>
+<a class="text-text-muted hover:text-primary transition-colors duration-150" href="#">System Status</a>
+<a class="text-text-muted hover:text-primary transition-colors duration-150" href="#">Security</a>
+</div>
+<!-- Legal & Copyright -->
+<div class="pt-4 border-t border-border-subtle flex flex-col gap-1">
+<p class="text-caption font-caption text-text-muted">
+        © 2025 ArtXFlow Engine Inc. Enterprise Open-Source Infrastructure.
+      </p>
+<p class="text-[11px] text-text-muted font-caption">
+        Released under MIT License. Community contributors welcome.
+      </p>
+</div>
+</footer>
+</body></html>

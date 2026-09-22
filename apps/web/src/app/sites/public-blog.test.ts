@@ -74,50 +74,50 @@ vi.mock('@artxflow/content-core', () => {
 
 describe('Public Blog & Subdomain Routing', () => {
   describe('Middleware Subdomain Resolution', () => {
-    it('rewrites <subdomain>.artxflow.com to /sites/<subdomain>/...', () => {
+    it('rewrites <subdomain>.artxflow.com to /sites/<subdomain>/...', async () => {
       const req = new NextRequest('https://acme.artxflow.com/my-post', {
         headers: { host: 'acme.artxflow.com' },
       });
 
-      const res = middleware(req);
+      const res = await middleware(req);
       const rewriteUrl = res.headers.get('x-middleware-rewrite');
       expect(rewriteUrl).toContain('/sites/acme/my-post');
     });
 
-    it('rewrites <subdomain>.localhost:3000 to /sites/<subdomain>/...', () => {
+    it('rewrites <subdomain>.localhost:3000 to /sites/<subdomain>/...', async () => {
       const req = new NextRequest('http://acme.localhost:3000/', {
         headers: { host: 'acme.localhost:3000' },
       });
 
-      const res = middleware(req);
+      const res = await middleware(req);
       const rewriteUrl = res.headers.get('x-middleware-rewrite');
       expect(rewriteUrl).toContain('/sites/acme');
     });
 
-    it('does not rewrite reserved subdomains like app or api', () => {
+    it('does not rewrite reserved subdomains like app or api', async () => {
       const reqApp = new NextRequest('https://app.artxflow.com/dashboard', {
         headers: { host: 'app.artxflow.com' },
       });
-      const resApp = middleware(reqApp);
+      const resApp = await middleware(reqApp);
       expect(resApp.headers.get('x-middleware-rewrite')).toBeNull();
 
       const reqApi = new NextRequest('https://api.artxflow.com/v1', {
         headers: { host: 'api.artxflow.com' },
       });
-      const resApi = middleware(reqApi);
+      const resApi = await middleware(reqApi);
       expect(resApi.headers.get('x-middleware-rewrite')).toBeNull();
     });
 
-    it('does not rewrite internal Next.js assets or direct /sites routes', () => {
+    it('does not rewrite internal Next.js assets or direct /sites routes', async () => {
       const reqNext = new NextRequest('https://acme.artxflow.com/_next/static/chunk.js', {
         headers: { host: 'acme.artxflow.com' },
       });
-      expect(middleware(reqNext).headers.get('x-middleware-rewrite')).toBeNull();
+      expect((await middleware(reqNext)).headers.get('x-middleware-rewrite')).toBeNull();
 
       const reqSites = new NextRequest('https://acme.artxflow.com/sites/acme', {
         headers: { host: 'acme.artxflow.com' },
       });
-      expect(middleware(reqSites).headers.get('x-middleware-rewrite')).toBeNull();
+      expect((await middleware(reqSites)).headers.get('x-middleware-rewrite')).toBeNull();
     });
   });
 

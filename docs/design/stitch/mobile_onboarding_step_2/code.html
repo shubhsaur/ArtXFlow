@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ArtXFlow - Mobile Onboarding Step 2: Canonical Source</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed": "#e6deff",
+            "error": "#ffb4ab",
+            "tertiary-fixed-dim": "#cabeff",
+            "secondary-fixed": "#ffddb8",
+            "on-primary-fixed-variant": "#00468a",
+            "on-tertiary": "#30009b",
+            "on-background": "#dee2ed",
+            "surface-bright": "#353941",
+            "tertiary-container": "#937dff",
+            "status-success": "#12b76a",
+            "on-surface-variant": "#c0c6d6",
+            "inverse-surface": "#dee2ed",
+            "inverse-primary": "#005eb4",
+            "flow-cyan": "#19d7fe",
+            "surface-container": "#1b2027",
+            "primary-container": "#3790ff",
+            "surface-variant": "#30353d",
+            "on-secondary": "#ffffff",
+            "surface-container-high": "#262a32",
+            "on-surface": "#dee2ed",
+            "on-secondary-fixed": "#2a1700",
+            "status-warning": "#f59e0b",
+            "border-default": "#243447",
+            "secondary": "#ffb95f",
+            "secondary-foreground-bright": "#fbbf24",
+            "status-error": "#d92d20",
+            "secondary-container": "#ee9800",
+            "surface-container-highest": "#30353d",
+            "text-muted": "#66768d",
+            "tertiary": "#cabeff",
+            "surface-container-lowest": "#0a0e15",
+            "on-tertiary-fixed-variant": "#4718c9",
+            "on-secondary-fixed-variant": "#653e00",
+            "on-tertiary-fixed": "#1b0062",
+            "surface": "#0f141b",
+            "primary": "#a8c8ff",
+            "border-highlight": "rgba(25, 215, 254, 0.25)",
+            "outline": "#8a919f",
+            "on-primary-container": "#002956",
+            "status-info": "#0b87fe",
+            "surface-base": "#070b12",
+            "surface-dim": "#0f141b",
+            "text-secondary": "#aab5c4",
+            "surface-container-low": "#171c23",
+            "on-error": "#690005",
+            "secondary-foreground": "#f59e0b",
+            "secondary-fixed-dim": "#ffb95f",
+            "on-tertiary-container": "#290089",
+            "primary-fixed-dim": "#a8c8ff",
+            "inverse-on-surface": "#2c3138",
+            "primary-fixed": "#d6e3ff",
+            "surface-overlay": "#111a28",
+            "on-primary-fixed": "#001b3c",
+            "border-subtle": "#172333",
+            "on-primary": "#003062",
+            "surface-raised": "#0d1420",
+            "flow-purple": "#7a5cfd",
+            "surface-tint": "#a8c8ff",
+            "flow-blue": "#0b87fe",
+            "on-error-container": "#ffdad6",
+            "on-secondary-container": "#5b3800",
+            "text-primary": "#f5f7fa",
+            "error-container": "#93000a",
+            "on-secondary-alt": "#1e1b4b",
+            "background": "#0f141b",
+            "outline-variant": "#404754",
+            "secondary-container-deep": "#451a03"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "margin": "1rem",
+            "margin-lg": "2.5rem",
+            "space-lg": "1.5rem",
+            "margin-md": "1.5rem",
+            "space-xl": "2rem",
+            "gutter": "1rem",
+            "gutter-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem"
+          },
+          "fontFamily": {
+            "body-md": ["Geist"],
+            "label-md": ["JetBrains Mono"],
+            "headline-lg-mobile": ["Geist"],
+            "title-md": ["Geist"],
+            "display": ["Geist"],
+            "caption": ["Geist"],
+            "body-lg": ["Geist"],
+            "display-mobile": ["Geist"],
+            "headline-md": ["Geist"],
+            "label-sm": ["JetBrains Mono"],
+            "headline-sm": ["Geist"],
+            "title-sm": ["Geist"],
+            "body-sm": ["Geist"],
+            "headline-lg": ["Geist"]
+          },
+          "fontSize": {
+            "body-md": ["14px", {"lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+            "headline-lg-mobile": ["26px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+            "title-md": ["16px", {"lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+            "display": ["48px", {"lineHeight": "52px", "letterSpacing": "-0.03em", "fontWeight": "700"}],
+            "caption": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+            "body-lg": ["16px", {"lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400"}],
+            "display-mobile": ["32px", {"lineHeight": "38px", "letterSpacing": "-0.025em", "fontWeight": "700"}],
+            "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+            "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+            "headline-sm": ["20px", {"lineHeight": "26px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+            "title-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "-0.005em", "fontWeight": "600"}],
+            "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400"}],
+            "headline-lg": ["36px", {"lineHeight": "42px", "letterSpacing": "-0.025em", "fontWeight": "600"}]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .custom-scroll {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-surface-base text-text-primary min-h-screen flex flex-col font-body-md antialiased select-none">
+<!-- Top App Bar (Header with Brand Mark Logo) -->
+<header class="sticky top-0 z-40 bg-surface-raised/90 backdrop-blur-md px-gutter h-14 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-2">
+<!-- ArtXFlow brand mark logo -->
+<img alt="ArtXFlow Logo" class="w-8 h-8 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4WJ99lKbxNBoEwvW2a-lYJcI6nT__JYmsk20zSaSWCaAvNb0eqaxuU4yMTMOthtTXJaBc9I07Vb6vGbaSPIujvBFr1BaTx4B1I4SmD3ypDBrcGmuLAdhpmvt1vytMwAOXPafOR-55sOCncH8IQF9WY2EMb2TUMKuHay0uGvwzQ94d8VIac6puL5kZ9HoMCeiyDoA9NVW_qi9Newnq41bls9tu481Z38fdyn8l7tex1XRA0ncEFtSH"/>
+<span class="text-headline-sm font-headline-sm font-bold tracking-tight text-text-primary flex items-center">
+        Art<span class="bg-gradient-to-r from-flow-blue to-flow-cyan bg-clip-text text-transparent">X</span>Flow
+      </span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-text-muted bg-surface-container px-2 py-1 rounded border border-border-subtle">
+        Step 2 of 4
+      </span>
+</div>
+</header>
+<!-- Main Scrollable Container (Compact Mobile Layout) -->
+<main class="flex-1 w-full max-w-md mx-auto px-gutter pt-space-md pb-28 flex flex-col">
+<!-- Compact Mobile Stepper Rail -->
+<section class="mb-space-lg">
+<div class="flex items-center justify-between relative">
+<!-- Background Track Line -->
+<div class="absolute top-1/2 left-4 right-4 -translate-y-1/2 h-[2px] bg-border-subtle -z-0"></div>
+<!-- Progress Completed Line -->
+<div class="absolute top-1/2 left-4 w-1/3 -translate-y-1/2 h-[2px] bg-status-success -z-0"></div>
+<!-- Step 1: Completed -->
+<div class="flex flex-col items-center gap-1 z-10">
+<div class="w-7 h-7 rounded-full bg-surface-overlay border border-status-success flex items-center justify-center text-status-success shadow-[0_0_8px_rgba(18,183,106,0.3)]">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'wght' 600;">check</span>
+</div>
+<span class="font-label-sm text-[10px] text-status-success font-medium">1. Account</span>
+</div>
+<!-- Step 2: Active (Primary highlight) -->
+<div class="flex flex-col items-center gap-1 z-10">
+<div class="w-7 h-7 rounded-full bg-status-info text-on-secondary font-label-sm text-label-sm font-bold flex items-center justify-center shadow-[0_0_12px_rgba(11,135,254,0.5)] ring-2 ring-flow-cyan/30">
+            2
+          </div>
+<span class="font-label-sm text-[10px] text-flow-cyan font-bold tracking-tight">Canonical Source</span>
+</div>
+<!-- Step 3: Pending -->
+<div class="flex flex-col items-center gap-1 z-10">
+<div class="w-7 h-7 rounded-full bg-surface-raised border border-border-subtle text-text-muted font-label-sm text-label-sm flex items-center justify-center">
+            3
+          </div>
+<span class="font-label-sm text-[10px] text-text-muted">Destinations</span>
+</div>
+<!-- Step 4: Pending -->
+<div class="flex flex-col items-center gap-1 z-10">
+<div class="w-7 h-7 rounded-full bg-surface-raised border border-border-subtle text-text-muted font-label-sm text-label-sm flex items-center justify-center">
+            4
+          </div>
+<span class="font-label-sm text-[10px] text-text-muted">Launch</span>
+</div>
+</div>
+</section>
+<!-- Header Section -->
+<section class="mb-space-md">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold tracking-tight text-text-primary mb-1">
+        Choose your primary authoring source
+      </h1>
+<p class="font-body-sm text-body-sm text-text-secondary leading-relaxed">
+        This will be the canonical source of truth for SEO attribution.
+      </p>
+</section>
+<!-- Source Selection Options (Interactive Cards) -->
+<section class="flex flex-col gap-space-sm mb-space-md" id="sourceSelector">
+<!-- Option 1: Selected/Active Card -->
+<div class="cursor-pointer relative bg-surface-raised rounded-xl p-space-md border-2 border-status-info shadow-[0_0_20px_-3px_rgba(11,135,254,0.35)] transition-all duration-200" id="card-editor" onclick="selectSource('editor')">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-lg bg-status-info/10 border border-status-info/30 flex items-center justify-center text-flow-cyan shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[22px]">edit_note</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1 flex-wrap">
+<h2 class="font-title-sm text-title-sm font-semibold text-text-primary">
+                  ArtXFlow Built-in Editor
+                </h2>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary mb-2.5">
+                Write directly in Markdown &amp; MDX with live multi-platform preview and zero setup.
+              </p>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-status-success/15 border border-status-success/30 text-status-success">
+                  Instant Setup
+                </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-text-muted">
+                  Recommended
+                </span>
+</div>
+</div>
+</div>
+<!-- Radio Indicator (Selected) -->
+<div class="w-5 h-5 rounded-full border-2 border-status-info flex items-center justify-center shrink-0 mt-1 bg-status-info/20" id="radio-editor">
+<div class="w-2.5 h-2.5 rounded-full bg-status-info"></div>
+</div>
+</div>
+</div>
+<!-- Option 2: Unselected Option Card -->
+<div class="cursor-pointer relative bg-surface-raised rounded-xl p-space-md border border-border-subtle hover:border-border-default transition-all duration-200" id="card-github" onclick="selectSource('github')">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container border border-border-default flex items-center justify-center text-text-secondary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">code</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1 flex-wrap">
+<h2 class="font-title-sm text-title-sm font-semibold text-text-primary">
+                  Sync with GitHub Repository
+                </h2>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary mb-2.5">
+                Push markdown files to Git. ArtXFlow auto-syncs and distributes changes.
+              </p>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container border border-border-default text-text-muted">
+                  For Dev Teams
+                </span>
+<span class="font-label-sm text-label-sm text-text-muted">
+                  CI/CD Ready
+                </span>
+</div>
+</div>
+</div>
+<!-- Radio Indicator (Unselected) -->
+<div class="w-5 h-5 rounded-full border-2 border-border-default flex items-center justify-center shrink-0 mt-1 bg-surface-container" id="radio-github">
+<div class="w-2.5 h-2.5 rounded-full bg-transparent"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- SEO Tip Banner -->
+<div class="bg-surface-raised/60 border border-border-subtle rounded-lg p-space-sm flex items-start gap-2.5">
+<span class="material-symbols-outlined text-status-info text-[18px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">
+        verified_user
+      </span>
+<p class="font-caption text-caption text-text-secondary leading-relaxed">
+        Articles published from ArtXFlow always link back to your canonical URL to protect your Google search rankings.
+      </p>
+</div>
+</main>
+<!-- Sticky Bottom Navigation Shell -->
+<footer class="fixed bottom-0 left-0 right-0 z-40 bg-surface-raised/95 backdrop-blur-md px-gutter py-space-sm flex items-center justify-between gap-space-md">
+<!-- Back Action -->
+<button class="px-4 py-2.5 rounded-lg border border-border-subtle bg-surface-container-low text-text-secondary hover:text-text-primary hover:border-border-default transition-all duration-150 active:scale-95 font-title-sm text-title-sm flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Back</span>
+</button>
+<!-- Primary Continue Action -->
+<button class="flex-1 px-4 py-2.5 rounded-lg text-white font-title-sm text-title-sm font-semibold flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-[0.98] shadow-[0_4px_16px_rgba(11,135,254,0.4),inset_0_1px_0_rgba(255,255,255,0.25)]" style="background: linear-gradient(135deg, #0b87fe 0%, #19d7fe 50%, #7a5cfd 100%);" type="button">
+<span>Continue to Destinations</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</footer>
+<!-- Simple Selection Switcher Script -->
+<script>
+    function selectSource(source) {
+      const cardEditor = document.getElementById('card-editor');
+      const cardGithub = document.getElementById('card-github');
+      const radioEditor = document.getElementById('radio-editor');
+      const radioGithub = document.getElementById('radio-github');
+
+      if (source === 'editor') {
+        // Activate Editor
+        cardEditor.className = "cursor-pointer relative bg-surface-raised rounded-xl p-space-md border-2 border-status-info shadow-[0_0_20px_-3px_rgba(11,135,254,0.35)] transition-all duration-200";
+        radioEditor.className = "w-5 h-5 rounded-full border-2 border-status-info flex items-center justify-center shrink-0 mt-1 bg-status-info/20";
+        radioEditor.innerHTML = '<div class="w-2.5 h-2.5 rounded-full bg-status-info"></div>';
+
+        // Deactivate Github
+        cardGithub.className = "cursor-pointer relative bg-surface-raised rounded-xl p-space-md border border-border-subtle hover:border-border-default transition-all duration-200";
+        radioGithub.className = "w-5 h-5 rounded-full border-2 border-border-default flex items-center justify-center shrink-0 mt-1 bg-surface-container";
+        radioGithub.innerHTML = '<div class="w-2.5 h-2.5 rounded-full bg-transparent"></div>';
+      } else {
+        // Activate Github
+        cardGithub.className = "cursor-pointer relative bg-surface-raised rounded-xl p-space-md border-2 border-status-info shadow-[0_0_20px_-3px_rgba(11,135,254,0.35)] transition-all duration-200";
+        radioGithub.className = "w-5 h-5 rounded-full border-2 border-status-info flex items-center justify-center shrink-0 mt-1 bg-status-info/20";
+        radioGithub.innerHTML = '<div class="w-2.5 h-2.5 rounded-full bg-status-info"></div>';
+
+        // Deactivate Editor
+        cardEditor.className = "cursor-pointer relative bg-surface-raised rounded-xl p-space-md border border-border-subtle hover:border-border-default transition-all duration-200";
+        radioEditor.className = "w-5 h-5 rounded-full border-2 border-border-default flex items-center justify-center shrink-0 mt-1 bg-surface-container";
+        radioEditor.innerHTML = '<div class="w-2.5 h-2.5 rounded-full bg-transparent"></div>';
+      }
+    }
+  </script>
+</body></html>
