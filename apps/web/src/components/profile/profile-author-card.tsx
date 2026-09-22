@@ -393,7 +393,7 @@ export function ProfileAuthorCard({
       )}
 
       {/* Author Input Grid */}
-      <div className="profile-grid-2col" style={{ paddingTop: '24px' }}>
+      <div className="profile-grid-2col" style={{ paddingTop: '24px', alignItems: 'flex-start' }}>
         {/* Full Name */}
         <div className="profile-form-control">
           <div style={{ display: 'flex', alignItems: 'center', minHeight: '22px' }}>
@@ -410,17 +410,9 @@ export function ProfileAuthorCard({
 
         {/* Primary Account Email */}
         <div className="profile-form-control">
-          <label className="profile-label">Account Email</label>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <input
-              type="email"
-              disabled
-              className="profile-input-field"
-              style={{ opacity: 0.75, cursor: 'not-allowed' }}
-              value={formData.email}
-              readOnly
-            />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '12px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: '22px' }}>
+            <label className="profile-label">Account Email</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ProfileChangeEmail currentEmail={formData.email} />
               {formData.emailVerified ? (
                 <span
@@ -462,6 +454,14 @@ export function ProfileAuthorCard({
               )}
             </div>
           </div>
+          <input
+            type="email"
+            disabled
+            className="profile-input-field"
+            style={{ opacity: 0.75, cursor: 'not-allowed' }}
+            value={formData.email}
+            readOnly
+          />
         </div>
 
         {/* Origin Blog URL (Canonical SEO Destination) */}
