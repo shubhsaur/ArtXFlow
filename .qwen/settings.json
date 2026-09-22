@@ -12,7 +12,8 @@
       "Bash(sleep *)",
       "Bash(curl *)",
       "Bash(kill *)",
-      "Bash(head *)"
+      "Bash(head *)",
+      "Bash(python3 *)"
     ]
   },
   "$version": 4
