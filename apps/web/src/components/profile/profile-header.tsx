@@ -85,7 +85,7 @@ export function ProfileHeader({
               transition: 'all 0.15s ease',
             }}
           >
-            Reset to Default
+            Discard Changes
           </button>
 
           <button
@@ -178,7 +178,7 @@ export function ProfileHeader({
           >
             <div>
               <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#ffffff', margin: 0 }}>
-                Reset to Default
+                Discard Changes
               </h3>
               <p
                 style={{
@@ -222,7 +222,7 @@ export function ProfileHeader({
                   cursor: 'pointer',
                 }}
               >
-                Reset
+                Discard
               </button>
             </div>
           </div>
