@@ -369,7 +369,7 @@ export function ConnectedPlatforms() {
           const account = conn?.accounts?.[0];
           const isConnecting = connectingProvider === platform.id;
           const isDisconnecting = conn && disconnectingId === conn.id;
-          const hasAccordion = platform.id === 'medium' || platform.id === 'hashnode';
+          const hasAccordion = true;
 
           const platformIcon = (
             <div
@@ -385,7 +385,7 @@ export function ConnectedPlatforms() {
                 flexShrink: 0,
               }}
             >
-              <PlatformIcon id={platform.id as 'devto' | 'medium' | 'hashnode'} size={18} color={platform.badgeColor} />
+              <PlatformIcon id={platform.id as 'devto' | 'medium' | 'hashnode'} size={18} />
             </div>
           );
 

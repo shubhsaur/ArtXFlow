@@ -712,15 +712,6 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
     }
   }, [extensionInstalled, destinations, handleEnableMedium]);
 
-  function getDestinationBadgeColor(type: string): string {
-    const t = type.toLowerCase();
-    if (t.includes('devto')) return '#0B87FE';
-    if (t.includes('hashnode')) return '#2962FF';
-    if (t.includes('medium')) return '#00AB6C';
-    if (t.includes('artxflow') || t.includes('site')) return '#19D7FE';
-    return '#AAB5C4';
-  }
-
   function getHashnodePublishMode(destination?: DestinationDto): HashnodePublishMode {
     return resolveHashnodePublishMode(destination?.config);
   }
@@ -1751,7 +1742,6 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                     const isFailed = pub?.status === 'FAILED' || pub?.status === 'UNKNOWN_OUTCOME';
                     const isPublishingThis =
                       pub?.status === 'PUBLISHING' || pub?.status === 'QUEUED';
-                    const badgeColor = getDestinationBadgeColor(destination.type);
                     const iconId = getDestinationIconId(destination.type);
                     const isHashnode = isHashnodeDestinationType(destination.type);
                     const hashnodeMode = isHashnode ? getHashnodePublishMode(destination) : 'api';
@@ -1900,7 +1890,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                               justifyContent: 'center',
                             }}
                           >
-                            <PlatformIcon id={iconId} size={18} color={badgeColor} />
+                            <PlatformIcon id={iconId} size={18} />
                           </div>
 
                           <div>

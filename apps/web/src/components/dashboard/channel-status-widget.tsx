@@ -78,7 +78,7 @@ export function ChannelStatusWidget({ channels, hostedSiteUrl }: ChannelStatusWi
                   <PlatformIcon
                     id={channel.id === 'site' ? 'artxflow' : channel.id}
                     size={16}
-                    color={channel.badgeColor}
+                    color={channel.id === 'site' ? channel.badgeColor : undefined}
                   />
                 </div>
 

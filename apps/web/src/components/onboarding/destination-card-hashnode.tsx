@@ -39,15 +39,15 @@ export function DestinationCardHashnode({
               width: '40px',
               height: '40px',
               borderRadius: '8px',
-              backgroundColor: 'rgba(41, 98, 255, 0.12)',
-              border: '1px solid rgba(41, 98, 255, 0.3)',
+              backgroundColor: 'var(--surface-elevated, #131E2F)',
+              border: '1px solid var(--border-default, #243447)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
             }}
           >
-            <PlatformIcon id="hashnode" size={22} color="#2962FF" />
+            <PlatformIcon id="hashnode" size={22} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

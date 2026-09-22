@@ -388,7 +388,7 @@ export function ProductShowcase() {
                           border: `1px solid ${platform.badgeColor}40`,
                         }}
                       >
-                        <PlatformIcon id={platform.platformId} size={16} color={platform.badgeColor} />
+                        <PlatformIcon id={platform.platformId} size={16} />
                       </span>
                       <span
                         style={{
