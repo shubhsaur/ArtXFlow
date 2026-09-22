@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@artxflow/ui';
+import { PlatformIcon } from '../platform-icons';
 
 export interface ChannelInfo {
   id: 'devto' | 'medium' | 'hashnode' | 'site';
@@ -9,7 +10,7 @@ export interface ChannelInfo {
   accountHandle?: string | null;
   modeLabel?: string | null;
   badgeColor: string;
-  iconText: string;
+  iconText?: string;
 }
 
 interface ChannelStatusWidgetProps {
@@ -71,13 +72,14 @@ export function ChannelStatusWidget({ channels, hostedSiteUrl }: ChannelStatusWi
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '11px',
-                    fontWeight: 800,
-                    color: channel.badgeColor,
                     flexShrink: 0,
                   }}
                 >
-                  {channel.iconText}
+                  <PlatformIcon
+                    id={channel.id === 'site' ? 'artxflow' : channel.id}
+                    size={16}
+                    color={channel.badgeColor}
+                  />
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column' }}>

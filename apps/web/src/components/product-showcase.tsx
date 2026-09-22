@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button, Badge } from '@artxflow/ui';
+import { PlatformIcon } from './platform-icons';
 
 interface PlatformStatus {
   name: string;
   badgeColor: string;
-  icon: string;
+  platformId: 'devto' | 'medium' | 'hashnode' | 'artxflow';
   status: 'published' | 'syncing' | 'ready';
   url: string;
   canonicalSet: boolean;
@@ -30,7 +31,7 @@ export function ProductShowcase() {
     {
       name: 'DEV.to',
       badgeColor: '#0B87FE',
-      icon: 'DEV',
+      platformId: 'devto',
       status: 'published',
       url: 'dev.to/alexrivera/high-throughput-distributed-systems',
       canonicalSet: true,
@@ -38,7 +39,7 @@ export function ProductShowcase() {
     {
       name: 'Medium',
       badgeColor: '#19D7FE',
-      icon: 'M',
+      platformId: 'medium',
       status: 'published',
       url: 'medium.com/@alexrivera/high-throughput-distributed-systems',
       canonicalSet: true,
@@ -46,7 +47,7 @@ export function ProductShowcase() {
     {
       name: 'Hashnode',
       badgeColor: '#7A5CFD',
-      icon: 'H',
+      platformId: 'hashnode',
       status: 'published',
       url: 'alex.hashnode.dev/high-throughput-distributed-systems',
       canonicalSet: true,
@@ -54,7 +55,7 @@ export function ProductShowcase() {
     {
       name: 'Personal Site',
       badgeColor: '#10B981',
-      icon: '✦',
+      platformId: 'artxflow',
       status: 'published',
       url: 'blog.alexrivera.dev/posts/distributed-systems',
       canonicalSet: true,
@@ -384,12 +385,10 @@ export function ProductShowcase() {
                           display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontWeight: 700,
-                          fontSize: '12px',
                           border: `1px solid ${platform.badgeColor}40`,
                         }}
                       >
-                        {platform.icon}
+                        <PlatformIcon id={platform.platformId} size={16} color={platform.badgeColor} />
                       </span>
                       <span
                         style={{

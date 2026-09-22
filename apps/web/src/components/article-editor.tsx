@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Badge, Card, ArticlePreview, toast } from '@artxflow/ui';
+import { PlatformIcon } from './platform-icons';
 import type { Article, ArticleVersion, ArticleStatus } from '@artxflow/database';
 import type { PublicationDto, ScheduleDto, DestinationDto } from '@artxflow/publishing';
 import {
@@ -851,13 +852,12 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
     return false;
   }
 
-  function getDestinationShortName(type: string): string {
+  function getDestinationIconId(type: string): 'devto' | 'medium' | 'hashnode' | 'artxflow' {
     const t = type.toLowerCase();
-    if (t.includes('devto')) return 'DEV';
-    if (t.includes('hashnode')) return 'HN';
-    if (t.includes('medium')) return 'MED';
-    if (t.includes('artxflow') || t.includes('site')) return 'AXF';
-    return 'PUB';
+    if (t.includes('devto')) return 'devto';
+    if (t.includes('hashnode')) return 'hashnode';
+    if (t.includes('medium')) return 'medium';
+    return 'artxflow';
   }
 
   const activeSchedule = schedules.find((s) => s.status === 'SCHEDULED');
@@ -1752,7 +1752,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                     const isPublishingThis =
                       pub?.status === 'PUBLISHING' || pub?.status === 'QUEUED';
                     const badgeColor = getDestinationBadgeColor(destination.type);
-                    const shortName = getDestinationShortName(destination.type);
+                    const iconId = getDestinationIconId(destination.type);
                     const isHashnode = isHashnodeDestinationType(destination.type);
                     const hashnodeMode = isHashnode ? getHashnodePublishMode(destination) : 'api';
                     const isMedium = isMediumDestinationType(destination.type);
@@ -1898,12 +1898,9 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontWeight: 700,
-                              fontSize: '12px',
-                              color: badgeColor,
                             }}
                           >
-                            {shortName}
+                            <PlatformIcon id={iconId} size={18} color={badgeColor} />
                           </div>
 
                           <div>

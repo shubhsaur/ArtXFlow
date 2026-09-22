@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { PlatformIcon } from '../platform-icons';
 import type { ConnectedDestinationsState } from './step-connect-destinations';
 
 interface DestinationCardHashnodeProps {
@@ -38,18 +39,15 @@ export function DestinationCardHashnode({
               width: '40px',
               height: '40px',
               borderRadius: '8px',
-              backgroundColor: 'rgba(11, 98, 245, 0.15)',
-              border: '1px solid rgba(11, 98, 245, 0.35)',
+              backgroundColor: 'rgba(41, 98, 255, 0.12)',
+              border: '1px solid rgba(41, 98, 255, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'var(--flow-cyan, #19D7FE)',
               flexShrink: 0,
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
-              hub
-            </span>
+            <PlatformIcon id="hashnode" size={22} color="#2962FF" />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

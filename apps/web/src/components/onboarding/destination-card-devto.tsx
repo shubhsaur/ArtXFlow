@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { PlatformIcon } from '../platform-icons';
 import type { ConnectedDestinationsState } from './step-connect-destinations';
 
 interface DestinationCardDevtoProps {
@@ -38,19 +39,15 @@ export function DestinationCardDevto({
               width: '40px',
               height: '40px',
               borderRadius: '8px',
-              backgroundColor: '#000000',
-              border: '1px solid var(--border-default, #243447)',
+              backgroundColor: 'rgba(11, 135, 254, 0.12)',
+              border: '1px solid rgba(11, 135, 254, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FFFFFF',
-              fontWeight: 800,
-              fontSize: '14px',
-              fontFamily: "'JetBrains Mono', monospace",
               flexShrink: 0,
             }}
           >
-            DEV
+            <PlatformIcon id="devto" size={22} color="#0B87FE" />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
