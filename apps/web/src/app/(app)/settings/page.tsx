@@ -4,6 +4,7 @@ import { requireUser, bootstrapPersonalOrganization } from '@artxflow/auth';
 import {
   profileRepository,
   platformConnectionRepository,
+  apiKeyRepository,
 } from '@artxflow/database';
 import { ProfileView } from '../../../components/profile/profile-view';
 import type { ProfileFormData, SecurityTelemetry } from '../../../components/profile/profile-types';
@@ -20,10 +21,11 @@ export default async function SettingsPage() {
     email: user.email,
   });
 
-  const [fullProfile, securityData, connectionsWithAccounts] = await Promise.all([
+  const [fullProfile, securityData, connectionsWithAccounts, apiKeysList] = await Promise.all([
     profileRepository.getFullUserProfile(user.id),
     profileRepository.getSecurityTelemetry(user.id),
     platformConnectionRepository.listWithAccountsByOrganization(organization.id),
+    apiKeyRepository.listByUser(user.id),
   ]);
 
   const initialProfile: ProfileFormData = {
@@ -53,6 +55,16 @@ export default async function SettingsPage() {
     })),
   }));
 
+  const serializedApiKeys = apiKeysList.map((k) => ({
+    id: k.id,
+    name: k.name,
+    keyPrefix: k.keyPrefix,
+    scopes: k.scopes,
+    createdAt: k.createdAt.toISOString(),
+    lastUsedAt: k.lastUsedAt?.toISOString() ?? null,
+    revokedAt: k.revokedAt?.toISOString() ?? null,
+  }));
+
   return (
     <div
       style={{
@@ -75,6 +87,7 @@ export default async function SettingsPage() {
         }}
         connectedPlatformCount={connectionsWithAccounts.length}
         initialConnections={serializedConnections}
+        initialApiKeys={serializedApiKeys}
       />
     </div>
   );

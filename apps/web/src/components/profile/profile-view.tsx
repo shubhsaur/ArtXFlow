@@ -43,6 +43,15 @@ interface ProfileViewProps {
       updatedAt: string;
     }>;
   }>;
+  initialApiKeys?: Array<{
+    id: string;
+    name: string;
+    keyPrefix: string;
+    scopes: string[];
+    createdAt: string;
+    lastUsedAt: string | null;
+    revokedAt: string | null;
+  }>;
 }
 
 export function ProfileView({
@@ -51,6 +60,7 @@ export function ProfileView({
   workspace,
   connectedPlatformCount,
   initialConnections,
+  initialApiKeys,
 }: ProfileViewProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
@@ -278,7 +288,7 @@ export function ProfileView({
             </div>
           )}
 
-          {activeTab === 'api-keys' && <ProfileApiKeysCard />}
+          {activeTab === 'api-keys' && <ProfileApiKeysCard initialKeys={initialApiKeys} />}
 
           {activeTab === 'workspace' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

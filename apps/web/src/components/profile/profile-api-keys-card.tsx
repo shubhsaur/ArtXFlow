@@ -62,9 +62,13 @@ interface ApiKey {
   revokedAt: string | null;
 }
 
-export function ProfileApiKeysCard() {
-  const [keys, setKeys] = useState<ApiKey[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+interface ProfileApiKeysCardProps {
+  initialKeys?: ApiKey[];
+}
+
+export function ProfileApiKeysCard({ initialKeys }: ProfileApiKeysCardProps) {
+  const [keys, setKeys] = useState<ApiKey[]>(initialKeys ?? []);
+  const [isLoading, setIsLoading] = useState(initialKeys === undefined);
   const [isCreating, setIsCreating] = useState(false);
   const [newKey, setNewKey] = useState<{ name: string; key: string } | null>(null);
   const [formName, setFormName] = useState('');
@@ -73,6 +77,7 @@ export function ProfileApiKeysCard() {
   const fetchKeys = useCallback(async () => {
     try {
       const res = await fetch('/api/user/api-keys');
+      if (!res.ok) return;
       const data = await res.json();
       setKeys(data.keys || []);
     } finally {
@@ -81,8 +86,9 @@ export function ProfileApiKeysCard() {
   }, []);
 
   useEffect(() => {
+    if (initialKeys !== undefined) return;
     fetchKeys();
-  }, [fetchKeys]);
+  }, [initialKeys, fetchKeys]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
