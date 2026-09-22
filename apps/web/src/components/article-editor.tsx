@@ -92,6 +92,9 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
       ((initialVersion?.metadata as Record<string, unknown> | undefined)?.coverUrl as string | undefined) ||
       null,
   );
+  const [coverAssetId, setCoverAssetId] = useState<string | null>(
+    initialArticle?.coverAssetId || null,
+  );
   const [tags, setTags] = useState<string[]>(
     Array.isArray(((initialArticle as unknown as Record<string, unknown>)?.metadata as Record<string, unknown> | undefined)?.tags)
       ? (((initialArticle as unknown as Record<string, unknown>)?.metadata as Record<string, unknown>).tags as string[])
@@ -191,6 +194,8 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
     [insertMarkdownSnippet],
   );
 
+  const coverAssetIdRef = React.useRef<string | null>(initialArticle?.coverAssetId || null);
+
   const handleUploadCoverFile = React.useCallback(async (file: File): Promise<string | void> => {
     const formData = new FormData();
     formData.append('file', file);
@@ -203,7 +208,9 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
       throw new Error(data.error || 'Failed to upload cover image');
     }
     const { asset } = await res.json();
+    coverAssetIdRef.current = asset.id;
     setCoverUrl(asset.url);
+    setCoverAssetId(asset.id);
     setSaveStatus('unsaved');
     toast.success('Cover image uploaded!');
     return asset.url;
@@ -213,6 +220,8 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
     (img: SelectedUnsplashImage) => {
       if (unsplashTarget === 'cover') {
         setCoverUrl(img.url);
+        coverAssetIdRef.current = null;
+        setCoverAssetId(null);
         setSaveStatus('unsaved');
         toast.success('Unsplash cover image set!');
       } else {
@@ -1329,6 +1338,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
             excerpt: excerpt.trim() || undefined,
             content,
             contentFormat: 'markdown',
+            coverAssetId: coverAssetId || undefined,
             metadata: mergedMetadata,
           }),
         });
@@ -1352,6 +1362,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
             excerpt: excerpt.trim() || undefined,
             status,
             content,
+            coverAssetId: coverAssetId || null,
             metadata: mergedMetadata,
           }),
         });
@@ -2808,6 +2819,10 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
             coverUrl={coverUrl}
             onCoverChange={(url) => {
               setCoverUrl(url);
+              if (url === null) {
+                coverAssetIdRef.current = null;
+                setCoverAssetId(null);
+              }
               setSaveStatus('unsaved');
             }}
             onUploadFile={handleUploadCoverFile}

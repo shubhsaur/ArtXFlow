@@ -13,7 +13,11 @@
       "Bash(curl *)",
       "Bash(kill *)",
       "Bash(head *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(source *)",
+      "Bash(xargs *)",
+      "Bash(node *)",
+      "Bash(npx *)"
     ]
   },
   "$version": 4

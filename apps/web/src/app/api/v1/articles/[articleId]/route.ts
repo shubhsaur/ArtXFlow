@@ -33,14 +33,24 @@ export async function GET(
 
   let content: string | null = null;
   let contentFormat: string | null = null;
+  let metadataCoverUrl: string | null = null;
 
   if (requireScope(auth.scopes, 'articles:read:versions')) {
     const latestVersion = await articleVersionRepository.getLatestVersion(article.id);
     if (latestVersion) {
       content = latestVersion.content;
       contentFormat = latestVersion.contentFormat;
+      if (
+        latestVersion.metadata &&
+        typeof latestVersion.metadata === 'object' &&
+        'coverUrl' in latestVersion.metadata
+      ) {
+        metadataCoverUrl = (latestVersion.metadata as { coverUrl?: string }).coverUrl || null;
+      }
     }
   }
+
+  const coverImageUrl = article.coverImageUrl || metadataCoverUrl;
 
   return NextResponse.json({
     data: {
@@ -48,7 +58,7 @@ export async function GET(
       title: article.title,
       slug: article.slug,
       excerpt: article.excerpt,
-      coverImageUrl: article.coverImageUrl,
+      coverImageUrl,
       status: article.status,
       content,
       contentFormat,
