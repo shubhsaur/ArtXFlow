@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type * as DatabaseModule from '@artxflow/database';
 import sharp from 'sharp';
 import { POST, DELETE } from './route';
 import { getSession } from '@artxflow/auth';
@@ -11,13 +12,18 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@artxflow/auth', () => ({
   getSession: vi.fn(),
+  UnauthorizedError: class UnauthorizedError extends Error {},
 }));
 
-vi.mock('@artxflow/database', () => ({
-  profileRepository: {
-    updateUserBasic: vi.fn(),
-  },
-}));
+vi.mock('@artxflow/database', async (importOriginal) => {
+  const actual = await importOriginal<typeof DatabaseModule>();
+  return {
+    ...actual,
+    profileRepository: {
+      updateUserBasic: vi.fn(),
+    },
+  };
+});
 
 describe('Avatar API Route', () => {
   const mockUser = {

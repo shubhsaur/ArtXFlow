@@ -6,6 +6,7 @@ import {
   siteRepository,
   platformConnectionRepository,
 } from '@artxflow/database';
+import { handleApiError } from '@/lib/handle-api-error';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,7 +43,6 @@ export async function GET() {
       id: c.id,
       provider: c.provider,
       status: c.status,
-      tokenMetadata: c.tokenMetadata,
     })),
     user: {
       id: session.user.id,
@@ -123,27 +123,7 @@ export async function PATCH(request: Request) {
       organization: updatedOrg,
       site,
     });
-  } catch (err: unknown) {
-    const isUniqueViolation =
-      (typeof err === 'object' &&
-        err !== null &&
-        'code' in err &&
-        (err as { code: string }).code === '23505') ||
-      (err instanceof Error &&
-        (err.message.includes('unique constraint') ||
-          err.message.includes('organizations_slug_unique') ||
-          err.message.includes('sites_subdomain_unique')));
-
-    if (isUniqueViolation) {
-      return NextResponse.json(
-        { error: 'This subdomain slug is already reserved by another workspace. Please choose another.' },
-        { status: 409 },
-      );
-    }
-
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to update workspace' },
-      { status: 500 },
-    );
+  } catch (error) {
+    return handleApiError(error);
   }
 }

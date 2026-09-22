@@ -1,4 +1,5 @@
 import { apiKeyRepository } from '@artxflow/database';
+import { checkRateLimit } from './rate-limit';
 
 export interface ApiKeyContext {
   userId: string;
@@ -8,30 +9,6 @@ export interface ApiKeyContext {
 
 const WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS = 100;
-
-interface RateLimitEntry {
-  count: number;
-  resetAt: number;
-}
-
-const rateLimitMap = new Map<string, RateLimitEntry>();
-
-function isRateLimited(keyId: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(keyId);
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(keyId, { count: 1, resetAt: now + WINDOW_MS });
-    return false;
-  }
-
-  if (entry.count >= MAX_REQUESTS) {
-    return true;
-  }
-
-  entry.count += 1;
-  return false;
-}
 
 export async function authenticateApiKey(request: Request): Promise<ApiKeyContext | Response> {
   const authHeader = request.headers.get('authorization');
@@ -53,10 +30,16 @@ export async function authenticateApiKey(request: Request): Promise<ApiKeyContex
     });
   }
 
-  if (isRateLimited(record.id)) {
+  const rateLimit = await checkRateLimit(`apikey:${record.id}`, MAX_REQUESTS, WINDOW_MS);
+  if (!rateLimit.success) {
     return new Response(JSON.stringify({ error: 'Rate limit exceeded. 100 requests per minute.' }), {
       status: 429,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Retry-After': String(Math.max(1, Math.ceil((rateLimit.reset - Date.now()) / 1000))),
+        'X-RateLimit-Limit': String(rateLimit.limit),
+        'X-RateLimit-Remaining': '0',
+      },
     });
   }
 

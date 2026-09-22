@@ -22,7 +22,7 @@ export async function GET(request: Request) {
       userId: auth.userId,
       organizationId: auth.organizationId,
       name: userRecord?.name || null,
-      email: userRecord?.email || null,
+      email: profile?.publicEmail || null,
       image: userRecord?.image || null,
       bio: profile?.bio || null,
       canonicalUrl: profile?.canonicalUrl || null,

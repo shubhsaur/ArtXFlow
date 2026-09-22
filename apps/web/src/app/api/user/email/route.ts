@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getSession } from '@artxflow/auth';
 import { userRepository } from '@artxflow/database';
+import { parseJsonBody, updateEmailSchema } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,12 +14,10 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json().catch(() => ({}));
-  const { email } = body;
+  const { data: body, error } = await parseJsonBody(request, updateEmailSchema);
+  if (error) return error;
 
-  if (!email || typeof email !== 'string') {
-    return NextResponse.json({ error: 'Email is required' }, { status: 400 });
-  }
+  const { email } = body;
 
   const normalizedEmail = email.trim().toLowerCase();
 

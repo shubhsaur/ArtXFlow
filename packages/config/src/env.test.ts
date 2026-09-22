@@ -87,8 +87,29 @@ describe('@artxflow/config', () => {
         ...validServerEnv,
         NODE_ENV: 'production',
         BETTER_AUTH_URL: 'https://artxflow.com',
+        API_KEY_SECRET: 'test-api-key-secret-minimum-32-characters-long',
       });
       expect(parsed.BETTER_AUTH_URL).toBe('https://artxflow.com');
+    });
+
+    it('requires API_KEY_SECRET of at least 32 characters when NODE_ENV is production', () => {
+      expect(() =>
+        validateServerEnv({
+          ...validServerEnv,
+          NODE_ENV: 'production',
+          BETTER_AUTH_URL: 'https://artxflow.com',
+          API_KEY_SECRET: undefined,
+        }),
+      ).toThrowError(/API_KEY_SECRET must be at least 32 characters long in production/);
+
+      expect(() =>
+        validateServerEnv({
+          ...validServerEnv,
+          NODE_ENV: 'production',
+          BETTER_AUTH_URL: 'https://artxflow.com',
+          API_KEY_SECRET: 'too-short',
+        }),
+      ).toThrowError(/API_KEY_SECRET must be at least 32 characters long in production/);
     });
 
     it('prevents execution in browser environment if window is defined', () => {

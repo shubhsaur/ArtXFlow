@@ -10,6 +10,15 @@ import { renderPasswordResetEmail, renderVerificationEmail } from './email/templ
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL || 'http://localhost:3000',
+  advanced: {
+    useSecureCookies: env.NODE_ENV === 'production',
+  },
+  defaultCookieAttributes: {
+    sameSite: 'lax',
+    httpOnly: true,
+    path: '/',
+    secure: env.NODE_ENV === 'production',
+  },
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema: {

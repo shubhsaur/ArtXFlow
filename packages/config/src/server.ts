@@ -13,6 +13,7 @@ export const serverEnvSchema = z.object({
   ENCRYPTION_KEY: z
     .string()
     .min(32, { message: 'ENCRYPTION_KEY must be at least 32 characters long' }),
+  API_KEY_SECRET: z.string().optional(),
   INNGEST_EVENT_KEY: z.string().optional(),
   INNGEST_SIGNING_KEY: z.string().optional(),
   BETTER_AUTH_URL: z.string().url().optional(),
@@ -30,12 +31,21 @@ export const serverEnvSchema = z.object({
   R2_PUBLIC_URL: z.string().optional(),
   UNSPLASH_ACCESS_KEY: z.string().optional(),
 }).superRefine((data, ctx) => {
-  if (data.NODE_ENV === 'production' && !data.BETTER_AUTH_URL) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'BETTER_AUTH_URL is required in production',
-      path: ['BETTER_AUTH_URL'],
-    });
+  if (data.NODE_ENV === 'production') {
+    if (!data.BETTER_AUTH_URL) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'BETTER_AUTH_URL is required in production',
+        path: ['BETTER_AUTH_URL'],
+      });
+    }
+    if (!data.API_KEY_SECRET || data.API_KEY_SECRET.length < 32) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'API_KEY_SECRET must be at least 32 characters long in production',
+        path: ['API_KEY_SECRET'],
+      });
+    }
   }
 });
 

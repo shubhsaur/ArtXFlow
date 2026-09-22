@@ -5,6 +5,8 @@ import {
   profileRepository,
   platformConnectionRepository,
 } from '@artxflow/database';
+import { handleApiError } from '@/lib/handle-api-error';
+import { parseJsonBody, updateProfileSchema } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,27 +58,8 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    const body = await request.json();
-
-    // Validation: Bio max 240 chars
-    if (body.bio && typeof body.bio === 'string' && body.bio.length > 240) {
-      return NextResponse.json(
-        { error: 'Author bio must not exceed 240 characters.' },
-        { status: 400 },
-      );
-    }
-
-    // Validation: Canonical URL must be valid format if supplied
-    if (body.canonicalUrl && typeof body.canonicalUrl === 'string') {
-      try {
-        new URL(body.canonicalUrl);
-      } catch {
-        return NextResponse.json(
-          { error: 'Origin Blog URL must be a valid URL (e.g. https://yourdomain.dev)' },
-          { status: 400 },
-        );
-      }
-    }
+    const { data: body, error } = await parseJsonBody(request, updateProfileSchema);
+    if (error) return error;
 
     // Format username / slug
     let cleanUsername = body.username;
@@ -114,10 +97,7 @@ export async function PATCH(request: Request) {
       ok: true,
       profile: updated,
     });
-  } catch (err: unknown) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to update profile' },
-      { status: 500 },
-    );
+  } catch (error) {
+    return handleApiError(error);
   }
 }

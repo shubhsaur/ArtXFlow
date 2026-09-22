@@ -1,9 +1,9 @@
 import { createHmac, randomBytes } from 'crypto';
 import { eq, and, isNull } from 'drizzle-orm';
+import { env } from '@artxflow/config/server';
 import { db } from '../client';
-import { apiKeys, ApiKey, NewApiKey } from '../schema/api-keys';
-
-const API_KEY_SECRET = process.env.API_KEY_SECRET || '';
+import { apiKeys } from '../schema/api-keys';
+import type { ApiKey, NewApiKey } from '../schema/api-keys';
 
 export const apiKeyRepository = {
   async create(input: Omit<NewApiKey, 'keyHash' | 'keyPrefix'> & { plaintextKey: string }) {
@@ -70,8 +70,20 @@ export const apiKeyRepository = {
   },
 };
 
+function getHmacSecret(): string {
+  const secret = env.API_KEY_SECRET;
+  if (!secret) {
+    console.warn(
+      '[SECURITY] API_KEY_SECRET is not set. API key hashing uses a fallback secret. ' +
+        'Set API_KEY_SECRET (min 32 chars) before using API keys in production.',
+    );
+    return '__artxflow_dev_fallback__';
+  }
+  return secret;
+}
+
 function hashKey(key: string): string {
-  return createHmac('sha256', API_KEY_SECRET).update(key).digest('hex');
+  return createHmac('sha256', getHmacSecret()).update(key).digest('hex');
 }
 
 function verifyKey(key: string, hash: string): boolean {

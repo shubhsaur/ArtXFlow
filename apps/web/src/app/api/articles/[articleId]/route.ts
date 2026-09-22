@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
-import {
-  articleService,
-  ArticleNotFoundError,
-  DuplicateSlugError,
-  ValidationError,
-  UnauthorizedOrganizationAccessError,
-} from '@artxflow/content-core';
+import { articleService } from '@artxflow/content-core';
+import { handleApiError } from '@/lib/handle-api-error';
+import { parseJsonBody, updateArticleSchema } from '@/lib/validation';
 
 export async function GET(_request: Request, props: { params: Promise<{ articleId: string }> }) {
   const { articleId } = await props.params;
@@ -35,11 +31,7 @@ export async function GET(_request: Request, props: { params: Promise<{ articleI
 
     return NextResponse.json(result);
   } catch (error) {
-    if (error instanceof ArticleNotFoundError) {
-      return NextResponse.json({ error: error.message }, { status: 404 });
-    }
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }
 
@@ -59,7 +51,9 @@ export async function PATCH(request: Request, props: { params: Promise<{ article
   });
 
   try {
-    const body = await request.json();
+    const { data: body, error } = await parseJsonBody(request, updateArticleSchema);
+    if (error) return error;
+
     const result = await articleService.updateArticle(
       {
         userId: session.user.id,
@@ -80,20 +74,6 @@ export async function PATCH(request: Request, props: { params: Promise<{ article
 
     return NextResponse.json(result);
   } catch (error) {
-    if (error instanceof ArticleNotFoundError) {
-      return NextResponse.json({ error: error.message }, { status: 404 });
-    }
-    if (error instanceof DuplicateSlugError) {
-      return NextResponse.json({ error: error.message }, { status: 409 });
-    }
-    if (error instanceof ValidationError) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-    if (error instanceof UnauthorizedOrganizationAccessError) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }

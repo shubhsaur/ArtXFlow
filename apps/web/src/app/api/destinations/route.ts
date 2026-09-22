@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
-import { PublicationService, InvalidDestinationConfigurationError } from '@artxflow/publishing';
+import { PublicationService } from '@artxflow/publishing';
+import { handleApiError } from '@/lib/handle-api-error';
+import { parseJsonBody, createDestinationSchema } from '@/lib/validation';
 
 export async function GET() {
   const headersList = await headers();
@@ -48,7 +50,9 @@ export async function POST(request: Request) {
   };
 
   try {
-    const body = await request.json();
+    const { data: body, error } = await parseJsonBody(request, createDestinationSchema);
+    if (error) return error;
+
     const { type, name, siteId, connectionId, config } = body;
 
     const service = new PublicationService();
@@ -62,11 +66,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ destination }, { status: 201 });
   } catch (error) {
-    if (error instanceof InvalidDestinationConfigurationError) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }

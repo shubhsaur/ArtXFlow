@@ -13,6 +13,7 @@ vi.mock('next/headers', () => ({
 vi.mock('@artxflow/auth', () => ({
   getSession: vi.fn(),
   bootstrapPersonalOrganization: vi.fn(),
+  UnauthorizedError: class UnauthorizedError extends Error {},
 }));
 
 describe('Assets & Media API Routes', () => {
@@ -156,6 +157,17 @@ describe('Assets & Media API Routes', () => {
   });
 
   describe('GET /api/assets/[...key]', () => {
+    it('returns 401 if unauthenticated', async () => {
+      vi.mocked(getSession).mockResolvedValueOnce(null);
+
+      const req = new Request('http://localhost/api/assets/orgs/test/image.png');
+      const res = await serveHandler(req, {
+        params: Promise.resolve({ key: ['orgs', 'test', 'image.png'] }),
+      });
+
+      expect(res.status).toBe(401);
+    });
+
     it('returns 404 if asset not found in storage', async () => {
       const storageClient = getStorageClient();
       vi.spyOn(storageClient, 'get').mockResolvedValueOnce(null);
@@ -183,7 +195,7 @@ describe('Assets & Media API Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.headers.get('Content-Type')).toBe('image/png');
-      expect(res.headers.get('Cache-Control')).toContain('public');
+      expect(res.headers.get('Cache-Control')).toContain('private');
     });
   });
 

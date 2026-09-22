@@ -13,6 +13,7 @@ vi.mock('next/headers', () => ({
 vi.mock('@artxflow/auth', () => ({
   getSession: vi.fn(),
   bootstrapPersonalOrganization: vi.fn(),
+  UnauthorizedError: class UnauthorizedError extends Error {},
 }));
 
 vi.mock('@artxflow/database', async (importOriginal) => {

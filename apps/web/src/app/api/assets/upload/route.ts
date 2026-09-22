@@ -4,6 +4,7 @@ import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
 import { getStorageClient } from '@artxflow/storage';
 import { assetRepository } from '@artxflow/database';
 import { randomUUID } from 'node:crypto';
+import { handleApiError } from '@/lib/handle-api-error';
 
 const ALLOWED_MIME_TYPES = new Set([
   'image/jpeg',
@@ -78,7 +79,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ asset }, { status: 201 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }

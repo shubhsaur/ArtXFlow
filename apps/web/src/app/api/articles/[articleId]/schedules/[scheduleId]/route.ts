@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
-import {
-  ScheduleArticleService,
-  ScheduleNotFoundError,
-  InvalidScheduleStateError,
-  UnauthorizedTenantAccessError,
-} from '@artxflow/publishing';
+import { ScheduleArticleService } from '@artxflow/publishing';
+import { handleApiError } from '@/lib/handle-api-error';
 
 export async function DELETE(
   _request: Request,
@@ -38,17 +34,6 @@ export async function DELETE(
 
     return NextResponse.json(canceled, { status: 200 });
   } catch (error) {
-    if (error instanceof ScheduleNotFoundError) {
-      return NextResponse.json({ error: error.message }, { status: 404 });
-    }
-    if (error instanceof InvalidScheduleStateError) {
-      return NextResponse.json({ error: error.message }, { status: 422 });
-    }
-    if (error instanceof UnauthorizedTenantAccessError) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }

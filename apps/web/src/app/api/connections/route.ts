@@ -18,8 +18,13 @@ import {
   devtoAdapter,
   mediumAdapter,
   hashnodeAdapter,
-  PlatformError,
 } from '@artxflow/platform-adapters';
+import { handleApiError } from '@/lib/handle-api-error';
+import {
+  parseJsonBody,
+  createConnectionSchema,
+  updateConnectionSchema,
+} from '@/lib/validation';
 
 function resolveIncomingHashnodePublishMode(body: {
   hashnodePublishMode?: unknown;
@@ -94,18 +99,10 @@ export async function POST(request: Request) {
   };
 
   try {
-    const body = await request.json();
-    const { provider, secret, tokenMetadata } = body as {
-      provider?: unknown;
-      secret?: unknown;
-      tokenMetadata?: Record<string, unknown>;
-      hashnodePublishMode?: unknown;
-      mediumPublishMode?: unknown;
-    };
+    const { data: body, error } = await parseJsonBody(request, createConnectionSchema);
+    if (error) return error;
 
-    if (!provider || typeof provider !== 'string') {
-      return NextResponse.json({ error: 'Provider is required' }, { status: 400 });
-    }
+    const { provider, secret, tokenMetadata } = body;
 
     const normalizedProvider = provider.toLowerCase().trim();
     const incomingMetadata: Record<string, unknown> = { ...(tokenMetadata || {}) };
@@ -242,17 +239,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
-    console.error('[POST /api/connections] Error:', error);
-    if (error instanceof PlatformError) {
-      const statusCode =
-        error.statusCode && error.statusCode >= 400 && error.statusCode < 600
-          ? error.statusCode
-          : 400;
-      return NextResponse.json({ error: error.message, code: error.code }, { status: statusCode });
-    }
-
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error, { logPrefix: 'POST /api/connections' });
   }
 }
 
@@ -286,8 +273,7 @@ export async function DELETE(request: Request) {
     await platformConnectionService.deleteConnection(ctx, connectionId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error, { logPrefix: 'DELETE /api/connections' });
   }
 }
 
@@ -311,12 +297,10 @@ export async function PATCH(request: Request) {
   };
 
   try {
-    const body = await request.json();
-    const connectionId = typeof body.id === 'string' ? body.id : undefined;
+    const { data: body, error: parseError } = await parseJsonBody(request, updateConnectionSchema);
+    if (parseError) return parseError;
 
-    if (!connectionId) {
-      return NextResponse.json({ error: 'Connection ID is required' }, { status: 400 });
-    }
+    const connectionId = body.id;
 
     const existing = await platformConnectionService.getConnection(ctx, connectionId);
     const metadataPatch: Record<string, unknown> =
@@ -388,7 +372,6 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ connection });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error, { logPrefix: 'PATCH /api/connections' });
   }
 }

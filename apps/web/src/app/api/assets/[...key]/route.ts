@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
+import { getSession } from '@artxflow/auth';
 import { getStorageClient } from '@artxflow/storage';
 
 interface RouteContext {
@@ -8,6 +10,13 @@ interface RouteContext {
 }
 
 export async function GET(_request: Request, context: RouteContext) {
+  const headersList = await headers();
+  const session = await getSession(headersList);
+
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const params = await context.params;
   const key = (params.key || []).join('/');
 
@@ -39,7 +48,7 @@ export async function GET(_request: Request, context: RouteContext) {
     status: 200,
     headers: {
       'Content-Type': contentType,
-      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Cache-Control': 'private, max-age=31536000, immutable',
     },
   });
 }

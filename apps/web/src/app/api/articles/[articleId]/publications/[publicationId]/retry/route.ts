@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
-import {
-  publicationService,
-  PublicationNotFoundError,
-  InvalidPublicationStateError,
-  UnauthorizedTenantAccessError,
-} from '@artxflow/publishing';
+import { publicationService } from '@artxflow/publishing';
+import { handleApiError } from '@/lib/handle-api-error';
 
 export async function POST(
   _request: Request,
@@ -37,17 +33,6 @@ export async function POST(
 
     return NextResponse.json(publication, { status: 200 });
   } catch (error) {
-    if (error instanceof PublicationNotFoundError) {
-      return NextResponse.json({ error: error.message }, { status: 404 });
-    }
-    if (error instanceof InvalidPublicationStateError) {
-      return NextResponse.json({ error: error.message }, { status: 422 });
-    }
-    if (error instanceof UnauthorizedTenantAccessError) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }

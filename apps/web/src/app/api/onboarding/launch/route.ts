@@ -3,6 +3,9 @@ import { headers } from 'next/headers';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
 import { articleService } from '@artxflow/content-core';
 import { profileRepository } from '@artxflow/database';
+import { handleApiError } from '@/lib/handle-api-error';
+import { parseJsonBody, onboardingLaunchSchema } from '@/lib/validation';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,12 +70,11 @@ export async function POST(request: Request) {
   });
 
   try {
-    const body = await request.json().catch(() => ({}));
+    const { data: body, error } = await parseJsonBody(request, onboardingLaunchSchema);
+    if (error) return error;
+
     const createSample = body.createSampleArticle !== false;
-    const canonicalUrl =
-      typeof body.canonicalUrl === 'string' && body.canonicalUrl.trim().length > 0
-        ? body.canonicalUrl.trim()
-        : 'https://artxflow.dev';
+    const canonicalUrl = body.canonicalUrl?.trim() || 'https://artxflow.dev';
 
     if (canonicalUrl !== 'https://artxflow.dev') {
       try {
@@ -80,7 +82,7 @@ export async function POST(request: Request) {
           canonicalUrl,
         });
       } catch (profileErr) {
-        console.warn('Failed to persist canonical URL to profile:', profileErr);
+        logger.warn({ err: profileErr }, 'Failed to persist canonical URL to profile');
       }
     }
 
@@ -107,7 +109,7 @@ export async function POST(request: Request) {
           },
         );
       } catch (articleErr) {
-        console.warn('Sample article generation skipped or failed:', articleErr);
+        logger.warn({ err: articleErr }, 'Sample article generation skipped or failed');
       }
     }
 
@@ -116,10 +118,7 @@ export async function POST(request: Request) {
       articleId: createdArticle?.article.id || null,
       message: 'Onboarding completed successfully',
     });
-  } catch (err: unknown) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Launch processing failed' },
-      { status: 500 },
-    );
+  } catch (error) {
+    return handleApiError(error, { logPrefix: 'POST /api/onboarding/launch' });
   }
 }

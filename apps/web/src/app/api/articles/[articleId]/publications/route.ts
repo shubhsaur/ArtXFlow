@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
 import { publicationService } from '@artxflow/publishing';
+import { handleApiError } from '@/lib/handle-api-error';
 
 export async function GET(_request: Request, props: { params: Promise<{ articleId: string }> }) {
   const { articleId } = await props.params;
@@ -29,7 +30,6 @@ export async function GET(_request: Request, props: { params: Promise<{ articleI
 
     return NextResponse.json({ publications });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }

@@ -24,6 +24,7 @@ export default defineConfig({
       '@artxflow/ui': path.resolve(__dirname, 'packages/ui/src/index.ts'),
       '@artxflow/design-system': path.resolve(__dirname, 'packages/design-system/src/index.ts'),
       '@artxflow/storage': path.resolve(__dirname, 'packages/storage/src/index.ts'),
+      '@': path.resolve(__dirname, 'apps/web/src'),
     },
   },
   test: {

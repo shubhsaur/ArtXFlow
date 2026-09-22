@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
-import {
-  publicationService,
-  PublicationNotFoundError,
-  UnauthorizedTenantAccessError,
-} from '@artxflow/publishing';
+import { publicationService } from '@artxflow/publishing';
 import { articleRepository } from '@artxflow/database';
+import { handleApiError } from '@/lib/handle-api-error';
+import { parseJsonBody, recordExternalPublicationSchema } from '@/lib/validation';
 
 /**
  * Records an externally completed publication (e.g. executed via the ArtXFlow Chrome Extension).
@@ -31,14 +29,8 @@ export async function POST(
   });
 
   try {
-    const body = (await request.json().catch(() => ({}))) as {
-      externalUrl?: string;
-      externalResourceId?: string;
-    };
-
-    if (!body.externalUrl) {
-      return NextResponse.json({ error: 'externalUrl is required' }, { status: 400 });
-    }
+    const { data: body, error } = await parseJsonBody(request, recordExternalPublicationSchema);
+    if (error) return error;
 
     const ctx = {
       userId: session.user.id,
@@ -61,14 +53,6 @@ export async function POST(
 
     return NextResponse.json({ publication: updatedPub }, { status: 200 });
   } catch (error) {
-    if (error instanceof PublicationNotFoundError) {
-      return NextResponse.json({ error: error.message }, { status: 404 });
-    }
-    if (error instanceof UnauthorizedTenantAccessError) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
-    }
-
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleApiError(error);
   }
 }

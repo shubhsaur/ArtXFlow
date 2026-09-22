@@ -4,6 +4,7 @@ import sharp from 'sharp';
 import { getSession } from '@artxflow/auth';
 import { profileRepository } from '@artxflow/database';
 import { getStorageClient } from '@artxflow/storage';
+import { handleApiError } from '@/lib/handle-api-error';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,11 +79,8 @@ export async function POST(request: Request) {
     await profileRepository.updateUserBasic(session.user.id, { image: imageUrl });
 
     return NextResponse.json({ ok: true, imageUrl });
-  } catch (err: unknown) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to update avatar' },
-      { status: 500 },
-    );
+  } catch (error) {
+    return handleApiError(error, { logPrefix: 'POST /api/user/avatar' });
   }
 }
 
@@ -107,10 +105,7 @@ export async function DELETE() {
     await profileRepository.updateUserBasic(session.user.id, { image: null });
 
     return NextResponse.json({ ok: true });
-  } catch (err: unknown) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to remove avatar' },
-      { status: 500 },
-    );
+  } catch (error) {
+    return handleApiError(error, { logPrefix: 'DELETE /api/user/avatar' });
   }
 }

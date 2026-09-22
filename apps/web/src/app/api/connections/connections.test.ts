@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GET, POST, PATCH } from './route';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
 import { platformConnectionService, PublicationService } from '@artxflow/publishing';
+import { platformConnectionRepository } from '@artxflow/database';
 import {
   devtoAdapter,
   hashnodeAdapter,
@@ -16,6 +17,7 @@ vi.mock('next/headers', () => ({
 vi.mock('@artxflow/auth', () => ({
   getSession: vi.fn(),
   bootstrapPersonalOrganization: vi.fn(),
+  UnauthorizedError: class UnauthorizedError extends Error {},
 }));
 
 describe('/api/connections Route Handler', () => {
@@ -75,28 +77,36 @@ describe('/api/connections Route Handler', () => {
     });
 
     it('returns connections list for organization', async () => {
-      const mockList = [
-        {
-          id: 'conn-1',
-          organizationId: mockOrg.id,
-          provider: 'devto',
-          status: 'CONNECTED',
-          tokenMetadata: {},
-          createdAt: '2026-01-01T00:00:00Z',
-          updatedAt: '2026-01-01T00:00:00Z',
-        },
-      ];
+      const connection = {
+        id: 'conn-1',
+        organizationId: mockOrg.id,
+        provider: 'devto',
+        status: 'CONNECTED',
+        tokenMetadata: {},
+        encryptedSecret: 'encrypted-test-secret',
+        accounts: [],
+        createdAt: new Date('2026-01-01T00:00:00Z'),
+        updatedAt: new Date('2026-01-01T00:00:00Z'),
+      };
 
-      vi.spyOn(platformConnectionService, 'listConnections').mockResolvedValue(mockList);
-      vi.spyOn(platformConnectionService, 'listAccounts').mockResolvedValue([]);
+      vi.spyOn(platformConnectionRepository, 'listWithAccountsByOrganization').mockResolvedValue([
+        connection as never,
+      ]);
 
       const res = await GET();
       expect(res.status).toBe(200);
       const json = await res.json();
       expect(json.connections).toEqual([
         {
-          ...mockList[0],
+          id: 'conn-1',
+          organizationId: mockOrg.id,
+          provider: 'devto',
+          status: 'CONNECTED',
+          tokenMetadata: {},
+          encryptedSecret: 'encrypted-test-secret',
           accounts: [],
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
         },
       ]);
     });

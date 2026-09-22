@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getSession } from '@artxflow/auth';
 import { profileRepository } from '@artxflow/database';
+import { handleApiError } from '@/lib/handle-api-error';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,10 +20,7 @@ export async function POST() {
       ok: true,
       message: 'Launchpad permanently dismissed for user account',
     });
-  } catch (err: unknown) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to dismiss launchpad' },
-      { status: 500 },
-    );
+  } catch (error) {
+    return handleApiError(error);
   }
 }

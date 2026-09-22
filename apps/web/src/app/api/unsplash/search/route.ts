@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
+import { getSession } from '@artxflow/auth';
+import { logger } from '@/lib/logger';
 
 export interface UnsplashPhotoDto {
   id: string;
@@ -158,6 +161,13 @@ const CURATED_TECH_PHOTOS: UnsplashPhotoDto[] = [
 ];
 
 export async function GET(request: Request) {
+  const headersList = await headers();
+  const session = await getSession(headersList);
+
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const query = (searchParams.get('query') || '').trim();
   const page = searchParams.get('page') || '1';
@@ -201,7 +211,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ results: photos, total: data.total });
       }
     } catch (err) {
-      console.warn('[Unsplash Search] External API failed, falling back to curated list:', err);
+      logger.warn({ err }, '[Unsplash Search] External API failed, falling back to curated list');
     }
   }
 

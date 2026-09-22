@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
 import { apiKeyRepository, generateApiKey } from '@artxflow/database';
+import { parseJsonBody, createApiKeySchema } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,12 +43,10 @@ export async function POST(request: Request) {
     email: session.user.email,
   });
 
-  const body = await request.json().catch(() => ({}));
-  const { name, scopes } = body;
+  const { data: body, error } = await parseJsonBody(request, createApiKeySchema);
+  if (error) return error;
 
-  if (!name || !Array.isArray(scopes) || scopes.length === 0) {
-    return NextResponse.json({ error: 'Name and scopes are required' }, { status: 400 });
-  }
+  const { name, scopes } = body;
 
   const plaintextKey = generateApiKey();
 
