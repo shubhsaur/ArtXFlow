@@ -666,10 +666,19 @@ export class HashnodeAdapter implements PlatformAdapter {
       }
 
       if (code === 'FORBIDDEN' || /forbidden|permission denied/i.test(errorMessage)) {
+        // Hashnode gates every write mutation behind an active publication plan.
+        // Surface that distinctly so users know it is a plan limitation, not a
+        // credential or transient failure.
+        const isPlanGated = /pro plan|upgrade in your dashboard/i.test(errorMessage);
+
         throw new PlatformError({
           provider: this.provider,
           code: 'AUTHORIZATION_ERROR',
-          message: `Hashnode GraphQL authorization error: ${errorMessage}`,
+          message: isPlanGated
+            ? 'Hashnode API publishing and updates require an active Pro plan on the target ' +
+              'publication. Upgrade the publication or switch this destination to the ' +
+              'browser-based publish mode.'
+            : `Hashnode GraphQL authorization error: ${errorMessage}`,
           statusCode: 403,
           retryable: false,
           rawError: json.errors,

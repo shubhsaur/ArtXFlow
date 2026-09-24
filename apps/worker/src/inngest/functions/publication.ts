@@ -148,7 +148,7 @@ export const publicationRequested = inngest.createFunction(
 
     // Step 4: Execute publication via platform adapter
     try {
-      const publishResult = await step.run('execute-platform-publish', async () => {
+      const execution = await step.run('execute-platform-publish', async () => {
         const effectiveArticle = applyDestinationOverrides(
           context.canonicalArticle,
           context.overrides,
@@ -180,22 +180,67 @@ export const publicationRequested = inngest.createFunction(
             });
           }
 
-          return await adapter.publish({
+          // A previously published copy of this article on the same destination is
+          // updated in place (reusing its remote id) instead of creating a duplicate
+          // post. Platforms without update support (e.g. Medium API) fall back to
+          // publishing a new post and flag it in the audit trail.
+          const previousPublished =
+            await publicationRepository.findLatestPublishedForArticleAndDestination(
+              organizationId,
+              publication.articleId as string,
+              publication.destinationId as string,
+              publicationId,
+            );
+
+          const targetExternalResourceId = previousPublished?.externalResourceId || null;
+          const canUpdate = adapter.getCapabilities().update;
+
+          if (canUpdate && targetExternalResourceId) {
+            const updated = await adapter.update({
+              publicationId,
+              externalResourceId: targetExternalResourceId,
+              article: platformArticle,
+              credentials,
+              destinationConfig: context.destination.config as Record<string, unknown>,
+            });
+
+            return {
+              result: updated,
+              mode: 'UPDATE' as const,
+              previousExternalResourceId: targetExternalResourceId,
+            };
+          }
+
+          const created = await adapter.publish({
             publicationId,
             article: platformArticle,
             credentials,
             destinationConfig: context.destination.config as Record<string, unknown>,
             idempotencyKey: event.data.idempotencyKey,
           });
+
+          return {
+            result: created,
+            mode: 'CREATE' as const,
+            // Preserved for auditability when a duplicate could not be avoided
+            // because the platform adapter reported no update capability.
+            previousExternalResourceId: targetExternalResourceId,
+          };
         }
 
         // Fallback for internal ArtXFlow site destination
         return {
-          externalResourceId: publicationId,
-          externalUrl: `/sites/${context.destination.name}/${effectiveArticle.id}`,
-          publishedAt: new Date().toISOString(),
+          result: {
+            externalResourceId: publicationId,
+            externalUrl: `/sites/${context.destination.name}/${effectiveArticle.id}`,
+            publishedAt: new Date().toISOString(),
+          },
+          mode: 'CREATE' as const,
+          previousExternalResourceId: null,
         };
       });
+
+      const publishResult = execution.result;
 
       // Step 5: Persist successful publication state and record SUCCEEDED event
       await step.run('persist-publication-success', async () => {
@@ -215,6 +260,19 @@ export const publicationRequested = inngest.createFunction(
           metadata: {
             externalResourceId: publishResult.externalResourceId,
             externalUrl: publishResult.externalUrl,
+            mode: execution.mode,
+            ...(execution.mode === 'UPDATE' && execution.previousExternalResourceId
+              ? { updatedExternalResourceId: execution.previousExternalResourceId }
+              : {}),
+            // Signals a duplicate post was created because the platform cannot
+            // update existing content via its API (e.g. Medium) while a prior
+            // published copy exists.
+            ...(execution.mode === 'CREATE' && execution.previousExternalResourceId
+              ? {
+                  duplicateOf: execution.previousExternalResourceId,
+                  reason: 'Platform does not support updating published posts via API',
+                }
+              : {}),
           },
         });
       });
@@ -223,6 +281,7 @@ export const publicationRequested = inngest.createFunction(
         status: 'PUBLISHED',
         publicationId,
         externalUrl: publishResult.externalUrl,
+        mode: execution.mode,
       };
     } catch (err) {
       // Step 6: On error, classify failure mode

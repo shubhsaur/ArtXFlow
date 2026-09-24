@@ -1,4 +1,4 @@
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, isNotNull, ne } from 'drizzle-orm';
 import { getDb } from '../client';
 import type { DbExecutor } from './organization.repository';
 import {
@@ -92,6 +92,42 @@ export class PublicationRepository implements BaseRepository<Publication, string
         ),
       )
       .limit(1);
+    return result || null;
+  }
+
+  /**
+   * Finds the most recent PUBLISHED publication of an article for a destination,
+   * excluding an optional publication id.
+   *
+   * Used to decide whether publishing a newer article version should UPDATE the
+   * existing remote post (reusing its external resource id) instead of creating
+   * a duplicate post on the destination platform.
+   */
+  async findLatestPublishedForArticleAndDestination(
+    organizationId: string,
+    articleId: string,
+    destinationId: string,
+    excludePublicationId?: string,
+  ): Promise<Publication | null> {
+    const conditions = [
+      eq(publications.organizationId, organizationId),
+      eq(publications.articleId, articleId),
+      eq(publications.destinationId, destinationId),
+      eq(publications.status, 'PUBLISHED'),
+      isNotNull(publications.externalResourceId),
+    ];
+
+    if (excludePublicationId) {
+      conditions.push(ne(publications.id, excludePublicationId));
+    }
+
+    const [result] = await this.db
+      .select()
+      .from(publications)
+      .where(and(...conditions))
+      .orderBy(desc(publications.publishedAt), desc(publications.createdAt))
+      .limit(1);
+
     return result || null;
   }
 
