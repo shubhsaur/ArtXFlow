@@ -64,6 +64,33 @@
 
   let writeBtnClicked = false;
 
+  /**
+   * Extracts the Hashnode editor/draft resource id from the current editor URL
+   * or from any `/edit/<id>` link in the DOM (e.g. the drafts/post manager list).
+   * Captured at create time so later updates can navigate straight to
+   * `https://hashnode.com/edit/<id>` without scraping the live post.
+   */
+  function extractEditorResourceId() {
+    const PATTERN = /\/edit\/([A-Za-z0-9_-]+)/;
+
+    try {
+      const match = window.location.pathname.match(PATTERN);
+      if (match) return match[1];
+    } catch {}
+
+    try {
+      const link = Array.from(document.querySelectorAll('a[href*="/edit/"]')).find((el) =>
+        PATTERN.test(el.getAttribute('href') || '')
+      );
+      if (link) {
+        const match = (link.getAttribute('href') || '').match(PATTERN);
+        if (match) return match[1];
+      }
+    } catch {}
+
+    return null;
+  }
+
   // Ensure we are inside the Hashnode editor, clicking "Write" from /drafts if necessary
   async function ensureEditorReady(timeoutMs = 25000) {
     const startTime = Date.now();
@@ -230,6 +257,51 @@
     }
   }
 
+  // Clear content inside ProseMirror editor element
+  async function clearEditorContent(editorEl) {
+    editorEl.focus();
+    await sleep(200);
+
+    // Strategy 1: Select all content inside editorEl via Range and delete
+    try {
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(editorEl);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      range.deleteContents();
+      selection.removeAllRanges();
+    } catch {}
+
+    // Strategy 2: Synthetic selectAll + delete
+    try {
+      document.execCommand('selectAll', false, null);
+      document.execCommand('delete', false, null);
+    } catch {}
+
+    // Strategy 3: Remove child nodes directly if still present, keeping at most one paragraph
+    if ((editorEl.innerText || '').trim().length > 0 && editorEl.children.length > 0) {
+      try {
+        while (editorEl.firstChild) {
+          editorEl.removeChild(editorEl.firstChild);
+        }
+        const p = document.createElement('p');
+        p.appendChild(document.createElement('br'));
+        editorEl.appendChild(p);
+      } catch {}
+    }
+
+    editorEl.dispatchEvent(new Event('input', { bubbles: true }));
+    editorEl.dispatchEvent(new Event('change', { bubbles: true }));
+    await sleep(300);
+
+    // Post-clear assertion (body text must be near-empty)
+    const remainingText = (editorEl.innerText || '').trim();
+    if (remainingText.length > 50) {
+      throw new Error(`CONTENT_NOT_CLEARED: Failed to clear previous post content (remaining: ${remainingText.slice(0, 30)}...)`);
+    }
+  }
+
   // Set canonical URL in post settings if present
   function injectCanonicalUrl(canonicalUrl) {
     if (!canonicalUrl) return;
@@ -376,6 +448,107 @@
     confirmBtn.click();
     await sleep(2000);
   }
+  // Find and trigger the Update flow for an existing post
+  async function triggerUpdate(canonicalUrl) {
+    // 1. Locate header "Update" or "Publish" button
+    let headerBtn = null;
+    const findBtnStart = Date.now();
+    while (Date.now() - findBtnStart < 12000) {
+      const buttons = Array.from(document.querySelectorAll('button, a'));
+      headerBtn = buttons.find((btn) => {
+        if (btn.closest('nav') || btn.closest('aside')) return false;
+
+        const text = (btn.innerText || '').trim().toLowerCase();
+        const aria = (btn.getAttribute('aria-label') || '').toLowerCase();
+        const testid = (btn.getAttribute('data-testid') || '').toLowerCase();
+        return (
+          testid.includes('update') ||
+          text === 'update' ||
+          text === 'update post' ||
+          text.startsWith('update') ||
+          aria.includes('update') ||
+          text === 'save' ||
+          text === 'publish'
+        );
+      });
+
+      if (headerBtn) {
+        const isDisabled =
+          headerBtn.disabled ||
+          headerBtn.getAttribute('aria-disabled') === 'true' ||
+          headerBtn.classList.contains('disabled') ||
+          headerBtn.classList.contains('cursor-not-allowed') ||
+          headerBtn.classList.contains('opacity-50');
+
+        if (!isDisabled) {
+          break;
+        }
+      }
+      await sleep(400);
+    }
+
+    if (!headerBtn) {
+      throw new Error('Update button not found or remained disabled in Hashnode editor header.');
+    }
+
+    console.log('[Hashnode Automator] Clicking Update button in header:', headerBtn.innerText);
+    headerBtn.click();
+    await sleep(1500);
+
+    // 2. Check if a confirmation modal / drawer appears
+    let confirmBtn = null;
+    const modalPollStart = Date.now();
+    while (Date.now() - modalPollStart < 8000) {
+      const allContainers = Array.from(
+        document.querySelectorAll('aside, section, [role="dialog"], div[class*="drawer"], div[class*="sheet"], div')
+      );
+      const settingsPanel = allContainers.find((el) => {
+        const t = (el.innerText || '');
+        return (
+          (t.includes('Draft settings') || t.includes('Update post') || t.includes('Publish') || t.includes('By publishing, you agree')) &&
+          el.querySelector('button') !== null
+        );
+      });
+
+      if (settingsPanel) {
+        if (canonicalUrl) {
+          try {
+            const tabs = Array.from(settingsPanel.querySelectorAll('button, [role="tab"], span'));
+            const discoveryTab = tabs.find((el) => (el.innerText || '').trim().toLowerCase() === 'discovery');
+            if (discoveryTab) {
+              discoveryTab.click();
+              await sleep(300);
+              injectCanonicalUrl(canonicalUrl);
+            }
+          } catch {}
+        }
+
+        const panelBtns = Array.from(settingsPanel.querySelectorAll('button'));
+        confirmBtn = panelBtns.find((b) => {
+          if (b === headerBtn) return false;
+          const txt = (b.innerText || '').trim().toLowerCase();
+          const testid = (b.getAttribute('data-testid') || '').toLowerCase();
+          return (
+            !txt.includes('cancel') &&
+            !txt.includes('close') &&
+            (txt === 'update' || txt === 'update post' || txt === 'publish' || txt === 'publish now' || testid.includes('update') || testid.includes('publish'))
+          );
+        });
+
+        if (confirmBtn) break;
+      }
+
+      await sleep(350);
+    }
+
+    if (confirmBtn) {
+      console.log('[Hashnode Automator] Found confirm button in settings/modal! Clicking it:', confirmBtn.innerText);
+      confirmBtn.scrollIntoView?.({ block: 'center' });
+      confirmBtn.click();
+      await sleep(1500);
+    }
+  }
+
 
   // Validate that a URL is a real published post on Hashnode
   function isValidPublishedArticleUrl(url, initialUrl, editorUrl) {
@@ -454,6 +627,12 @@
 
       // 1. Enter the editor (.ProseMirror container)
       const editorEl = await ensureEditorReady(25000);
+
+      // 1b. Capture the edit-route id while we are still on the editor URL.
+      // This is the ONLY reliable source for `https://hashnode.com/edit/<id>`
+      // later (the live post page exposes no edit affordance).
+      const editorResourceId = extractEditorResourceId();
+      const editorEntryUrl = window.location.href;
 
       // 2. Locate title element
       const titleEl = findTitleElementInEditor(editorEl);
@@ -561,6 +740,8 @@
       return {
         success: true,
         publishedUrl: publishedUrl,
+        editorResourceId: editorResourceId,
+        editorUrl: editorEntryUrl,
       };
     } catch (err) {
       return {
@@ -569,5 +750,125 @@
         message: err.message || 'Automation failed',
       };
     }
+  // Main update automation entrypoint
+  window.__runHashnodeUpdateAutomator = async function (article) {
+    try {
+      if (
+        window.location.pathname.includes('/login') ||
+        window.location.pathname.includes('/signin')
+      ) {
+        return {
+          success: false,
+          error: 'NOT_LOGGED_IN',
+          message: 'Please log into your Hashnode account in Chrome first.',
+        };
+      }
+
+      await sleep(500);
+
+      // 1. Enter the editor (.ProseMirror container)
+      const editorEl = await ensureEditorReady(25000);
+
+      // 2. Locate title element
+      const titleEl = findTitleElementInEditor(editorEl);
+
+      // 3. Clear existing content
+      if (titleEl && titleEl !== editorEl) {
+        setTitleValue(titleEl, '');
+      }
+      await clearEditorContent(editorEl);
+      await sleep(400);
+
+      // 4. Inject updated content
+      if (!titleEl || titleEl === editorEl) {
+        const combinedMarkdown = `# ${article.title}\n\n${article.markdown}`;
+        await insertMarkdownIntoEditor(editorEl, combinedMarkdown);
+      } else {
+        setTitleValue(titleEl, article.title);
+        await sleep(400);
+        await insertMarkdownIntoEditor(editorEl, article.markdown);
+      }
+
+      console.log('[Hashnode Automator] Content updated in editor.');
+
+      // 5. Wait for auto-save sync
+      console.log('[Hashnode Automator] Waiting for auto-save to sync...');
+      await sleep(2500);
+      const autoSaveStart = Date.now();
+      while (Date.now() - autoSaveStart < 8000) {
+        const bodyText = document.body.innerText || '';
+        const isSaving = /saving\.\.\.|syncing\.\.\./i.test(bodyText);
+        if (!isSaving) break;
+        await sleep(400);
+      }
+
+      const initialUrl = window.location.href;
+      const editorUrl = window.location.href;
+
+      // 6. Trigger update flow
+      await triggerUpdate(article.canonicalUrl);
+
+      // 7. Poll for confirmed update (either URL navigation, "Article updated" toast, or targetUrl)
+      let publishedUrl = article.targetUrl || null;
+      const pollStart = Date.now();
+
+      while (Date.now() - pollStart < 20000) {
+        const currentUrl = window.location.href;
+
+        // Check 1: Navigated to live article URL
+        if (isValidPublishedArticleUrl(currentUrl, initialUrl, editorUrl)) {
+          publishedUrl = currentUrl;
+          break;
+        }
+
+        // Check 2: Success toast ("Article updated" / "Post updated")
+        const bodyText = (document.body.innerText || '').toLowerCase();
+        if (
+          bodyText.includes('article updated') ||
+          bodyText.includes('post updated') ||
+          bodyText.includes('story updated') ||
+          bodyText.includes('changes saved')
+        ) {
+          console.log('[Hashnode Automator] Update confirmation toast detected.');
+          publishedUrl = article.targetUrl || currentUrl;
+          break;
+        }
+
+        // Check 3: Success link
+        const links = Array.from(document.querySelectorAll('a[href]'));
+        const successLink = links.find((a) => {
+          const txt = (a.innerText || '').toLowerCase().trim();
+          const href = a.href;
+          const isViewPostText =
+            txt === 'view post' ||
+            txt === 'read post' ||
+            txt === 'see post' ||
+            txt === 'open post' ||
+            txt.includes('view post');
+          return isViewPostText && isValidPublishedArticleUrl(href, initialUrl, editorUrl);
+        });
+
+        if (successLink) {
+          publishedUrl = successLink.href;
+          break;
+        }
+
+        await sleep(600);
+      }
+
+      return {
+        success: true,
+        action: 'update',
+        publishedUrl: publishedUrl || article.targetUrl || initialUrl,
+      };
+    } catch (err) {
+      return {
+        success: false,
+        error: err.message || 'Hashnode update failed',
+        message: err.message || 'Hashnode update failed',
+      };
+    }
+  };
+
   };
 })();

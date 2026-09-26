@@ -17,7 +17,14 @@
       "Bash(source *)",
       "Bash(xargs *)",
       "Bash(node *)",
-      "Bash(npx *)"
+      "Bash(npx *)",
+      "Bash(cd *)",
+      "Bash(pnpm test *)",
+      "Bash(tail *)",
+      "Bash(file *)",
+      "Bash(sips *)",
+      "Bash(cp *)",
+      "Bash(grep *)"
     ]
   },
   "$version": 4

@@ -45,9 +45,39 @@ This extension bridges the gap:
 
 ---
 
+## Updating Already-Published Posts (v0.3.0)
+
+Re-publishing an edited article no longer creates a duplicate post. When a destination already has
+a `PUBLISHED` publication with a remote URL, ArtXFlow sends `UPDATE_HASHNODE` / `UPDATE_MEDIUM`
+instead of `PUBLISH_*` and the extension edits the existing remote post in place.
+
+| Platform | Edit entry | Save flow |
+| --- | --- | --- |
+| Hashnode | `https://hashnode.com/edit/<id>` (id captured at create time) | header **Update** → confirm **Update** panel → `Article updated` toast |
+| Medium | `https://medium.com/p/<storyId>/edit` (story id captured at create time), else `<liveUrl>/edit` | header **Save and publish** → redirects to the live URL (`?postPublishedType=repub`, stripped before recording) |
+
+Details:
+
+- **Create-time id capture** — the create automator records the editor resource id
+  (`hashnode.com/edit/<id>` for Hashnode, the 12-hex story id for Medium) and ArtXFlow stores it as
+  `externalResourceId`, so updates need zero scraping.
+- **Legacy rows** (published before 0.3.0, where `externalResourceId` is just the live URL):
+  - Medium derives the story id from the URL; otherwise it appends `/edit`.
+  - Hashnode has no edit affordance on public post pages, so the worker probes the page for an
+    `a[href*="/edit/"]` link (drafts/posts manager layouts). When found, the id is upgraded in
+    ArtXFlow for next time; when not found the run fails with `EDIT_URL_UNRESOLVED` and the tab is
+    left open so you can copy the editor URL manually.
+- **Content replacement** — Hashnode's ProseMirror document is cleared with an editor-scoped range
+  delete plus a post-clear assertion (`CONTENT_NOT_CLEARED` if the old body survives); Medium clears
+  its `postArticle-content` block the same way before re-inserting the parsed sections.
+- **Failure contract** — any failure keeps the target tab open for review and returns an actionable
+  message to ArtXFlow; success closes the tab and returns to the ArtXFlow tab.
+
+---
+
 ## Architecture & Security
 
 - **Manifest V3**: Compliant with latest Chrome Web Store standards using background service workers.
 - **Zero Remote Code**: All automation scripts (`hashnode-automator.js`, `artxflow-bridge.js`) are bundled locally within the extension.
-- **Silent Background Execution**: Tabs are opened with `{ active: false }` so they never steal focus or interrupt your writing flow, and are immediately destroyed when the operation finishes.
+- **Silent Background Execution**: Automation tabs are opened only for the duration of an operation, never reuse your active tab, and are destroyed automatically on success (kept open on failure so you can inspect what the automator saw).
 - **Secure Communication**: Communication between `localhost:3002` (or `*.artxflow.com`) and the extension happens via content script window messaging and validated action types.
