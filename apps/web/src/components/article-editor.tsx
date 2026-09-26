@@ -37,6 +37,8 @@ import {
   calculateReadingStats,
   checkPublisherReadiness,
 } from './editor/formatting-helpers';
+import { resolveExtensionTargets, isDestinationStale } from '@/lib/publication-status';
+
 
 export interface ArticleEditorProps {
   initialArticle?: Article;
@@ -605,7 +607,11 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
     window.open('https://medium.com/new-story', '_blank');
   }
 
-  async function handleRecordExternalUrl(pubId: string, url: string) {
+  async function handleRecordExternalUrl(
+    pubId: string,
+    url: string,
+    externalResourceId?: string,
+  ) {
     if (!initialArticle?.id) return;
     if (!url || !url.startsWith('http')) {
       const msg = 'Please enter a valid URL (starting with http:// or https://)';
@@ -621,7 +627,10 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ externalUrl: url.trim() }),
+          body: JSON.stringify({
+            externalUrl: url.trim(),
+            externalResourceId: externalResourceId || undefined,
+          }),
         },
       );
       const data = await res.json();
@@ -863,6 +872,22 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
     publications.some((p) => p.status === 'PUBLISHED') &&
     publications.some((p) => p.status === 'FAILED' || p.status === 'UNKNOWN_OUTCOME');
 
+  /**
+   * Client-managed destinations in `extension` mode whose remote copy is behind
+   * the current article version — the "Update published copies" bulk action set.
+   */
+  const staleExtensionDestinationIds = destinations
+    .filter((dest) => {
+      const isHashnode = isHashnodeDestinationType(dest.type);
+      const isMedium = isMediumDestinationType(dest.type);
+      const extensionMode =
+        (isHashnode && getHashnodePublishMode(dest) === 'extension') ||
+        (isMedium && getMediumPublishMode(dest) === 'extension');
+      if (!extensionMode) return false;
+      return isDestinationStale(publications, dest.id, initialVersion?.id);
+    })
+    .map((dest) => dest.id);
+
   async function handleRetry(publicationId: string) {
     if (!initialArticle?.id) return;
     const pub = publications.find((p) => p.id === publicationId);
@@ -974,12 +999,25 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
       title: string;
       markdown: string;
       canonicalUrl?: string;
+      targetUrl?: string;
+      targetResourceId?: string;
     },
-  ): Promise<{ success: boolean; publishedUrl?: string; error?: string; message?: string }> {
+    options?: {
+      action?: 'publish' | 'update';
+    },
+  ): Promise<{ success: boolean; publishedUrl?: string; externalResourceId?: string; error?: string; message?: string }> {
     return new Promise((resolve) => {
       const requestId = crypto.randomUUID();
       const platformName = platform === 'medium' ? 'Medium' : 'Hashnode';
-      const type = platform === 'medium' ? 'PUBLISH_MEDIUM' : 'PUBLISH_HASHNODE';
+      const action = options?.action || 'publish';
+      const type =
+        action === 'update'
+          ? platform === 'medium'
+            ? 'UPDATE_MEDIUM'
+            : 'UPDATE_HASHNODE'
+          : platform === 'medium'
+            ? 'PUBLISH_MEDIUM'
+            : 'PUBLISH_HASHNODE';
       const timeout = setTimeout(() => {
         window.removeEventListener('message', handleResponse);
         resolve({
@@ -1024,6 +1062,9 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
       destinationIds && destinationIds.length > 0
         ? destinationIds
         : destinations.filter((d) => d.status === 'ACTIVE').map((d) => d.id);
+
+    // Resolve extension targets before dispatching publish
+    const extensionTargets = resolveExtensionTargets(publications, targetIds);
 
     const hashnodeDest = destinations.find((d) => isHashnodeDestinationType(d.type));
     const isHashnodeTargeted = Boolean(hashnodeDest && targetIds.includes(hashnodeDest.id));
@@ -1074,6 +1115,8 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
           (p) => p.destinationId === item.dest.id,
         );
         const platformLabel = item.platform === 'hashnode' ? 'Hashnode' : 'Medium';
+        const targetDecision = extensionTargets.find((t) => t.destinationId === item.dest.id);
+        const isUpdate = targetDecision?.mode === 'update';
 
         try {
           if (item.mode === 'extension') {
@@ -1082,7 +1125,11 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                 `${platformLabel} is waiting on the ArtXFlow Chrome extension. Load it from apps/extension, or use the 1-click fallback below.`,
               );
             } else {
-              setPublishMessage(`Publishing to ${platformLabel} via Chrome Companion Extension...`);
+              setPublishMessage(
+                isUpdate
+                  ? `Updating existing ${platformLabel} post via Chrome Companion Extension...`
+                  : `Publishing to ${platformLabel} via Chrome Companion Extension...`,
+              );
               const canonicalUrl = initialArticle.slug
                 ? `${window.location.origin}/articles/${initialArticle.id}`
                 : undefined;
@@ -1090,21 +1137,30 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                 item.platform === 'medium'
                   ? formatMediumMarkdown(stripFrontmatter(content))
                   : stripFrontmatter(content);
-              const extResult = await publishViaExtension(item.platform, {
-                title,
-                markdown: targetMarkdown,
-                canonicalUrl,
-              });
+              const extResult = await publishViaExtension(
+                item.platform,
+                {
+                  title,
+                  markdown: targetMarkdown,
+                  canonicalUrl,
+                  targetUrl: targetDecision?.target?.externalUrl,
+                  targetResourceId: targetDecision?.target?.externalResourceId,
+                },
+                { action: isUpdate ? 'update' : 'publish' },
+              );
               if (!extResult.success) {
                 throw new Error(
-                  extResult.message || extResult.error || `Failed to publish to ${platformLabel} via extension`,
+                  extResult.message || extResult.error || `Failed to ${isUpdate ? 'update' : 'publish to'} ${platformLabel} via extension`,
                 );
               }
-              if (pub?.id && extResult.publishedUrl) {
-                await handleRecordExternalUrl(pub.id, extResult.publishedUrl);
+              const finalUrl = extResult.publishedUrl || targetDecision?.target?.externalUrl;
+              const finalResourceId =
+                extResult.externalResourceId || targetDecision?.target?.externalResourceId || finalUrl;
+              if (pub?.id && finalUrl) {
+                await handleRecordExternalUrl(pub.id, finalUrl, finalResourceId);
               }
               setStatus('READY');
-              const msg = `Article successfully published to ${platformLabel}!`;
+              const msg = `Article successfully ${isUpdate ? 'updated on' : 'published to'} ${platformLabel}!`;
               setPublishMessage(msg);
               toast.success(msg);
             }
@@ -1540,6 +1596,22 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
 
           {mode === 'edit' && (
             <>
+              {staleExtensionDestinationIds.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  loading={publishing}
+                  disabled={publishing || saving || !extensionInstalled}
+                  title={
+                    extensionInstalled
+                      ? 'Replace the live post content with the current version (no duplicate post)'
+                      : 'Load the ArtXFlow Chrome extension from apps/extension to enable updates'
+                  }
+                  onClick={() => handlePublish(staleExtensionDestinationIds)}
+                >
+                  ↻ Update published copies
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
@@ -1922,7 +1994,9 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                         </div>
 
                         <div>
-                          {isPublished ? (
+                          {isDestinationStale(publications, destination.id, initialVersion?.id) ? (
+                            <Badge variant="warning">Out of date</Badge>
+                          ) : isPublished ? (
                             <Badge variant="success">Published</Badge>
                           ) : isFailed ? (
                             <Badge variant="warning">Failed</Badge>

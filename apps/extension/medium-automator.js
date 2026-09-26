@@ -108,24 +108,31 @@
     btn = visible.find((b) => (b.getAttribute('data-action') || '').toLowerCase() === 'publish');
     if (btn) return btn;
 
-    // 3. Exact text "publish"
+    // 3. Exact text "save and publish", "update", or "publish"
     btn = visible.find((b) => {
       const txt = (b.textContent || b.innerText || '').trim().toLowerCase();
-      return txt === 'publish';
+      return txt === 'save and publish' || txt === 'update' || txt === 'publish';
     });
     if (btn) return btn;
 
-    // 4. Starts with or contains "publish", excluding "publish now" and "published"
+    // 4. Starts with or contains "save and publish" or "update"
+    btn = visible.find((b) => {
+      const txt = (b.textContent || b.innerText || '').trim().toLowerCase();
+      return txt.includes('save and publish') || (txt.startsWith('update') && !txt.includes('updated'));
+    });
+    if (btn) return btn;
+
+    // 5. Starts with or contains "publish", excluding "publish now" and "published"
     btn = visible.find((b) => {
       const txt = (b.textContent || b.innerText || '').trim().toLowerCase();
       return txt.includes('publish') && !txt.includes('publish now') && !txt.includes('published');
     });
     if (btn) return btn;
 
-    // 5. aria-label contains publish
+    // 6. aria-label contains save and publish or publish
     btn = visible.find((b) => {
       const label = (b.getAttribute('aria-label') || '').toLowerCase();
-      return label.includes('publish') && !label.includes('publish now');
+      return (label.includes('save and publish') || label.includes('publish')) && !label.includes('publish now');
     });
 
     return btn || null;
@@ -1278,6 +1285,152 @@
       phase: 'FINAL_PUBLISH_CLICKED',
     });
   };
+  // Helper to clear existing body content in Medium editor
+  async function clearMediumBody(bodyEl) {
+    if (!bodyEl) return;
+    try {
+      bodyEl.focus();
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(bodyEl);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      document.execCommand('selectAll', false, null);
+      document.execCommand('delete', false, null);
+    } catch (clearErr) {
+      console.warn('[Medium Automator] Range clear error, falling back:', clearErr);
+    }
+    await sleep(300);
+  }
+
+  // Update flow for existing Medium story
+  window.__runMediumUpdateEditor = async function (article) {
+    console.log('[Medium Automator] Starting update editor automation for:', article.title);
+
+    try {
+      const currentUrl = window.location.href;
+      if (
+        currentUrl.includes('/signin') ||
+        currentUrl.includes('/m/signin') ||
+        currentUrl.includes('/m/connect') ||
+        currentUrl.includes('accounts.google.com')
+      ) {
+        return finishResult({
+          success: false,
+          error: 'NOT_LOGGED_IN',
+          message: 'You are not logged into Medium in Chrome. Please log in at medium.com and try again.',
+        });
+      }
+
+      let titleEl = null;
+      const titleStart = Date.now();
+      while (Date.now() - titleStart < 20000) {
+        titleEl = findTitleElement();
+        if (titleEl) break;
+        await sleep(400);
+      }
+
+      if (!titleEl) {
+        return finishResult({
+          success: false,
+          error: 'TITLE_NOT_FOUND',
+          message: 'Could not locate the Title element in the Medium editor.',
+        });
+      }
+
+      let bodyEl = null;
+      const bodyStart = Date.now();
+      while (Date.now() - bodyStart < 15000) {
+        bodyEl = findBodyElement(titleEl);
+        if (bodyEl) break;
+        await sleep(400);
+      }
+
+      if (bodyEl) {
+        await clearMediumBody(bodyEl);
+      }
+
+      // Update title
+      const cleanTitle = (article.title || '').replace(/\n+/g, ' ').trim();
+      titleEl.focus();
+      await setCursorToEnd(titleEl);
+      try {
+        document.execCommand('selectAll', false, null);
+        document.execCommand('delete', false, null);
+      } catch {}
+      titleEl.textContent = cleanTitle;
+      titleEl.dispatchEvent(new Event('input', { bubbles: true }));
+      await sleep(300);
+
+      bodyEl = findBodyElement(titleEl);
+      if (!bodyEl || bodyEl === titleEl || bodyEl.contains(titleEl) || !bodyEl.isConnected) {
+        titleEl.focus();
+        await setCursorToEnd(titleEl);
+        await keyEvent('enter', titleEl);
+        await sleep(300);
+        bodyEl = findBodyElement(titleEl);
+      }
+
+      if (!bodyEl) {
+        return finishResult({
+          success: false,
+          error: 'BODY_NOT_FOUND',
+          message: 'Could not locate the Story Body area in the Medium editor.',
+        });
+      }
+
+      bodyEl.focus();
+      await setCursorToEnd(bodyEl);
+      await sleep(200);
+
+      const sections = await parseMarkdownContent(article.markdown, cleanTitle);
+      await insertMarkdownContent(sections);
+
+      try {
+        if (document.activeElement?.blur) document.activeElement.blur();
+      } catch {}
+      await sleep(1500);
+
+      const publishHeaderStart = Date.now();
+      let headerPublishBtn = null;
+      while (Date.now() - publishHeaderStart < 25000) {
+        headerPublishBtn = findPublishHeaderButton();
+        if (headerPublishBtn) {
+          const isDisabled =
+            headerPublishBtn.disabled ||
+            headerPublishBtn.getAttribute('aria-disabled') === 'true' ||
+            headerPublishBtn.classList.contains('disabled');
+          if (!isDisabled) break;
+        }
+        await sleep(600);
+      }
+
+      if (!headerPublishBtn) {
+        return finishResult({
+          success: false,
+          error: 'PUBLISH_HEADER_NOT_FOUND',
+          message: 'Could not find enabled "Save and publish" button on Medium.',
+        });
+      }
+
+      clickElement(headerPublishBtn);
+      try {
+        headerPublishBtn.click();
+      } catch {}
+
+      return finishResult({
+        success: true,
+        phase: 'SAVE_AND_PUBLISH_CLICKED',
+      });
+    } catch (editorErr) {
+      return finishResult({
+        success: false,
+        error: 'UPDATE_ERROR',
+        message: `Medium update error: ${editorErr?.message || String(editorErr)}`,
+      });
+    }
+  };
+
 
   // Standalone fallback: runs both stages sequentially with URL resolution
   window.__runMediumAutomator = async function (article) {

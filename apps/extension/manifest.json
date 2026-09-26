@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ArtXFlow Publisher Companion",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Browser companion for ArtXFlow to publish articles to Hashnode, Medium, and platforms without API paywalls.",
   "permissions": [
     "tabs",

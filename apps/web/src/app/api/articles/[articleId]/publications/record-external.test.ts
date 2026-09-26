@@ -154,4 +154,100 @@ describe('POST /api/articles/[articleId]/publications/[publicationId]/record-ext
     expect(data.publication.externalUrl).toBe('https://shubhsaur.hashnode.dev/post-1');
     expect(articleRepository.update).toHaveBeenCalledWith(articleId, { status: 'READY' });
   });
+
+  it('passes an explicit externalResourceId through to updatePublicationStatus', async () => {
+    const mockUpdatedPub = {
+      id: publicationId,
+      organizationId: mockOrg.id,
+      articleId,
+      articleVersionId: 'ver-1',
+      destinationId: 'dest-hashnode',
+      status: 'PUBLISHED' as const,
+      externalResourceId: 'cmu60wpq0000004jpfba3h2vl',
+      externalUrl: 'https://shubhsaur.hashnode.dev/post-1',
+      publishedAt: '2026-09-17T00:00:00.000Z',
+      lastAttemptAt: null,
+      attemptCount: 1,
+      lastErrorCode: null,
+      lastErrorMessage: null,
+      overrides: {},
+      createdAt: '2026-09-17T00:00:00.000Z',
+      updatedAt: '2026-09-17T00:00:00.000Z',
+    };
+
+    const updateSpy = vi
+      .spyOn(publicationService, 'updatePublicationStatus')
+      .mockResolvedValue(mockUpdatedPub);
+    vi.mocked(articleRepository.findArticleForOrganization).mockResolvedValue(null);
+
+    const req = new Request(
+      `http://localhost/api/articles/${articleId}/publications/${publicationId}/record-external`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          externalUrl: 'https://shubhsaur.hashnode.dev/post-1',
+          externalResourceId: 'cmu60wpq0000004jpfba3h2vl',
+        }),
+      },
+    );
+    const res = await POST(req, {
+      params: Promise.resolve({ articleId, publicationId }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(updateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ organizationId: mockOrg.id }),
+      expect.objectContaining({
+        publicationId,
+        status: 'PUBLISHED',
+        externalUrl: 'https://shubhsaur.hashnode.dev/post-1',
+        externalResourceId: 'cmu60wpq0000004jpfba3h2vl',
+      }),
+    );
+  });
+
+  it('falls back to externalUrl for externalResourceId when none is provided', async () => {
+    const mockUpdatedPub = {
+      id: publicationId,
+      organizationId: mockOrg.id,
+      articleId,
+      articleVersionId: 'ver-1',
+      destinationId: 'dest-hashnode',
+      status: 'PUBLISHED' as const,
+      externalResourceId: 'https://shubhsaur.hashnode.dev/post-1',
+      externalUrl: 'https://shubhsaur.hashnode.dev/post-1',
+      publishedAt: '2026-09-17T00:00:00.000Z',
+      lastAttemptAt: null,
+      attemptCount: 1,
+      lastErrorCode: null,
+      lastErrorMessage: null,
+      overrides: {},
+      createdAt: '2026-09-17T00:00:00.000Z',
+      updatedAt: '2026-09-17T00:00:00.000Z',
+    };
+
+    const updateSpy = vi
+      .spyOn(publicationService, 'updatePublicationStatus')
+      .mockResolvedValue(mockUpdatedPub);
+    vi.mocked(articleRepository.findArticleForOrganization).mockResolvedValue(null);
+
+    const req = new Request(
+      `http://localhost/api/articles/${articleId}/publications/${publicationId}/record-external`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ externalUrl: 'https://shubhsaur.hashnode.dev/post-1' }),
+      },
+    );
+    const res = await POST(req, {
+      params: Promise.resolve({ articleId, publicationId }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(updateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ organizationId: mockOrg.id }),
+      expect.objectContaining({
+        externalResourceId: 'https://shubhsaur.hashnode.dev/post-1',
+      }),
+    );
+  });
 });

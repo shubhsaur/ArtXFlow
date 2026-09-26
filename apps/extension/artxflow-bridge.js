@@ -13,7 +13,7 @@
       {
         source: SOURCE_EXT,
         type: 'READY',
-        version: '0.2.0',
+        version: '0.3.0',
       },
       '*',
     );
@@ -39,7 +39,7 @@
           source: SOURCE_EXT,
           type: 'PONG',
           requestId,
-          version: '0.2.0',
+          version: '0.3.0',
         },
         '*',
       );
@@ -142,7 +142,12 @@
       return;
     }
 
-    if (type === 'PUBLISH_HASHNODE' || type === 'PUBLISH_MEDIUM') {
+    if (
+      type === 'PUBLISH_HASHNODE' ||
+      type === 'PUBLISH_MEDIUM' ||
+      type === 'UPDATE_HASHNODE' ||
+      type === 'UPDATE_MEDIUM'
+    ) {
       if (!isExtensionContextValid()) {
         window.postMessage(
           {

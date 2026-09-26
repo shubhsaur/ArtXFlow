@@ -112,21 +112,47 @@ was `adapter.publish()`. Live consequences:
 
 ## 7. Pending work (nothing from these lists is started)
 
-**Extension update flow (TASK-033 slices 3–7)**
-1. Protocol: bridge accepts `UPDATE_HASHNODE`/`UPDATE_MEDIUM`, service-worker refactor into
-   `runPlatformAutomation({platform, mode, startUrl})`, manifest + package bump to `0.3.0`.
-2. Hashnode update automator: resolve edit URL (create-time capture primary; HTML/GraphQL id
-   fallbacks), clear editor content (range technique + assertion), fill, click `UPDATE`, detect
-   `Article updated` toast / URL settle.
-3. Medium update automator: enter `<live>/edit`, clear body (`Cmd+A → Delete`), fill title/body,
-   wait for `Save and publish` enable, click, wait for live-URL navigation, normalize URL
-   (strip `postPublishedType`), return.
-4. Editor integration: call `resolveExtensionTargets()` in `handlePublish`; pass update payloads to
-   `publishViaExtension`; `record-external` on the new row with resolved id; "Out of date" badges;
-   "Update via extension" / "Update published copies" actions; fallback card (open edit link + copy
-   markdown + "Mark updated").
-5. Docs + QA: README + TASK-032 update, manual QA checklist (create→edit→update→verify per platform,
-   logged-out errors, `*.pub` story edit path, confirm-panel edge cases).
+**Extension update flow (TASK-033 slices 3–6) — DONE**
+
+1. ✅ **Protocol**: bridge accepts `UPDATE_HASHNODE`/`UPDATE_MEDIUM`; service worker has dedicated
+   update handlers (per-message tab open → wait-ready → unfreeze rAF/visibility → inject automator →
+   poll result → close-on-success / keep-open-on-failure); manifest + bridge + package bumped to
+   `0.3.0`. `PUBLISH_*` responses now also carry `action` + `externalResourceId`.
+2. ✅ **Hashnode update automator** — `window.__runHashnodeUpdateAutomator(article)`:
+   `clearEditorContent` (editor-scoped range delete + `CONTENT_NOT_CLEARED` assertion) → title/body
+   refill → `triggerUpdate` (extended matcher: `update` / `save` / `publish`, plus a confirm-panel
+   pass) → success on URL change, `Article updated` toast, or a view-post link; returns
+   `{ success: true, action: 'update', publishedUrl }`.
+3. ✅ **Medium update automator** — `window.__runMediumUpdateEditor(article)`: `clearMediumBody` →
+   title/body refill → wait for enabled **Save and publish** → click (no settings stage, per S4b);
+   the service worker waits for the live-URL navigation, strips `postPublishedType`, and returns the
+   canonical URL.
+4. ✅ **Editor integration** (`apps/web/src/components/article-editor.tsx`):
+   `resolveExtensionTargets()` is computed before `POST /publish`; per client-managed destination the
+   editor dispatches `UPDATE_*` with `{ targetUrl, targetResourceId }` when a PUBLISHED row with a
+   URL exists, then calls `record-external` with `externalUrl` + the resolved `externalResourceId`.
+   `isDestinationStale()` drives an **Out of date** badge and a bulk **↻ Update published copies**
+   action for stale `extension`-mode destinations.
+5. ✅ **Create-time id capture** (the primary strategy from the spike): the Hashnode create automator
+   reports the editor resource id it is standing on and the Medium create path reports the 12-hex
+   story id, so new publications store a real `externalResourceId` and updates need no scraping.
+   Legacy URL-only rows self-heal where possible (Hashnode in-page `/edit/` probe; Medium URL-derived
+   story id) and otherwise fail with `EDIT_URL_UNRESOLVED` + an open tab.
+6. ⏳ **Docs + QA**: extension README documents the update flow; manual QA checklist below still needs
+   a live browser pass (create → edit → update → verify per platform, logged-out errors, `*.pub`
+   story edit path, confirm-panel edge cases).
+
+**Automated verification run against the extension code** (`vm`-sandboxed service worker with a fake
+`chrome` API — extension files stay outside vitest by design):
+
+| Scenario | Result |
+| --- | --- |
+| `UPDATE_HASHNODE` with real edit id | opens `hashnode.com/edit/<id>`, injects `hashnode-automator.js`, returns `{ success, action: 'update', externalResourceId }` |
+| `UPDATE_HASHNODE` legacy URL-only id, page exposes an `/edit/` link | probes → navigates to the edit URL → updates → **upgrades** `externalResourceId` to the real id |
+| `UPDATE_HASHNODE` legacy URL-only id, no edit link | fails fast with `EDIT_URL_UNRESOLVED`, tab kept open |
+| `UPDATE_MEDIUM` with story id | opens `medium.com/p/<id>/edit`, injects `medium-automator.js`, returns the query-stripped live URL |
+| `PUBLISH_HASHNODE` / `PUBLISH_MEDIUM` | unchanged start URLs (`hn.new` / `medium.com/new-story`) and envelopes |
+
 
 **Open spike loose ends (all fallback-covered; needed only for QA polish)**
 - Hashnode: `/edit/<24-hex-id>` acceptability; `cmu…` URL origin; `Cmd+A` scope in ProseMirror;

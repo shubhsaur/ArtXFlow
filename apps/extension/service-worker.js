@@ -121,6 +121,24 @@ async function waitForMediumEditorReady(tabId, timeoutMs = 30000) {
   return { ok: false, error: 'TIMEOUT_REDIRECT', url: lastUrl };
 }
 
+/**
+ * Extracts Medium's story id from a live/editable story URL.
+ * Forms: `.../p/<id>` (12-hex), `.../<slug>-<id>`, `.../<slug>-<hex>`.
+ * Stored as `externalResourceId` so updates can target `/p/<id>/edit`.
+ */
+function extractMediumStoryId(url) {
+  try {
+    if (!url) return null;
+    const parsed = new URL(url);
+    const match =
+      parsed.pathname.match(/\/p\/([a-f0-9]{8,})/i) ||
+      parsed.pathname.match(/-([a-f0-9]{8,})\/?$/i);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
+}
+
 // Helper to determine if URL is a live published story on Medium
 function isPublishedStoryUrl(url) {
   try {
@@ -571,7 +589,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
         sendResponse({
           success: true,
+          action: 'publish',
           publishedUrl: result.publishedUrl,
+          // Prefer the real platform post id captured from the editor URL so
+          // later updates can navigate straight to `hashnode.com/edit/<id>`.
+          externalResourceId: result.editorResourceId || result.publishedUrl,
         });
       } catch (err) {
         // Do not auto-close tab on error to preserve state for inspection
@@ -760,9 +782,20 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           })();
         }
 
+        // Normalize the live URL (strip query params such as postPublishedType)
+        let normalizedLiveUrl = liveUrl;
+        try {
+          const parsedLive = new URL(liveUrl);
+          parsedLive.search = '';
+          parsedLive.hash = '';
+          normalizedLiveUrl = parsedLive.toString();
+        } catch {}
+
         sendResponse({
           success: true,
-          publishedUrl: liveUrl,
+          action: 'publish',
+          publishedUrl: normalizedLiveUrl,
+          externalResourceId: extractMediumStoryId(normalizedLiveUrl) || normalizedLiveUrl,
         });
       } catch (err) {
         // Do not auto-close tab on error to preserve state for inspection
@@ -773,5 +806,408 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       }
     })();
     return true; // Keep channel open for async response
+  }
+
+  if (message.type === 'UPDATE_HASHNODE') {
+    (async () => {
+      let tabId = null;
+      try {
+        const { payload } = message;
+
+        const [currentTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const originTabId = currentTab?.id;
+
+        // Resolve the Hashnode editor entry.
+        //  1. A real edit id (create-time capture)  -> hashnode.com/edit/<id>
+        //  2. A captured editor URL (/edit/...)      -> use as-is
+        //  3. Legacy rows (externalResourceId == live URL) -> probe the live page
+        //     and any /edit/<id> link in the DOM (drafts/post manager layouts).
+        const rawResourceId = (payload?.targetResourceId || '').trim();
+        const bareEditIdMatch = rawResourceId.match(/^[A-Za-z0-9_-]{20,30}$/);
+        const editUrlInResourceId = rawResourceId.match(/^(https?:\/\/[^\s]*\/edit\/[A-Za-z0-9_-]+)/);
+        const editUrlInTarget = (payload?.targetUrl || '').match(/^(https?:\/\/[^\s]*\/edit\/[A-Za-z0-9_-]+)/);
+
+        let editUrl;
+        let needsEditProbe = false;
+        let resolvedEditResourceId;
+
+        if (bareEditIdMatch) {
+          editUrl = `https://hashnode.com/edit/${bareEditIdMatch[0]}`;
+          resolvedEditResourceId = bareEditIdMatch[0];
+        } else if (editUrlInResourceId) {
+          editUrl = editUrlInResourceId[1];
+          resolvedEditResourceId = (editUrl.match(/\/edit\/([A-Za-z0-9_-]+)/) || [])[1];
+        } else if (editUrlInTarget) {
+          editUrl = editUrlInTarget[1];
+          resolvedEditResourceId = (editUrl.match(/\/edit\/([A-Za-z0-9_-]+)/) || [])[1];
+        } else if (rawResourceId.startsWith('http')) {
+          // Legacy: the stored resource id is the live post URL.
+          editUrl = rawResourceId;
+          needsEditProbe = true;
+        } else if (payload?.targetUrl) {
+          editUrl = payload.targetUrl;
+          needsEditProbe = true;
+        } else {
+          editUrl = 'https://hashnode.com/drafts';
+          needsEditProbe = true;
+        }
+
+        console.log('[ArtXFlow ServiceWorker] UPDATE_HASHNODE starting with edit URL:', editUrl);
+
+        const tab = await chrome.tabs.create({
+          url: editUrl,
+          active: true,
+        });
+        tabId = tab.id;
+
+        let readyResult = await waitForEditorReady(tabId, 30000);
+        if (!readyResult.ok) {
+          await chrome.tabs.remove(tabId);
+          tabId = null;
+
+          if (readyResult.error === 'NOT_LOGGED_IN') {
+            sendResponse({
+              success: false,
+              error: 'NOT_LOGGED_IN',
+              message: 'You are not logged into Hashnode. Please open hashnode.com in Chrome and log in first.',
+            });
+            return;
+          }
+
+          sendResponse({
+            success: false,
+            error: 'TIMEOUT_REDIRECT',
+            message: `Hashnode editor took too long to load (last URL: ${readyResult.url}).`,
+          });
+          return;
+        }
+
+        // Legacy fallback: we landed on a live post / manager page — look for an
+        // author-only `/edit/<id>` link and follow it before running the automator.
+        if (needsEditProbe && !/\/edit\//.test(readyResult.url || '')) {
+          console.log('[ArtXFlow ServiceWorker] No editor URL stored — probing page for an edit link...');
+          let probed = null;
+          try {
+            const probeRes = await chrome.scripting.executeScript({
+              target: { tabId },
+              func: () => {
+                const PATTERN = /\/edit\/([A-Za-z0-9_-]+)/;
+                const link = Array.from(document.querySelectorAll('a[href]')).find((a) =>
+                  PATTERN.test(a.getAttribute('href') || ''),
+                );
+                if (link) return link.href;
+                return null;
+              },
+            });
+            probed = probeRes?.[0]?.result || null;
+          } catch {}
+
+          if (probed) {
+            console.log('[ArtXFlow ServiceWorker] Probing found edit link:', probed);
+            await chrome.tabs.update(tabId, { url: probed });
+            await sleep(2000);
+            readyResult = await waitForEditorReady(tabId, 25000);
+
+            // Upgrade the stored resource id to the real Hashnode edit id so
+            // future updates skip the probe entirely.
+            const probedId = (probed.match(/\/edit\/([A-Za-z0-9_-]+)/) || [])[1];
+            if (probedId) resolvedEditResourceId = probedId;
+          }
+
+          if (!probed || !readyResult?.ok) {
+            sendResponse({
+              success: false,
+              error: 'EDIT_URL_UNRESOLVED',
+              message:
+                'This Hashnode post was published before edit IDs were recorded, and no edit link could be found automatically. ' +
+                'Open the post in Hashnode, copy its editor URL (hashnode.com/edit/...), and record it once; future updates will then work automatically. ' +
+                '(The Hashnode tab has been kept open in Chrome for your review)',
+            });
+            return;
+          }
+        }
+
+        await sleep(1500);
+
+        try {
+          await chrome.scripting.executeScript({
+            target: { tabId },
+            world: 'MAIN',
+            func: () => {
+              if (document.hidden) {
+                window.requestAnimationFrame = function (callback) {
+                  return setTimeout(() => callback(performance.now()), 16);
+                };
+                try {
+                  Object.defineProperty(document, 'visibilityState', {
+                    get: () => 'visible',
+                    configurable: true,
+                  });
+                  Object.defineProperty(document, 'hidden', {
+                    get: () => false,
+                    configurable: true,
+                  });
+                  document.hasFocus = () => true;
+                  document.dispatchEvent(new Event('visibilitychange'));
+                } catch {}
+              }
+            },
+          });
+        } catch {}
+
+        await sleep(500);
+
+        await chrome.scripting.executeScript({
+          target: { tabId },
+          files: ['hashnode-automator.js'],
+        });
+
+        let result = null;
+        try {
+          const executionResults = await chrome.scripting.executeScript({
+            target: { tabId },
+            func: async (article) => {
+              try {
+                if (typeof window.__runHashnodeUpdateAutomator !== 'function') {
+                  return {
+                    success: false,
+                    error: 'Automator update script failed to inject into Hashnode editor.',
+                  };
+                }
+                return await window.__runHashnodeUpdateAutomator(article);
+              } catch (innerErr) {
+                return {
+                  success: false,
+                  error: innerErr?.message || 'Error inside Hashnode update automator execution.',
+                };
+              }
+            },
+            args: [payload],
+          });
+
+          result = executionResults?.[0]?.result;
+        } catch (execErr) {
+          result = {
+            success: false,
+            error: execErr?.message || 'Script execution failed.',
+          };
+        }
+
+        console.log('[ArtXFlow ServiceWorker] Hashnode update result:', JSON.stringify(result));
+
+        if (result?.success && tabId) {
+          const idToClose = tabId;
+          tabId = null;
+          (async () => {
+            try {
+              await sleep(600);
+              await chrome.tabs.remove(idToClose);
+              if (originTabId) {
+                await chrome.tabs.update(originTabId, { active: true });
+              }
+            } catch (closeErr) {
+              console.warn('[ArtXFlow ServiceWorker] Tab close failed, retrying in 1s...', closeErr);
+              try {
+                await sleep(1000);
+                await chrome.tabs.remove(idToClose);
+                if (originTabId) {
+                  await chrome.tabs.update(originTabId, { active: true });
+                }
+              } catch {}
+            }
+          })();
+        }
+
+        if (!result || !result.success) {
+          const errorMessage =
+            result?.message || result?.error || 'Hashnode update could not complete.';
+          sendResponse({
+            success: false,
+            error: errorMessage,
+            message: `${errorMessage} (The Hashnode tab has been kept open in Chrome for your review)`,
+          });
+          return;
+        }
+
+        sendResponse({
+          success: true,
+          action: 'update',
+          publishedUrl: result.publishedUrl || payload.targetUrl,
+          externalResourceId: resolvedEditResourceId || payload.targetResourceId,
+        });
+      } catch (err) {
+        sendResponse({
+          success: false,
+          error: err.message || 'Unknown Hashnode update automation error occurred.',
+        });
+      }
+    })();
+    return true;
+  }
+  if (message.type === 'UPDATE_MEDIUM') {
+    (async () => {
+      let tabId = null;
+      try {
+        const { payload } = message;
+
+        const [currentTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const originTabId = currentTab?.id;
+
+        // Resolve the Medium edit entry:
+        //   1. `https://medium.com/p/<storyId>/edit` when we stored a real story id
+        //      (works for both profile and publication-hosted stories),
+        //   2. otherwise `<liveUrl>/edit` (verified to open the editor for
+        //      /@user/slug and /p/<id> stories).
+        let editUrl = 'https://medium.com/new-story';
+        const targetResourceId = (payload?.targetResourceId || '').trim();
+        const storyIdFromTarget = extractMediumStoryId(payload?.targetUrl);
+        const resourceIdIsStoryId = /^[a-f0-9]{8,}$/i.test(targetResourceId);
+        const storyId = resourceIdIsStoryId ? targetResourceId : storyIdFromTarget;
+
+        if (storyId) {
+          editUrl = `https://medium.com/p/${storyId}/edit`;
+        } else if (payload?.targetUrl) {
+          const cleanUrl = payload.targetUrl.split('?')[0].replace(/\/+$/, '');
+          editUrl = cleanUrl.endsWith('/edit') ? cleanUrl : `${cleanUrl}/edit`;
+        }
+
+        console.log('[ArtXFlow ServiceWorker] UPDATE_MEDIUM starting with edit URL:', editUrl);
+
+        const tab = await chrome.tabs.create({
+          url: editUrl,
+          active: true,
+        });
+        tabId = tab.id;
+
+        const readyResult = await waitForMediumEditorReady(tabId, 30000);
+        if (!readyResult.ok) {
+          await chrome.tabs.remove(tabId);
+          tabId = null;
+
+          if (readyResult.error === 'NOT_LOGGED_IN') {
+            sendResponse({
+              success: false,
+              error: 'NOT_LOGGED_IN',
+              message: 'You are not logged into Medium. Please open medium.com in Chrome and log in first.',
+            });
+            return;
+          }
+
+          sendResponse({
+            success: false,
+            error: 'TIMEOUT_REDIRECT',
+            message: `Medium editor took too long to load (last URL: ${readyResult.url}).`,
+          });
+          return;
+        }
+
+        await sleep(1500);
+
+        await chrome.scripting.executeScript({
+          target: { tabId },
+          files: ['medium-automator.js'],
+        });
+
+        console.log('[ArtXFlow ServiceWorker] Running Medium Update Editor...');
+        let updateRes = null;
+        try {
+          const execRes = await chrome.scripting.executeScript({
+            target: { tabId },
+            func: async (article) => {
+              if (typeof window.__runMediumUpdateEditor !== 'function') {
+                return {
+                  success: false,
+                  error: 'Medium automator update script failed to inject into editor.',
+                };
+              }
+              return await window.__runMediumUpdateEditor(article);
+            },
+            args: [payload],
+          });
+          updateRes = execRes?.[0]?.result;
+        } catch (updateErr) {
+          console.log('[ArtXFlow ServiceWorker] Medium update completed with navigation:', updateErr?.message);
+          updateRes = { success: true, phase: 'NAVIGATED' };
+        }
+
+        if (!updateRes || !updateRes.success) {
+          const errorMessage =
+            updateRes?.message || updateRes?.error || 'Medium editor could not complete update.';
+          sendResponse({
+            success: false,
+            error: errorMessage,
+            message: `${errorMessage} (The Medium tab has been kept open in Chrome for your review)`,
+          });
+          return;
+        }
+
+        // Wait for live story URL navigation (Medium redirects to live URL with ?postPublishedType=repub)
+        console.log('[ArtXFlow ServiceWorker] Waiting for live story URL navigation after update...');
+        const rawLiveUrl = await waitForMediumLiveStoryUrl(tabId, 35000);
+
+        // Normalize live URL: strip query parameters such as postPublishedType=repub
+        let liveUrl = payload?.targetUrl || null;
+        if (rawLiveUrl) {
+          try {
+            const parsed = new URL(rawLiveUrl);
+            parsed.search = '';
+            parsed.hash = '';
+            liveUrl = parsed.toString();
+          } catch {
+            liveUrl = rawLiveUrl.split('?')[0];
+          }
+        }
+
+        if (!liveUrl) {
+          const finalTab = await chrome.tabs.get(tabId).catch(() => null);
+          const current = finalTab?.url || '';
+          sendResponse({
+            success: false,
+            error: 'URL_NOT_RESOLVED',
+            message: `Medium story was updated but live URL could not be confirmed (current: ${current}). Tab left open for review.`,
+          });
+          return;
+        }
+
+        console.log('[ArtXFlow ServiceWorker] Medium updated successfully! URL:', liveUrl);
+
+        if (tabId) {
+          const idToClose = tabId;
+          tabId = null;
+          (async () => {
+            try {
+              await sleep(600);
+              await chrome.tabs.remove(idToClose);
+              if (originTabId) {
+                await chrome.tabs.update(originTabId, { active: true });
+              }
+            } catch (closeErr) {
+              console.warn('[ArtXFlow ServiceWorker] Initial Medium tab close failed, retrying in 1s...', closeErr);
+              try {
+                await sleep(1000);
+                await chrome.tabs.remove(idToClose);
+                if (originTabId) {
+                  await chrome.tabs.update(originTabId, { active: true });
+                }
+              } catch {}
+            }
+          })();
+        }
+
+        sendResponse({
+          success: true,
+          action: 'update',
+          publishedUrl: liveUrl,
+          // Upgrade legacy URL-only rows to the real Medium story id.
+          externalResourceId: storyId || extractMediumStoryId(liveUrl) || payload?.targetResourceId,
+        });
+      } catch (err) {
+        sendResponse({
+          success: false,
+          error: err.message || 'Unknown Medium update automation error occurred.',
+        });
+      }
+    })();
+    return true;
   }
 });
