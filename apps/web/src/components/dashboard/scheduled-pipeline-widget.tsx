@@ -71,7 +71,14 @@ export function ScheduledPipelineWidget({ schedules }: ScheduledPipelineWidgetPr
                   gap: '4px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '8px',
+                  }}
+                >
                   <Link
                     href={`/articles/${schedule.articleId}`}
                     style={{
@@ -87,7 +94,15 @@ export function ScheduledPipelineWidget({ schedules }: ScheduledPipelineWidgetPr
                     {schedule.destinationCount} channel{schedule.destinationCount === 1 ? '' : 's'}
                   </Badge>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--axf-cyan, #19D7FE)' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '11px',
+                    color: 'var(--axf-cyan, #19D7FE)',
+                  }}
+                >
                   <span>⏰</span>
                   <span>
                     {new Date(schedule.scheduledAt).toLocaleString(undefined, {
@@ -115,12 +130,22 @@ export function ScheduledPipelineWidget({ schedules }: ScheduledPipelineWidgetPr
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '14px' }}>⚡️</span>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary, #F5F7FA)' }}>
+              <span
+                style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary, #F5F7FA)' }}
+              >
                 Zero Pending Releases
               </span>
             </div>
-            <p style={{ fontSize: '12px', color: 'var(--text-secondary, #AAB5C4)', margin: 0, lineHeight: 1.4 }}>
-              When you schedule an article release, Inngest triggers idempotent jobs to publish across destinations at the target UTC time.
+            <p
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-secondary, #AAB5C4)',
+                margin: 0,
+                lineHeight: 1.4,
+              }}
+            >
+              When you schedule an article release, Inngest triggers idempotent jobs to publish
+              across destinations at the target UTC time.
             </p>
           </div>
         )}
@@ -140,12 +165,22 @@ export function ScheduledPipelineWidget({ schedules }: ScheduledPipelineWidgetPr
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ fontSize: '13px' }}>🛡️</span>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--axf-purple, #7A5CFD)' }}>
+            <span
+              style={{ fontSize: '12px', fontWeight: 600, color: 'var(--axf-purple, #7A5CFD)' }}
+            >
               SEO Canonical Protection
             </span>
           </div>
-          <p style={{ fontSize: '11px', color: 'var(--text-secondary, #AAB5C4)', margin: 0, lineHeight: 1.4 }}>
-            Articles syndicated to DEV.to and Medium automatically point canonical URLs back to your canonical blog to safeguard domain authority.
+          <p
+            style={{
+              fontSize: '11px',
+              color: 'var(--text-secondary, #AAB5C4)',
+              margin: 0,
+              lineHeight: 1.4,
+            }}
+          >
+            Articles syndicated to DEV.to and Medium automatically point canonical URLs back to your
+            canonical blog to safeguard domain authority.
           </p>
         </div>
       </CardContent>

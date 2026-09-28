@@ -24,9 +24,18 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMobileMenuOpen(false);
+      }
+    };
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
@@ -35,7 +44,8 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
       const target = document.getElementById(targetId);
       if (target) {
         const navbarHeight = 64;
-        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+        const targetPosition =
+          target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
         window.scrollTo({
           top: targetPosition,
           behavior: 'smooth',
@@ -55,9 +65,7 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
         zIndex: 100,
         width: '100%',
         height: '64px',
-        backgroundColor: isScrolled
-          ? 'rgba(7, 11, 18, 0.92)'
-          : 'rgba(7, 11, 18, 0.8)',
+        backgroundColor: isScrolled ? 'rgba(7, 11, 18, 0.92)' : 'rgba(7, 11, 18, 0.8)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         borderBottom: '1px solid var(--border-subtle, #172333)',
@@ -87,6 +95,7 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
             <Logo size={28} showWordmark={true} />
           </Link>
           <span
+            className="header-open-source-badge"
             style={{
               fontSize: '11px',
               fontFamily: "'JetBrains Mono', monospace",
@@ -108,7 +117,6 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
           aria-label="Product Navigation"
           className="header-nav-links"
           style={{
-            display: 'flex',
             alignItems: 'center',
             gap: '28px',
           }}
@@ -178,7 +186,7 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
             href="https://github.com/shubhsaur/ArtXFlow"
             target="_blank"
             rel="noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5"
+            className="header-github-star"
             style={{
               fontSize: '12px',
               fontFamily: "'JetBrains Mono', monospace",
@@ -189,6 +197,8 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
               color: 'var(--text-secondary, #AAB5C4)',
               textDecoration: 'none',
               transition: 'all 0.15s ease',
+              alignItems: 'center',
+              gap: '6px',
             }}
           >
             <span style={{ color: 'var(--secondary, #F59E0B)' }}>★</span>
@@ -199,6 +209,7 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
             <>
               <Link
                 href="/dashboard"
+                className="header-desktop-auth hover:text-text-primary"
                 style={{
                   fontSize: '13px',
                   fontWeight: 500,
@@ -207,7 +218,6 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
                   padding: '6px 12px',
                   transition: 'color 0.15s ease',
                 }}
-                className="hover:text-text-primary"
               >
                 Dashboard
               </Link>
@@ -220,7 +230,13 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
               />
             </>
           ) : (
-            <>
+            <div
+              className="header-desktop-auth"
+              style={{
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
               <Link
                 href="/login"
                 style={{
@@ -250,7 +266,8 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
                   padding: '7px 14px',
                   borderRadius: '6px',
                   textDecoration: 'none',
-                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 16px -2px rgba(11, 98, 245, 0.35)',
+                  boxShadow:
+                    'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 16px -2px rgba(11, 98, 245, 0.35)',
                   transition: 'all 0.15s ease',
                 }}
                 className="hover:brightness-110 active:scale-95"
@@ -258,14 +275,15 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
                 <span>Launch</span>
                 <span style={{ fontSize: '14px', lineHeight: 1 }}>→</span>
               </Link>
-            </>
+            </div>
           )}
 
           {/* Mobile Hamburger Toggle Button */}
           <button
             type="button"
-            className="flex md:hidden"
+            className="header-mobile-toggle md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-expanded={mobileMenuOpen}
             aria-label="Toggle Navigation Menu"
             style={{
               background: 'transparent',
@@ -277,7 +295,14 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
               justifyContent: 'center',
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               {mobileMenuOpen ? (
                 <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
               ) : (
@@ -291,7 +316,7 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
         <div
-          className="flex md:hidden"
+          className="header-mobile-drawer md:hidden"
           style={{
             position: 'absolute',
             top: '64px',
@@ -358,7 +383,14 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
           >
             Architecture
           </a>
-          <div style={{ borderTop: '1px solid var(--border-subtle, #172333)', paddingTop: '12px', display: 'flex', gap: '12px' }}>
+          <div
+            style={{
+              borderTop: '1px solid var(--border-subtle, #172333)',
+              paddingTop: '12px',
+              display: 'flex',
+              gap: '12px',
+            }}
+          >
             {user ? (
               <>
                 <Link
