@@ -90,6 +90,7 @@ export function UserDropdown({
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="User navigation menu"
+        className="user-dropdown-trigger"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -149,6 +150,7 @@ export function UserDropdown({
         </div>
 
         <span
+          className="user-dropdown-name"
           style={{
             fontSize: '13px',
             fontWeight: 600,
@@ -163,6 +165,7 @@ export function UserDropdown({
         </span>
 
         <svg
+          className="user-dropdown-chevron"
           width="13"
           height="13"
           viewBox="0 0 24 24"
@@ -192,8 +195,10 @@ export function UserDropdown({
             top: 'calc(100% + 8px)',
             right: 0,
             minWidth: '240px',
+            maxWidth: 'calc(100vw - 32px)',
             backgroundColor: 'var(--surface-elevated, #0D1420)',
-            backgroundImage: 'linear-gradient(180deg, rgba(19, 30, 47, 0.96) 0%, rgba(13, 20, 32, 0.98) 100%)',
+            backgroundImage:
+              'linear-gradient(180deg, rgba(19, 30, 47, 0.96) 0%, rgba(13, 20, 32, 0.98) 100%)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
             border: '1px solid var(--border, #1C2A3A)',

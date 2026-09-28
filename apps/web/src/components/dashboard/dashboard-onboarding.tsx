@@ -113,7 +113,8 @@ export function DashboardOnboarding({
     {
       id: 'article',
       title: 'Draft Your First Canonical Article',
-      description: 'Author your core article in Markdown with rich code blocks and canonical SEO tags.',
+      description:
+        'Author your core article in Markdown with rich code blocks and canonical SEO tags.',
       isDone: hasArticles,
       href: '/articles/new',
       ctaText: 'Write Article',
@@ -160,7 +161,14 @@ export function DashboardOnboarding({
       />
 
       <CardHeader style={{ paddingBottom: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: '12px',
+          }}
+        >
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
               <span
@@ -191,7 +199,8 @@ export function DashboardOnboarding({
               Getting Started with Art<span className="axf-gradient-x">X</span>Flow
             </CardTitle>
             <CardDescription>
-              Complete these steps to establish your single source of truth and syndicate across developer communities.
+              Complete these steps to establish your single source of truth and syndicate across
+              developer communities.
             </CardDescription>
           </div>
 
@@ -246,7 +255,8 @@ export function DashboardOnboarding({
                   border: '1px solid var(--border, #1C2A3A)',
                   borderRadius: '8px',
                   padding: '6px',
-                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.05)',
+                  boxShadow:
+                    '0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.05)',
                   zIndex: 50,
                   display: 'flex',
                   flexDirection: 'column',
@@ -280,7 +290,10 @@ export function DashboardOnboarding({
                     e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--axf-cyan, #19D7FE)' }}>
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '16px', color: 'var(--axf-cyan, #19D7FE)' }}
+                  >
                     visibility_off
                   </span>
                   <span>Close it for now</span>
@@ -340,7 +353,8 @@ export function DashboardOnboarding({
             style={{
               height: '100%',
               width: `${progressPercent}%`,
-              background: 'linear-gradient(90deg, var(--axf-blue, #0B87FE), var(--axf-cyan, #19D7FE))',
+              background:
+                'linear-gradient(90deg, var(--axf-blue, #0B87FE), var(--axf-cyan, #19D7FE))',
               borderRadius: '9999px',
               transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
@@ -375,7 +389,9 @@ export function DashboardOnboarding({
               }}
             >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}
+                >
                   <span
                     style={{
                       width: '20px',
@@ -386,9 +402,7 @@ export function DashboardOnboarding({
                       justifyContent: 'center',
                       fontSize: '11px',
                       fontWeight: 700,
-                      backgroundColor: step.isDone
-                        ? '#10B981'
-                        : 'var(--border, #1C2A3A)',
+                      backgroundColor: step.isDone ? '#10B981' : 'var(--border, #1C2A3A)',
                       color: step.isDone ? '#FFFFFF' : 'var(--text-secondary, #AAB5C4)',
                       flexShrink: 0,
                     }}
@@ -399,7 +413,9 @@ export function DashboardOnboarding({
                     style={{
                       fontSize: '14px',
                       fontWeight: 600,
-                      color: step.isDone ? 'var(--text-primary, #F5F7FA)' : 'var(--text-primary, #F5F7FA)',
+                      color: step.isDone
+                        ? 'var(--text-primary, #F5F7FA)'
+                        : 'var(--text-primary, #F5F7FA)',
                       textDecoration: step.isDone ? 'none' : 'none',
                     }}
                   >

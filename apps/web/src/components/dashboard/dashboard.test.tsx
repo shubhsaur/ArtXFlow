@@ -8,9 +8,10 @@ import {
   RecentArticlesTable,
   ChannelStatusWidget,
   ScheduledPipelineWidget,
+  DashboardActivityFeed,
 } from './index';
 
-describe('Dashboard Revamp Components', () => {
+describe('Dashboard Components (Stitch Design Pattern System)', () => {
   describe('DashboardHeader', () => {
     it('renders user greeting, organization badge, and action links', () => {
       const html = renderToStaticMarkup(
@@ -22,9 +23,12 @@ describe('Dashboard Revamp Components', () => {
         />,
       );
 
+      expect(html).toContain('Overview');
       expect(html).toContain('Welcome back, Shubham');
-      expect(html).toContain('Acme Corp · OWNER');
+      expect(html).toContain('Acme Corp');
+      expect(html).toContain('OWNER');
       expect(html).toContain('Scheduled releases queued');
+      expect(html).toContain('Sync All Destinations');
       expect(html).toContain('Connect Channels');
       expect(html).toContain('All Articles');
       expect(html).toContain('New Article');
@@ -46,7 +50,7 @@ describe('Dashboard Revamp Components', () => {
   });
 
   describe('DashboardMetrics', () => {
-    it('renders all four executive KPI cards with live numbers and breakdown pills', () => {
+    it('renders 3-card Bento KPI grid with live numbers and breakdown pills', () => {
       const html = renderToStaticMarkup(
         <DashboardMetrics
           articlesCount={12}
@@ -59,32 +63,33 @@ describe('Dashboard Revamp Components', () => {
           failedPublicationsCount={2}
           activeSchedulesCount={3}
           nextScheduledDate="Oct 24"
+          articlesThisWeek={3}
         />,
       );
 
-      expect(html).toContain('Canonical Articles');
+      // Card 1: Articles Published
+      expect(html).toContain('Articles Published');
       expect(html).toContain('12');
-      expect(html).toContain('8 Published');
-      expect(html).toContain('4 Drafts');
+      expect(html).toContain('+3 this week');
+      expect(html).toContain('8 published · 4 drafts');
+      expect(html).toContain('Canonical Git repo connected');
 
-      expect(html).toContain('Connected Channels');
+      // Card 2: Active Destinations
+      expect(html).toContain('Active Destinations');
       expect(html).toContain('3');
       expect(html).toContain('/ 4');
-      expect(html).toContain('DEV.to ✓');
-      expect(html).toContain('Medium ✓');
-      expect(html).toContain('Hashnode —');
-
-      expect(html).toContain('Syndicated Publishes');
-      expect(html).toContain('24');
-      expect(html).toContain('22 Live');
       expect(html).toContain('2 Attention Needed');
+      expect(html).toContain('DEV, Medium, Blog');
 
-      expect(html).toContain('Scheduled Releases');
-      expect(html).toContain('3');
-      expect(html).toContain('Next: Oct 24');
+      // Card 3: Sync Health
+      expect(html).toContain('Sync Health');
+      expect(html).toContain('91.7%');
+      expect(html).toContain('3 queued');
+      expect(html).toContain('1.2s avg latency across adapters');
+      expect(html).toContain('Failures: 2');
     });
 
-    it('renders 100% health when there are no failed publications', () => {
+    it('renders 100% health and Healthy badge when there are no failed publications', () => {
       const html = renderToStaticMarkup(
         <DashboardMetrics
           articlesCount={5}
@@ -99,8 +104,9 @@ describe('Dashboard Revamp Components', () => {
         />,
       );
 
-      expect(html).toContain('100% Pipeline Health');
-      expect(html).toContain('Worker Idle &amp; Ready');
+      expect(html).toContain('100.0%');
+      expect(html).toContain('Healthy');
+      expect(html).toContain('All synced');
     });
   });
 
@@ -165,7 +171,7 @@ describe('Dashboard Revamp Components', () => {
       expect(html).toContain('Author First Canonical Article');
     });
 
-    it('renders articles list with destination badges and external URLs', () => {
+    it('renders articles table with filter tabs, canonical sources, and destination chips', () => {
       const sampleArticles = [
         {
           id: 'art-1',
@@ -173,6 +179,8 @@ describe('Dashboard Revamp Components', () => {
           slug: 'scaling-monorepos',
           status: 'READY',
           updatedAt: new Date().toISOString(),
+          canonicalBranch: 'main',
+          commitHash: '8f2c01',
           publications: [
             {
               destinationType: 'devto',
@@ -192,14 +200,52 @@ describe('Dashboard Revamp Components', () => {
         <RecentArticlesTable articles={sampleArticles} totalArticlesCount={1} />,
       );
 
+      expect(html).toContain('Recent Articles');
+      expect(html).toContain('1 total');
+      expect(html).toContain('All');
+      expect(html).toContain('Synced');
+      expect(html).toContain('Needs Attention');
       expect(html).toContain('Scaling Monorepos with Turbo &amp; Next.js');
       expect(html).toContain('/scaling-monorepos');
       expect(html).toContain('READY');
-      expect(html).toContain('DEV.to ✓ ↗');
-      expect(html).toContain('Medium ✓ ↗');
-      expect(html).toContain('Hashnode —');
-      expect(html).toContain('Hosted Blog ✓ Live');
-      expect(html).toContain('Edit Studio →');
+      expect(html).toContain('main');
+      expect(html).toContain('#8f2c01');
+      expect(html).toContain('DEV');
+      expect(html).toContain('Medium');
+      expect(html).toContain('Blog');
+      expect(html).toContain('Open');
+    });
+  });
+
+  describe('DashboardActivityFeed', () => {
+    it('renders live activity stream header and default event cards', () => {
+      const html = renderToStaticMarkup(<DashboardActivityFeed />);
+
+      expect(html).toContain('Recent Activity');
+      expect(html).toContain('Live stream');
+      expect(html).toContain('Hashnode GraphQL Synced');
+      expect(html).toContain('/blog/postgres-pooling-serverless');
+      expect(html).toContain('Dispatching DEV.to Markdown');
+    });
+
+    it('renders custom live activity events when provided', () => {
+      const customEvents = [
+        {
+          id: 'ev-test',
+          title: 'DEV.to Markdown Synced',
+          slug: '/scaling-monorepos',
+          status: 'SUCCESS' as const,
+          timestamp: 'Just now',
+          latency: '142ms',
+        },
+      ];
+
+      const html = renderToStaticMarkup(<DashboardActivityFeed events={customEvents} />);
+
+      expect(html).toContain('DEV.to Markdown Synced');
+      expect(html).toContain('/scaling-monorepos');
+      expect(html).toContain('Just now');
+      expect(html).toContain('142ms');
     });
   });
 
@@ -224,10 +270,7 @@ describe('Dashboard Revamp Components', () => {
       ];
 
       const html = renderToStaticMarkup(
-        <ChannelStatusWidget
-          channels={channels}
-          hostedSiteUrl="https://acme.artxflow.com"
-        />,
+        <ChannelStatusWidget channels={channels} hostedSiteUrl="https://acme.artxflow.com" />,
       );
 
       expect(html).toContain('Publishing Channels');

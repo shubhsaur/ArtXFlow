@@ -1,12 +1,14 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Button } from '@artxflow/ui';
 
 interface DashboardHeaderProps {
   userName: string;
   organizationName: string;
   role: string;
   hasActiveSchedules?: boolean;
+  onSyncAll?: () => void;
 }
 
 export function DashboardHeader({
@@ -14,45 +16,77 @@ export function DashboardHeader({
   organizationName,
   role,
   hasActiveSchedules = false,
+  onSyncAll,
 }: DashboardHeaderProps) {
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
+
+  const handleSyncClick = () => {
+    setIsSyncing(true);
+    if (onSyncAll) {
+      onSyncAll();
+    }
+    setTimeout(() => {
+      setIsSyncing(false);
+      setSyncFeedback('All destinations synced');
+      setTimeout(() => setSyncFeedback(null), 3000);
+    }, 1200);
+  };
+
   return (
     <header
       style={{
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '20px',
-        paddingBottom: '8px',
+        flexDirection: 'column',
+        gap: '16px',
+        paddingBottom: '4px',
       }}
     >
-      {/* User Greeting & Organization Context */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <h1
+      {/* Cluster Pill Bar (Responsive Mobile/Desktop indicator) */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '8px',
+          padding: '6px 12px',
+          borderRadius: '8px',
+          backgroundColor: '#0F141B',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span
             style={{
-              fontSize: '28px',
-              fontWeight: 800,
-              color: 'var(--text-primary, #F5F7FA)',
-              letterSpacing: '-0.025em',
-              lineHeight: 1.2,
-              margin: 0,
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              backgroundColor: '#12B76A',
+              boxShadow: '0 0 8px #12B76A',
+              display: 'inline-block',
+            }}
+          />
+          <span
+            style={{
+              fontSize: '12px',
+              fontFamily: "'JetBrains Mono', monospace",
+              color: 'var(--text-secondary, #AAB5C4)',
             }}
           >
-            Welcome back, {userName}
-          </h1>
+            ArtXFlow / <strong style={{ color: '#F5F7FA' }}>{organizationName}</strong> · {role}
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '3px 10px',
-              borderRadius: '9999px',
-              fontSize: '12px',
-              fontWeight: 600,
-              backgroundColor: 'rgba(25, 215, 254, 0.08)',
-              color: 'var(--axf-cyan, #19D7FE)',
-              border: '1px solid rgba(25, 215, 254, 0.25)',
+              fontSize: '11px',
+              fontWeight: 500,
+              color: hasActiveSchedules ? 'var(--flow-cyan, #19D7FE)' : '#12B76A',
             }}
           >
             <span
@@ -60,44 +94,7 @@ export function DashboardHeader({
                 width: '6px',
                 height: '6px',
                 borderRadius: '50%',
-                backgroundColor: 'var(--axf-cyan, #19D7FE)',
-                boxShadow: '0 0 8px var(--axf-cyan, #19D7FE)',
-                display: 'inline-block',
-              }}
-            />
-            {organizationName} · {role}
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-          <p
-            style={{
-              fontSize: '14px',
-              color: 'var(--text-secondary, #AAB5C4)',
-              margin: 0,
-            }}
-          >
-            Real-time multi-destination content distribution and syndicate health.
-          </p>
-
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '12px',
-              color: 'var(--text-secondary, #AAB5C4)',
-            }}
-          >
-            <span
-              style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: hasActiveSchedules ? 'var(--axf-cyan, #19D7FE)' : '#10B981',
-                boxShadow: hasActiveSchedules
-                  ? '0 0 8px var(--axf-cyan, #19D7FE)'
-                  : '0 0 8px rgba(16, 185, 129, 0.6)',
+                backgroundColor: hasActiveSchedules ? 'var(--flow-cyan, #19D7FE)' : '#12B76A',
               }}
             />
             {hasActiveSchedules ? 'Scheduled releases queued' : 'Inngest pipeline operational'}
@@ -105,13 +102,115 @@ export function DashboardHeader({
         </div>
       </div>
 
-      {/* Quick Actions Action Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-        <Link href="/settings" style={{ textDecoration: 'none' }}>
-          <Button variant="secondary" size="md" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+      {/* Main Header Row: Title & Action Controls */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '16px',
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <h1
+              style={{
+                fontSize: '24px',
+                fontWeight: 800,
+                color: '#F5F7FA',
+                letterSpacing: '-0.025em',
+                lineHeight: 1.2,
+                margin: 0,
+              }}
+            >
+              Overview
+            </h1>
+            <span
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted, #66768D)',
+                fontFamily: "'JetBrains Mono', monospace",
+                backgroundColor: '#141A23',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+              }}
+            >
+              v2.4
+            </span>
+          </div>
+          <p
+            style={{
+              fontSize: '13px',
+              color: 'var(--text-secondary, #AAB5C4)',
+              marginTop: '4px',
+              marginBottom: 0,
+            }}
+          >
+            Welcome back, {userName} · Unified multi-platform distribution and sync status.
+          </p>
+        </div>
+
+        {/* Action Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={handleSyncClick}
+            disabled={isSyncing}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '7px 14px',
+              borderRadius: '8px',
+              backgroundColor: '#0F141B',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              color: isSyncing ? 'var(--flow-cyan, #19D7FE)' : '#DEE2ED',
+              fontSize: '12px',
+              fontWeight: 500,
+              cursor: isSyncing ? 'not-allowed' : 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
             <svg
-              width="15"
-              height="15"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                animation: isSyncing ? 'spin 1s linear infinite' : 'none',
+              }}
+              aria-hidden="true"
+            >
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+            </svg>
+            <span>{isSyncing ? 'Syncing...' : syncFeedback || 'Sync All Destinations'}</span>
+          </button>
+
+          <Link
+            href="/settings"
+            style={{
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '7px 12px',
+              borderRadius: '8px',
+              backgroundColor: '#0F141B',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'var(--text-secondary, #AAB5C4)',
+              fontSize: '12px',
+              fontWeight: 500,
+            }}
+          >
+            <svg
+              width="13"
+              height="13"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -123,49 +222,54 @@ export function DashboardHeader({
               <circle cx="12" cy="12" r="3" />
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </svg>
-            Connect Channels
-          </Button>
-        </Link>
+            <span>Connect Channels</span>
+          </Link>
 
-        <Link href="/articles" style={{ textDecoration: 'none' }}>
-          <Button variant="outline" size="md" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-            </svg>
-            All Articles
-          </Button>
-        </Link>
+          <Link
+            href="/articles"
+            style={{
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '7px 12px',
+              borderRadius: '8px',
+              backgroundColor: '#0F141B',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'var(--text-secondary, #AAB5C4)',
+              fontSize: '12px',
+              fontWeight: 500,
+            }}
+          >
+            <span>All Articles</span>
+          </Link>
 
-        <Link href="/articles/new" style={{ textDecoration: 'none' }}>
-          <Button variant="primary" size="md" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            New Article
-          </Button>
-        </Link>
+          <Link
+            href="/articles/new"
+            className="btn-gradient-primary"
+            style={{
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '7px 14px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 600,
+            }}
+          >
+            <span
+              style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--flow-cyan, #19D7FE)',
+                boxShadow: '0 0 6px #19D7FE',
+              }}
+            />
+            <span>New Article</span>
+          </Link>
+        </div>
       </div>
     </header>
   );

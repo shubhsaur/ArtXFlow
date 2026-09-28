@@ -24,9 +24,7 @@ export function ChannelStatusWidget({ channels, hostedSiteUrl }: ChannelStatusWi
       <CardHeader style={{ paddingBottom: '14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <CardTitle style={{ fontSize: '16px', fontWeight: 700 }}>
-              Publishing Channels
-            </CardTitle>
+            <CardTitle style={{ fontSize: '16px', fontWeight: 700 }}>Publishing Channels</CardTitle>
             <CardDescription style={{ fontSize: '13px', marginTop: '2px' }}>
               Connected developer network destinations.
             </CardDescription>
@@ -70,7 +68,13 @@ export function ChannelStatusWidget({ channels, hostedSiteUrl }: ChannelStatusWi
 
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary, #F5F7FA)' }}>
+                    <span
+                      style={{
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: 'var(--text-primary, #F5F7FA)',
+                      }}
+                    >
                       {channel.name}
                     </span>
                     {channel.modeLabel && (

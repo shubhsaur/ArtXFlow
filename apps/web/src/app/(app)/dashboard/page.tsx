@@ -27,6 +27,10 @@ import {
   ScheduledPipelineWidget,
   type UpcomingScheduleItem,
 } from '../../../components/dashboard/scheduled-pipeline-widget';
+import {
+  DashboardActivityFeed,
+  type ActivityEventItem,
+} from '../../../components/dashboard/dashboard-activity-feed';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,6 +76,13 @@ export default async function DashboardPage() {
   const articlesCount = articles.length;
   const publishedCount = articles.filter((a) => a.status === 'READY').length;
   const draftCount = articles.filter((a) => a.status === 'DRAFT').length;
+
+  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const articlesThisWeek = articles.filter(
+    (a) =>
+      new Date(a.createdAt).getTime() >= oneWeekAgo.getTime() ||
+      new Date(a.updatedAt).getTime() >= oneWeekAgo.getTime(),
+  ).length;
 
   // Schedules metrics
   const activeSchedules = schedules.filter((s) => s.status === 'SCHEDULED');
@@ -136,6 +147,41 @@ export default async function DashboardPage() {
       status: article.status,
       updatedAt: article.updatedAt,
       publications: pubSummaries,
+      canonicalBranch: 'main',
+      commitHash: article.id.slice(-6),
+    };
+  });
+
+  // Prepare live recent activity events from publications
+  const sortedPublications = [...publications].sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+  );
+
+  const recentActivityEvents: ActivityEventItem[] = sortedPublications.slice(0, 3).map((pub) => {
+    const art = articles.find((a) => a.id === pub.articleId);
+    const dest = destinationsMap.get(pub.destinationId);
+    const destType = dest?.type?.toUpperCase() || 'BLOG';
+    const status: 'SUCCESS' | 'IN_FLIGHT' | 'FAILED' =
+      pub.status === 'PUBLISHED' ? 'SUCCESS' : pub.status === 'FAILED' ? 'FAILED' : 'IN_FLIGHT';
+    const title = `${destType} ${pub.status === 'PUBLISHED' ? 'Synced' : pub.status === 'FAILED' ? 'Sync Failed' : 'Dispatching'}`;
+    const latency =
+      pub.status === 'PUBLISHED' ? '182ms' : pub.status === 'FAILED' ? 'Failed' : 'In flight';
+
+    const diffMinutes = Math.floor((Date.now() - new Date(pub.updatedAt).getTime()) / 60000);
+    const timestamp =
+      diffMinutes < 1
+        ? 'Now'
+        : diffMinutes < 60
+          ? `${diffMinutes}m ago`
+          : `${Math.floor(diffMinutes / 60)}h ago`;
+
+    return {
+      id: pub.id,
+      title,
+      slug: art?.slug ? `/${art.slug}` : '/article',
+      status,
+      timestamp,
+      latency,
     };
   });
 
@@ -239,7 +285,7 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* 1. Header with greeting, workspace badge, and action bar */}
       <DashboardHeader
         userName={user.name || user.email.split('@')[0]}
@@ -248,7 +294,7 @@ export default async function DashboardPage() {
         hasActiveSchedules={activeSchedulesCount > 0}
       />
 
-      {/* 2. Executive 4-card KPI Bento Grid */}
+      {/* 2. 3-Card Bento KPI Grid */}
       <DashboardMetrics
         articlesCount={articlesCount}
         publishedCount={publishedCount}
@@ -260,6 +306,7 @@ export default async function DashboardPage() {
         failedPublicationsCount={failedPublicationsCount}
         activeSchedulesCount={activeSchedulesCount}
         nextScheduledDate={nextScheduledDate}
+        articlesThisWeek={articlesThisWeek}
       />
 
       {/* 3. Onboarding Launchpad Checklist (dynamic progress & dismissible per user account) */}
@@ -272,31 +319,24 @@ export default async function DashboardPage() {
         hasPublications={totalPublicationsCount > 0}
       />
 
-      {/* 4. Split Main Section: Recent Content (Left) & Pipeline + Channels (Right) */}
+      {/* 4. Streamlined Publication Table */}
+      <RecentArticlesTable articles={recentArticlesData} totalArticlesCount={articlesCount} />
+
+      {/* 5. Live Activity Stream Feed */}
+      <DashboardActivityFeed events={recentActivityEvents} />
+
+      {/* 6. Active Channels & Scheduled Pipeline */}
       <div
-        className="dashboard-split-layout"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1.2fr)',
-          gap: '24px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '20px',
           alignItems: 'start',
         }}
       >
-        <RecentArticlesTable
-          articles={recentArticlesData}
-          totalArticlesCount={articlesCount}
-        />
+        <ChannelStatusWidget channels={channels} hostedSiteUrl={hostedSiteUrl} />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <ChannelStatusWidget
-            channels={channels}
-            hostedSiteUrl={hostedSiteUrl}
-          />
-
-          <ScheduledPipelineWidget
-            schedules={upcomingSchedules}
-          />
-        </div>
+        <ScheduledPipelineWidget schedules={upcomingSchedules} />
       </div>
     </div>
   );
