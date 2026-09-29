@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Badge, Card, ArticlePreview, toast } from '@artxflow/ui';
+import { Button, Badge, Card, toast } from '@artxflow/ui';
 import { PlatformIcon } from './platform-icons';
 import type { Article, ArticleVersion, ArticleStatus } from '@artxflow/database';
 import type { PublicationDto, ScheduleDto, DestinationDto } from '@artxflow/publishing';
@@ -20,11 +20,12 @@ import { HASHNODE_PUBLISH_MODE_OPTIONS } from './hashnode-publish-mode-picker';
 import { MEDIUM_PUBLISH_MODE_OPTIONS } from './medium-publish-mode-picker';
 import { formatMediumMarkdown, stripFrontmatter } from '@artxflow/platform-adapters/transformers';
 import { UnsplashModal, type SelectedUnsplashImage } from './unsplash-modal';
-import { EditorToolbar } from './editor/editor-toolbar';
-import { EditorCoverUploader } from './editor/editor-cover-uploader';
 import { EditorTagInput } from './editor/editor-tag-input';
 import { EditorSlashMenu, type SlashAction } from './editor/editor-slash-menu';
-import { EditorSidebar } from './editor/editor-sidebar';
+import { EditorHeader } from './editor/editor-header';
+import { EditorActionStrip } from './editor/editor-action-strip';
+import { EditorPlatformPreview } from './editor/editor-platform-preview';
+import { EditorMobileDock } from './editor/editor-mobile-dock';
 import {
   applyInlineFormatting,
   applyHeading,
@@ -59,7 +60,16 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
     initialVersion?.versionNumber || 1,
   );
 
-  const [viewMode, setViewMode] = useState<'write' | 'preview' | 'split'>('write');
+  const [mobileViewMode, setMobileViewMode] = useState<'write' | 'preview'>('write');
+  const [selectedPreviewPlatform, setSelectedPreviewPlatform] = useState<
+    'devto' | 'hashnode' | 'medium'
+  >('devto');
+  const [showOverridesModal, setShowOverridesModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(
+    initialArticle?.updatedAt ? new Date(initialArticle.updatedAt) : null,
+  );
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'unsaved'>('idle');
@@ -67,6 +77,26 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
   const [publishing, setPublishing] = useState(false);
   const [publishMessage, setPublishMessage] = useState<string | null>(null);
   const [destinations, setDestinations] = useState<DestinationDto[]>([]);
+
+  const computedActivePlatforms = React.useMemo(() => {
+    const active = destinations.filter((d) => d.status === 'ACTIVE');
+    if (active.length === 0) {
+      return [
+        { id: 'devto', name: 'DEV.to', tag: 'DEV' },
+        { id: 'hashnode', name: 'Hashnode', tag: 'HASH' },
+        { id: 'medium', name: 'Medium', tag: 'MED' },
+      ];
+    }
+    return active.map((d) => {
+      const isDev = d.type.toLowerCase().includes('dev');
+      const isHash = d.type.toLowerCase().includes('hashnode');
+      return {
+        id: d.id,
+        name: d.name,
+        tag: isDev ? 'DEV' : isHash ? 'HASH' : 'MED',
+      };
+    });
+  }, [destinations]);
   const [loadingDestinations, setLoadingDestinations] = useState(false);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [selectedPublishDestinations, setSelectedPublishDestinations] = useState<string[]>([]);
@@ -105,8 +135,6 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
         ? ((initialVersion?.metadata as Record<string, unknown>).tags as string[])
         : [],
   );
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isZenMode, setIsZenMode] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkModalUrl, setLinkModalUrl] = useState('');
   const [linkModalText, setLinkModalText] = useState('');
@@ -116,9 +144,9 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
   });
   const [showSlashMenu, setShowSlashMenu] = useState(false);
   const [slashFilter, setSlashFilter] = useState('');
-  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const coverFileInputRef = React.useRef<HTMLInputElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const insertMarkdownSnippet = React.useCallback(
@@ -234,14 +262,6 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
       }
     },
     [insertMarkdownSnippet, unsplashTarget],
-  );
-
-  const handleInsertEmbed = React.useCallback(
-    (url: string) => {
-      insertMarkdownSnippet(`\n\n${url}\n\n`);
-      toast.success('Embed link inserted!');
-    },
-    [insertMarkdownSnippet],
   );
 
   const handleApplyHeading = React.useCallback(
@@ -1396,6 +1416,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
         }
 
         setSaveStatus('saved');
+        setLastSavedAt(new Date());
         toast.success('Article created successfully!');
         router.push(`/articles/${data.article.id}`);
         router.refresh();
@@ -1423,6 +1444,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
           setActiveVersionNumber(data.version.versionNumber);
         }
         setSaveStatus('saved');
+        setLastSavedAt(new Date());
         toast.success(
           data.version?.versionNumber
             ? `Saved version v${data.version.versionNumber}`
@@ -1441,231 +1463,140 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* Top Action Bar */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '16px',
+    <div
+      style={{
+        height: '100vh',
+        width: '100vw',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: 'var(--surface-base, #070B12)',
+        color: 'var(--text-primary, #F5F7FA)',
+        position: 'relative',
+      }}
+    >
+      {/* 1. Anchored Shell Top Navigation Bar */}
+      <EditorHeader
+        title={title}
+        saveStatus={saving ? 'saving' : saveStatus}
+        lastSavedAt={lastSavedAt}
+        activeDestinationsCount={destinations.filter((d) => d.status === 'ACTIVE').length || 3}
+        activePlatforms={computedActivePlatforms}
+        isPublishing={publishing}
+        isSaving={saving}
+        onSaveDraft={handleSave}
+        onOpenHistory={() => setShowHistoryModal(true)}
+        onOpenOverrides={() => setShowOverridesModal(true)}
+        onPublishClick={() => {
+          if (mode === 'create') {
+            handleSave();
+          } else {
+            setError(null);
+            setShowPublishModal(true);
+            if (destinations.length === 0) {
+              setLoadingDestinations(true);
+              fetch('/api/destinations')
+                .then((res) => (res.ok ? res.json() : { destinations: [] }))
+                .then((data) => {
+                  if (data.destinations) {
+                    setDestinations(data.destinations);
+                    const activeIds = data.destinations
+                      .filter((d: DestinationDto) => d.status === 'ACTIVE')
+                      .map((d: DestinationDto) => d.id);
+                    setSelectedPublishDestinations(activeIds);
+                  }
+                })
+                .finally(() => setLoadingDestinations(false));
+            }
+          }
         }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <h1
-            style={{
-              fontSize: '22px',
-              fontWeight: 700,
-              color: 'var(--text-primary, #F5F7FA)',
-            }}
-          >
-            {mode === 'create' ? 'New Canonical Article' : 'Edit Article'}
-          </h1>
-          {mode === 'edit' && <Badge variant="info">v{activeVersionNumber}</Badge>}
-          <Badge
-            variant={status === 'READY' ? 'success' : status === 'ARCHIVED' ? 'default' : 'warning'}
-          >
-            {status}
-          </Badge>
+        mode={mode}
+        staleExtensionUpdatesCount={staleExtensionDestinationIds.length}
+        onUpdatePublishedCopies={() => handlePublish(staleExtensionDestinationIds)}
+      />
 
-          {/* Publishing status badge */}
-          {mode === 'edit' && isPublishing && <Badge variant="info">Publishing...</Badge>}
-          {mode === 'edit' && !isPublishing && activeSchedule && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Badge variant="info">
-                Scheduled: {new Date(activeSchedule.scheduledAt).toLocaleDateString()}{' '}
-                {new Date(activeSchedule.scheduledAt).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}{' '}
-                ({activeSchedule.timezone})
-              </Badge>
-              <button
-                type="button"
-                onClick={() => handleCancelSchedule(activeSchedule.id)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-secondary, #AAB5C4)',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  padding: 0,
-                }}
-              >
-                Cancel Schedule
-              </button>
-            </div>
-          )}
-          {mode === 'edit' && !isPublishing && !activeSchedule && isPartiallyPublished && (
-            <Badge variant="warning">Partially Published</Badge>
-          )}
-          {mode === 'edit' &&
-            !isPublishing &&
-            !activeSchedule &&
-            publishedPublication &&
-            !isPartiallyPublished && <Badge variant="success">Published</Badge>}
-          {mode === 'edit' &&
-            !isPublishing &&
-            !activeSchedule &&
-            !publishedPublication &&
-            failedPublication && <Badge variant="warning">Failed</Badge>}
-
-          {/* Public blog article link */}
-          {publishedPublication?.externalUrl && (
-            <a
-              href={publishedPublication.externalUrl}
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                fontSize: '13px',
-                color: 'var(--axf-cyan, #00D4FF)',
-                textDecoration: 'none',
-                fontWeight: 500,
-              }}
-            >
-              View Public ↗
-            </a>
-          )}
-
-          {saveStatus === 'saved' && (
-            <span style={{ fontSize: '13px', color: '#10B981' }}>✓ Saved</span>
-          )}
-          {saveStatus === 'unsaved' && (
-            <span style={{ fontSize: '13px', color: '#F59E0B' }}>• Unsaved changes</span>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Status selector */}
-          <select
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value as ArticleStatus);
-              setSaveStatus('unsaved');
-            }}
-            aria-label="Article Status"
-            style={{
-              padding: '6px 10px',
-              borderRadius: 'var(--radius-sm, 6px)',
-              backgroundColor: 'var(--surface-elevated, #131E2F)',
-              border: '1px solid var(--border, #1C2A3A)',
-              color: 'var(--text-primary, #F5F7FA)',
-              fontSize: '13px',
-              outline: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            <option value="DRAFT">DRAFT</option>
-            <option value="READY">READY</option>
-            <option value="ARCHIVED">ARCHIVED</option>
-          </select>
-
-          {/* View mode toggle */}
-          <div
-            style={{
-              display: 'inline-flex',
-              backgroundColor: 'var(--surface-elevated, #131E2F)',
-              border: '1px solid var(--border, #1C2A3A)',
-              borderRadius: 'var(--radius-sm, 6px)',
-              padding: '2px',
-            }}
-          >
-            {(['write', 'preview', 'split'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setViewMode(m)}
-                style={{
-                  padding: '4px 10px',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  borderRadius: '4px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  backgroundColor: viewMode === m ? 'var(--axf-blue, #0B87FE)' : 'transparent',
-                  color: viewMode === m ? '#FFFFFF' : 'var(--text-secondary, #AAB5C4)',
-                  textTransform: 'capitalize',
-                }}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-
-          {mode === 'edit' && (
-            <>
-              {staleExtensionDestinationIds.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  loading={publishing}
-                  disabled={publishing || saving || !extensionInstalled}
-                  title={
-                    extensionInstalled
-                      ? 'Replace the live post content with the current version (no duplicate post)'
-                      : 'Load the ArtXFlow Chrome extension from apps/extension to enable updates'
-                  }
-                  onClick={() => handlePublish(staleExtensionDestinationIds)}
-                >
-                  ↻ Update published copies
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={publishing || saving || scheduling}
-                onClick={() => setShowScheduleModal(true)}
-              >
-                Schedule
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                loading={publishing}
-                disabled={publishing || saving}
-                onClick={() => {
-                  setError(null);
-                  setShowPublishModal(true);
-                  if (destinations.length === 0) {
-                    setLoadingDestinations(true);
-                    fetch('/api/destinations')
-                      .then((res) => (res.ok ? res.json() : { destinations: [] }))
-                      .then((data) => {
-                        if (data.destinations) {
-                          setDestinations(data.destinations);
-                          const activeIds = data.destinations
-                            .filter((d: DestinationDto) => d.status === 'ACTIVE')
-                            .map((d: DestinationDto) => d.id);
-                          setSelectedPublishDestinations(activeIds);
-                        }
-                      })
-                      .finally(() => setLoadingDestinations(false));
-                  }
-                }}
-              >
-                Publish...
-              </Button>
-            </>
-          )}
-
-          <Button variant="primary" size="sm" loading={saving} onClick={handleSave}>
-            {mode === 'create' ? 'Create Article' : 'Save Changes'}
-          </Button>
-        </div>
-      </div>
+      {/* 2. Editor Action Strip & Formatting Toolbar */}
+      <EditorActionStrip
+        onApplyHeading={handleApplyHeading}
+        onApplyInline={handleApplyInline}
+        onApplyBlockquote={handleApplyBlockquote}
+        onApplyList={handleApplyList}
+        onApplyCodeBlock={(lang) => handleApplyCodeBlock(lang || '')}
+        onApplyDivider={handleApplyDivider}
+        onApplyTable={handleApplyTable}
+        onApplyCalloutTip={() =>
+          insertMarkdownSnippet(
+            '> 💡 **Architectural Tip:** For compliance-regulated environments, ensure hardware-level isolation.\n\n',
+          )
+        }
+        onOpenLinkModal={handleOpenLinkModal}
+        onUploadImageClick={() => fileInputRef.current?.click()}
+        onOpenUnsplashModal={() => {
+          setUnsplashTarget('body');
+          setShowUnsplashModal(true);
+        }}
+        onOpenAiGenerate={() => {
+          insertMarkdownSnippet(
+            '## Technical Blueprint\n\n- Zero-trust namespace isolation\n- Enforced telemetry via eBPF probes\n- Idempotent event dispatching\n\n',
+          );
+          toast.success('Generated AI technical blueprint template!');
+        }}
+        coverUrl={coverUrl}
+        onOpenCoverSelect={() => {
+          coverFileInputRef.current?.click();
+        }}
+        onRemoveCover={() => {
+          setCoverUrl(null);
+          coverAssetIdRef.current = null;
+          setCoverAssetId(null);
+          setSaveStatus('unsaved');
+        }}
+        isUploadingImage={isUploadingImage}
+        activeView={mobileViewMode}
+        onChangeView={setMobileViewMode}
+        activePreviewPlatformName={
+          selectedPreviewPlatform === 'devto'
+            ? 'DEV.to'
+            : selectedPreviewPlatform === 'hashnode'
+              ? 'Hashnode'
+              : 'Medium'
+        }
+      />
 
       {/* Publish Selection Modal */}
       {showPublishModal && (
-        <Card
+        <div
           style={{
-            padding: '24px',
-            backgroundColor: 'var(--surface-elevated, #131E2F)',
-            border: '1px solid var(--border, #1C2A3A)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '16px',
           }}
+          onClick={() => setShowPublishModal(false)}
         >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '680px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+            className="custom-scroll"
+          >
+            <Card
+              style={{
+                padding: '24px',
+                backgroundColor: 'var(--surface-elevated, #131E2F)',
+                border: '1px solid var(--border, #1C2A3A)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+              }}
+            >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div
               style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}
@@ -2281,18 +2212,44 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
               </div>
             )}
           </div>
-        </Card>
+            </Card>
+          </div>
+        </div>
       )}
 
       {/* Schedule Modal / Inline Panel */}
       {showScheduleModal && (
-        <Card
+        <div
           style={{
-            padding: '20px',
-            backgroundColor: 'var(--surface-elevated, #131E2F)',
-            border: '1px solid var(--border, #1C2A3A)',
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '16px',
           }}
+          onClick={() => setShowScheduleModal(false)}
         >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '560px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+            className="custom-scroll"
+          >
+            <Card
+              style={{
+                padding: '20px',
+                backgroundColor: 'var(--surface-elevated, #131E2F)',
+                border: '1px solid var(--border, #1C2A3A)',
+              }}
+            >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
               <h3
@@ -2496,7 +2453,9 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
               </Button>
             </div>
           </div>
-        </Card>
+            </Card>
+          </div>
+        </div>
       )}
 
       {/* Publish Notification Banner */}
@@ -2545,6 +2504,101 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
           </button>
         </div>
       )}
+
+      {/* Active Schedule Notification */}
+      {mode === 'edit' && activeSchedule && (
+        <div
+          role="status"
+          style={{
+            padding: '10px 14px',
+            borderRadius: 'var(--radius-md, 8px)',
+            backgroundColor: 'rgba(11, 135, 254, 0.15)',
+            border: '1px solid rgba(11, 135, 254, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            fontSize: '13px',
+            color: 'var(--axf-cyan, #00D4FF)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Badge variant="info">Scheduled</Badge>
+            <span>
+              {new Date(activeSchedule.scheduledAt).toLocaleDateString()}{' '}
+              {new Date(activeSchedule.scheduledAt).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}{' '}
+              ({activeSchedule.timezone})
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleCancelSchedule(activeSchedule.id)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-secondary, #AAB5C4)',
+              fontSize: '12px',
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              padding: 0,
+            }}
+          >
+            Cancel Schedule
+          </button>
+        </div>
+      )}
+
+      {/* Failed Publication Alert */}
+      {mode === 'edit' && !isPublishing && !activeSchedule && failedPublication && (
+        <div
+          role="alert"
+          style={{
+            padding: '10px 14px',
+            borderRadius: 'var(--radius-md, 8px)',
+            backgroundColor: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            fontSize: '13px',
+            color: '#F87171',
+          }}
+        >
+          <span>One or more destinations failed to publish. Check details below.</span>
+          <Button size="sm" variant="outline" onClick={() => setShowPublishModal(true)}>
+            Review Destinations →
+          </Button>
+        </div>
+      )}
+
+      {/* Partially Published Alert */}
+      {mode === 'edit' &&
+        !isPublishing &&
+        !activeSchedule &&
+        isPartiallyPublished &&
+        !failedPublication && (
+          <div
+            role="status"
+            style={{
+              padding: '10px 14px',
+              borderRadius: 'var(--radius-md, 8px)',
+              backgroundColor: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '13px',
+              color: 'var(--status-warning, #F59E0B)',
+            }}
+          >
+            <span>Article is partially published across connected targets.</span>
+            <Button size="sm" variant="outline" onClick={() => setShowPublishModal(true)}>
+              Complete All →
+            </Button>
+          </div>
+        )}
 
       {/* Error Alert */}
       {error && (
@@ -2852,199 +2906,285 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
         </Card>
       )}
 
-      {/* Dev.to-inspired Header Suite: Cover Image, Title, Tags & Advanced Options */}
-      <Card
-        style={{
-          padding: '24px',
-          backgroundColor: 'var(--surface-elevated, #131E2F)',
-          border: '1px solid var(--border, #1C2A3A)',
-          borderRadius: '12px',
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Cover Uploader */}
-          <EditorCoverUploader
-            coverUrl={coverUrl}
-            onCoverChange={(url) => {
-              setCoverUrl(url);
-              if (url === null) {
-                coverAssetIdRef.current = null;
-                setCoverAssetId(null);
-              }
-              setSaveStatus('unsaved');
+      {/* 3. Split-Pane Workspace */}
+      <main className="editor-workspace">
+        {/* Left Pane: Raw Markdown & Metadata Input */}
+        <div
+          className={`editor-left-pane custom-scroll p-4 sm:p-6 ${
+            mobileViewMode === 'preview' ? 'editor-pane-hidden-mobile' : ''
+          }`}
+          style={{
+            padding: 'clamp(14px, 2vw, 24px)',
+            boxSizing: 'border-box',
+          }}
+        >
+          <div
+            style={{
+              maxWidth: '720px',
+              width: '100%',
+              margin: '0 auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              flex: 1,
             }}
-            onUploadFile={handleUploadCoverFile}
-            onOpenUnsplashModal={() => {
-              setUnsplashTarget('cover');
-              setShowUnsplashModal(true);
-            }}
-          />
-
-          {/* Large DEV.to-style Title */}
-          <div>
-            <input
-              id="article-title"
-              type="text"
-              required
-              value={title}
-              onChange={(e) => handleTitleChange(e.target.value)}
-              placeholder="New post title here..."
-              style={{
-                width: '100%',
-                backgroundColor: 'transparent',
-                border: 'none',
-                borderBottom: '1px solid var(--border, #1C2A3A)',
-                padding: '4px 0 14px 0',
-                fontSize: '28px',
-                fontWeight: 800,
-                color: 'var(--text-primary, #F5F7FA)',
-                outline: 'none',
-                letterSpacing: '-0.02em',
-              }}
-            />
-          </div>
-
-          {/* Tags Input */}
-          <div>
-            <EditorTagInput
-              tags={tags}
-              onChange={(newTags) => {
-                setTags(newTags);
-                setSaveStatus('unsaved');
-              }}
-              maxTags={4}
-            />
-          </div>
-
-          {/* Collapsible Advanced Options (Slug & Excerpt) */}
-          <div style={{ borderTop: '1px solid var(--border, #1C2A3A)', paddingTop: '10px' }}>
-            <button
-              type="button"
-              onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-secondary, #AAB5C4)',
-                fontSize: '12px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                padding: '4px 0',
-              }}
-            >
-              <span>{showAdvancedSettings ? '▼' : '▶'}</span>
-              <span>Advanced Options (Slug, Meta Description)</span>
-            </button>
-
-            {showAdvancedSettings && (
-              <div
+          >
+            {/* Article Title Input */}
+            <div>
+              <label
+                htmlFor="article-title"
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                  gap: '16px',
-                  marginTop: '12px',
+                  display: 'block',
+                  fontSize: '11px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: 'var(--text-muted, #66768D)',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  fontWeight: 600,
                 }}
               >
-                <div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginBottom: '6px',
-                    }}
-                  >
-                    <label
-                      htmlFor="article-slug"
-                      style={{
-                        fontSize: '12px',
-                        fontWeight: 500,
-                        color: 'var(--text-secondary, #AAB5C4)',
-                      }}
-                    >
-                      URL Slug
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setIsManualSlug(!isManualSlug)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--axf-cyan, #19D7FE)',
-                        fontSize: '11px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {isManualSlug ? 'Auto-generate' : 'Edit manually'}
-                    </button>
-                  </div>
-                  <input
-                    id="article-slug"
-                    type="text"
-                    disabled={!isManualSlug}
-                    value={slug}
-                    onChange={(e) => {
-                      setSlug(e.target.value);
-                      setSaveStatus('unsaved');
-                    }}
-                    placeholder="post-title-slug"
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: 'var(--radius-md, 8px)',
-                      backgroundColor: isManualSlug
-                        ? 'var(--surface-elevated, #131E2F)'
-                        : 'rgba(255, 255, 255, 0.03)',
-                      border: '1px solid var(--border, #1C2A3A)',
-                      color: 'var(--axf-cyan, #19D7FE)',
-                      fontFamily: 'monospace',
-                      fontSize: '13px',
-                      outline: 'none',
-                    }}
-                  />
-                </div>
+                Article Title
+              </label>
+              <input
+                id="article-title"
+                type="text"
+                required
+                value={title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="Article Title..."
+                style={{
+                  width: '100%',
+                  backgroundColor: 'var(--surface-container-lowest, #090E15)',
+                  border: '1px solid var(--border-default, #243447)',
+                  borderRadius: '8px',
+                  padding: '10px 14px',
+                  fontSize: '20px',
+                  fontWeight: 600,
+                  color: 'var(--text-primary, #F5F7FA)',
+                  outline: 'none',
+                  letterSpacing: '-0.015em',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
 
-                <div>
-                  <label
-                    htmlFor="article-excerpt"
+            {/* Tags Input */}
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '11px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: 'var(--text-muted, #66768D)',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  fontWeight: 600,
+                }}
+              >
+                Tags (Max 4)
+              </label>
+              <EditorTagInput
+                tags={tags}
+                onChange={(newTags) => {
+                  setTags(newTags);
+                  setSaveStatus('unsaved');
+                }}
+                maxTags={4}
+              />
+            </div>
+
+            {/* Auto-Synced Frontmatter Config (YAML) Card */}
+            <div
+              style={{
+                borderRadius: '8px',
+                border: '1px solid var(--border-subtle, #172333)',
+                backgroundColor: 'var(--surface-container-lowest, #090E15)',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '6px 12px',
+                  backgroundColor: 'var(--surface-container-low, #181C23)',
+                  borderBottom: '1px solid var(--border-subtle, #172333)',
+                  fontSize: '11px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: 'var(--text-muted, #66768D)',
+                }}
+              >
+                <span style={{ fontWeight: 600 }}>FRONTMATTER CONFIG (YAML)</span>
+                <span
+                  style={{
+                    color: 'var(--flow-cyan, #19D7FE)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <span
                     style={{
-                      display: 'block',
-                      fontSize: '12px',
-                      fontWeight: 500,
-                      color: 'var(--text-secondary, #AAB5C4)',
-                      marginBottom: '6px',
-                    }}
-                  >
-                    Excerpt / Meta Description
-                  </label>
-                  <input
-                    id="article-excerpt"
-                    type="text"
-                    value={excerpt}
-                    onChange={(e) => {
-                      setExcerpt(e.target.value);
-                      setSaveStatus('unsaved');
-                    }}
-                    placeholder="Brief summary for search engines and platform previews"
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: 'var(--radius-md, 8px)',
-                      backgroundColor: 'var(--surface-elevated, #131E2F)',
-                      border: '1px solid var(--border, #1C2A3A)',
-                      color: 'var(--text-primary, #F5F7FA)',
-                      fontSize: '13px',
-                      outline: 'none',
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      backgroundColor: 'var(--flow-cyan, #19D7FE)',
+                      display: 'inline-block',
                     }}
                   />
-                </div>
+                  Auto-Synced
+                </span>
               </div>
-            )}
+              <pre
+                style={{
+                  margin: 0,
+                  padding: '12px',
+                  fontSize: '11px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: '#34D399',
+                  lineHeight: 1.6,
+                  backgroundColor: '#070B10',
+                  overflowX: 'auto',
+                }}
+              >
+{`---
+title: "${title || 'Untitled Article'}"
+published: ${status === 'READY'}
+canonical_url: https://artxflow.dev/blog/${slug || 'article'}
+tags: [${tags.join(', ')}]
+---`}
+              </pre>
+            </div>
+
+            {/* Technical Markdown Body Editor */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                minHeight: '420px',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '6px',
+                }}
+              >
+                <label
+                  htmlFor="markdown-content"
+                  style={{
+                    fontSize: '11px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    color: 'var(--text-muted, #66768D)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontWeight: 600,
+                  }}
+                >
+                  Markdown Content
+                </label>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    color: 'var(--text-muted, #66768D)',
+                    fontFamily: "'JetBrains Mono', monospace",
+                  }}
+                >
+                  Type &apos;/&apos; for commands
+                </span>
+              </div>
+
+              <div
+                style={{
+                  position: 'relative',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-default, #243447)',
+                  backgroundColor: '#0A0F18',
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <EditorSlashMenu
+                  isOpen={showSlashMenu}
+                  filterText={slashFilter}
+                  onSelect={handleSlashSelect}
+                  onClose={() => setShowSlashMenu(false)}
+                />
+
+                <textarea
+                  id="markdown-content"
+                  ref={textareaRef}
+                  value={content}
+                  onChange={(e) => {
+                    const newContent = e.target.value;
+                    setContent(newContent);
+                    setSaveStatus('unsaved');
+                    if (showSlashMenu) {
+                      const cursor = e.target.selectionStart;
+                      const lineBefore = newContent.substring(0, cursor).split('\n').pop() || '';
+                      const slashIdx = lineBefore.lastIndexOf('/');
+                      if (slashIdx >= 0) {
+                        setSlashFilter(lineBefore.substring(slashIdx + 1));
+                      } else {
+                        setShowSlashMenu(false);
+                      }
+                    }
+                  }}
+                  onKeyDown={handleTextareaKeyDown}
+                  onPaste={handleTextareaPaste}
+                  onDrop={handleTextareaDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                  placeholder="Type markdown or '/' for technical components..."
+                  spellCheck={false}
+                  aria-label="Article content editor"
+                  className="custom-scroll"
+                  style={{
+                    width: '100%',
+                    flex: 1,
+                    minHeight: '480px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    padding: '16px',
+                    fontSize: '13px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    color: 'var(--text-primary, #F5F7FA)',
+                    lineHeight: 1.7,
+                    resize: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </div>
-      </Card>
+
+        {/* Right Pane: Multi-Platform Preview */}
+        <div
+          className={`editor-right-pane custom-scroll ${
+            mobileViewMode === 'write' ? 'editor-pane-hidden-mobile' : ''
+          }`}
+        >
+          <EditorPlatformPreview
+            title={title || 'Untitled Article'}
+            content={content}
+            coverUrl={coverUrl}
+            tags={tags}
+            slug={slug}
+            canonicalUrl={slug ? `https://artxflow.dev/blog/${slug}` : undefined}
+            selectedPlatform={selectedPreviewPlatform}
+            onSelectPlatform={setSelectedPreviewPlatform}
+          />
+        </div>
+      </main>
 
       {/* Hidden image file input */}
       <input
@@ -3058,243 +3198,431 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
         }}
       />
 
-      {/* Editor & Preview Area */}
-      {viewMode === 'write' && (
+      {/* Hidden cover image file input */}
+      <input
+        ref={coverFileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleUploadCoverFile(file);
+        }}
+      />
+
+      {/* 4. Mobile Quick Action Dock */}
+      <EditorMobileDock
+        slug={slug}
+        wordCount={readingStats.words}
+        readingTimeMinutes={readingStats.readingTimeMinutes}
+        activeTab={mobileViewMode}
+        onSelectTab={(tab) => {
+          if (tab === 'write' || tab === 'preview') {
+            setMobileViewMode(tab);
+          } else if (tab === 'media') {
+            setUnsplashTarget('body');
+            setShowUnsplashModal(true);
+          } else if (tab === 'inspect') {
+            setShowOverridesModal(true);
+          }
+        }}
+      />
+
+      {/* Overrides Modal */}
+      {showOverridesModal && (
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: isZenMode
-              ? '1fr'
-              : isSidebarCollapsed
-                ? '1fr 48px'
-                : '1fr 280px',
-            gap: '20px',
-            alignItems: 'start',
-            transition: 'grid-template-columns 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '16px',
           }}
+          onClick={() => setShowOverridesModal(false)}
         >
-          {/* Main Editor Card */}
-          <Card
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              padding: '0',
-              overflow: 'hidden',
-              border: '1px solid var(--border, #1C2A3A)',
-              backgroundColor: 'var(--surface-elevated, #131E2F)',
-              borderRadius: '12px',
-            }}
-          >
-            <EditorToolbar
-              onApplyHeading={handleApplyHeading}
-              onApplyInline={handleApplyInline}
-              onApplyBlockquote={handleApplyBlockquote}
-              onApplyList={handleApplyList}
-              onApplyCodeBlock={handleApplyCodeBlock}
-              onApplyDivider={handleApplyDivider}
-              onApplyTable={handleApplyTable}
-              onOpenLinkModal={handleOpenLinkModal}
-              onUploadImageClick={() => fileInputRef.current?.click()}
-              onOpenUnsplashModal={() => {
-                setUnsplashTarget('body');
-                setShowUnsplashModal(true);
-              }}
-              onInsertEmbed={handleInsertEmbed}
-              isUploadingImage={isUploadingImage}
-              isZenMode={isZenMode}
-              onToggleZenMode={() => setIsZenMode(!isZenMode)}
-            />
-
-            <div style={{ position: 'relative', padding: '16px' }}>
-              <EditorSlashMenu
-                isOpen={showSlashMenu}
-                filterText={slashFilter}
-                onSelect={handleSlashSelect}
-                onClose={() => setShowSlashMenu(false)}
-              />
-
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => {
-                  const newContent = e.target.value;
-                  setContent(newContent);
-                  setSaveStatus('unsaved');
-                  if (showSlashMenu) {
-                    const cursor = e.target.selectionStart;
-                    const lineBefore = newContent.substring(0, cursor).split('\n').pop() || '';
-                    const slashIdx = lineBefore.lastIndexOf('/');
-                    if (slashIdx >= 0) {
-                      setSlashFilter(lineBefore.substring(slashIdx + 1));
-                    } else {
-                      setShowSlashMenu(false);
-                    }
-                  }
-                }}
-                onKeyDown={handleTextareaKeyDown}
-                onPaste={handleTextareaPaste}
-                onDrop={handleTextareaDrop}
-                onDragOver={(e) => e.preventDefault()}
-                placeholder="Write your article in plain English here... (Use toolbar above, press '/' for commands, or Cmd+B/I/U/K)"
-                aria-label="Article content editor"
-                style={{
-                  width: '100%',
-                  minHeight: '520px',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  color: 'var(--text-primary, #F5F7FA)',
-                  fontFamily:
-                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-                  fontSize: '16px',
-                  lineHeight: '1.7',
-                  resize: 'vertical',
-                }}
-              />
-            </div>
-          </Card>
-
-          {/* Assistant Sidebar */}
-          {!isZenMode && (
-            <EditorSidebar
-              stats={readingStats}
-              readiness={publisherReadiness}
-              isCollapsed={isSidebarCollapsed}
-              onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            />
-          )}
-        </div>
-      )}
-
-      {viewMode === 'split' && (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '20px',
-            alignItems: 'start',
-          }}
-        >
-          {/* Left: Editor */}
-          <Card
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              padding: '0',
-              overflow: 'hidden',
-              border: '1px solid var(--border, #1C2A3A)',
-              backgroundColor: 'var(--surface-elevated, #131E2F)',
-              borderRadius: '12px',
-            }}
-          >
-            <EditorToolbar
-              onApplyHeading={handleApplyHeading}
-              onApplyInline={handleApplyInline}
-              onApplyBlockquote={handleApplyBlockquote}
-              onApplyList={handleApplyList}
-              onApplyCodeBlock={handleApplyCodeBlock}
-              onApplyDivider={handleApplyDivider}
-              onApplyTable={handleApplyTable}
-              onOpenLinkModal={handleOpenLinkModal}
-              onUploadImageClick={() => fileInputRef.current?.click()}
-              onOpenUnsplashModal={() => {
-                setUnsplashTarget('body');
-                setShowUnsplashModal(true);
-              }}
-              onInsertEmbed={handleInsertEmbed}
-              isUploadingImage={isUploadingImage}
-              isZenMode={false}
-            />
-
-            <div style={{ position: 'relative', padding: '16px' }}>
-              <EditorSlashMenu
-                isOpen={showSlashMenu}
-                filterText={slashFilter}
-                onSelect={handleSlashSelect}
-                onClose={() => setShowSlashMenu(false)}
-              />
-
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => {
-                  const newContent = e.target.value;
-                  setContent(newContent);
-                  setSaveStatus('unsaved');
-                  if (showSlashMenu) {
-                    const cursor = e.target.selectionStart;
-                    const lineBefore = newContent.substring(0, cursor).split('\n').pop() || '';
-                    const slashIdx = lineBefore.lastIndexOf('/');
-                    if (slashIdx >= 0) {
-                      setSlashFilter(lineBefore.substring(slashIdx + 1));
-                    } else {
-                      setShowSlashMenu(false);
-                    }
-                  }
-                }}
-                onKeyDown={handleTextareaKeyDown}
-                onPaste={handleTextareaPaste}
-                onDrop={handleTextareaDrop}
-                onDragOver={(e) => e.preventDefault()}
-                placeholder="Write your article in plain English here..."
-                aria-label="Article content editor"
-                style={{
-                  width: '100%',
-                  minHeight: '520px',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  color: 'var(--text-primary, #F5F7FA)',
-                  fontFamily:
-                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-                  fontSize: '16px',
-                  lineHeight: '1.7',
-                  resize: 'vertical',
-                }}
-              />
-            </div>
-          </Card>
-
-          {/* Right: Live Preview */}
           <div
+            onClick={(e) => e.stopPropagation()}
             style={{
-              flex: 1,
-              overflowY: 'auto',
-              minWidth: 0,
+              width: '100%',
+              maxWidth: '540px',
+              backgroundColor: 'var(--surface-raised, #0D1420)',
+              border: '1px solid var(--border-default, #243447)',
+              borderRadius: '12px',
+              padding: '24px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
             }}
           >
-            <ArticlePreview
-              title={title}
-              subtitle={excerpt}
-              content={content}
-              coverImageUrl={coverUrl}
-              tags={tags}
-              canonicalUrl={slug ? `/blog/${slug}` : undefined}
-              publishedAt={initialArticle?.createdAt}
-              showModeSelector={true}
-            />
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div>
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: '18px',
+                    fontWeight: 700,
+                    color: 'var(--text-primary, #F5F7FA)',
+                  }}
+                >
+                  Platform Overrides & Metadata
+                </h3>
+                <p
+                  style={{
+                    margin: '4px 0 0 0',
+                    fontSize: '13px',
+                    color: 'var(--text-secondary, #AAB5C4)',
+                  }}
+                >
+                  Fine-tune SEO attributes, custom slugs, and publication states across target platforms.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowOverridesModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-secondary, #AAB5C4)',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  padding: '4px',
+                }}
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Publication Status */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: 'var(--text-secondary, #AAB5C4)',
+                  }}
+                >
+                  Publication Status
+                </label>
+                <select
+                  value={status}
+                  onChange={(e) => {
+                    setStatus(e.target.value as ArticleStatus);
+                    setSaveStatus('unsaved');
+                  }}
+                  aria-label="Article Status"
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    backgroundColor: 'var(--surface-container-lowest, #090E15)',
+                    border: '1px solid var(--border-default, #243447)',
+                    color: 'var(--text-primary, #F5F7FA)',
+                    fontSize: '13px',
+                    outline: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="DRAFT">DRAFT</option>
+                  <option value="READY">READY</option>
+                  <option value="ARCHIVED">ARCHIVED</option>
+                </select>
+              </div>
+
+              {/* URL Slug */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <label
+                    style={{
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: 'var(--text-secondary, #AAB5C4)',
+                    }}
+                  >
+                    Canonical Slug
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsManualSlug(!isManualSlug)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--flow-cyan, #19D7FE)',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {isManualSlug ? 'Auto-generate' : 'Edit manually'}
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  disabled={!isManualSlug}
+                  value={slug}
+                  onChange={(e) => {
+                    setSlug(e.target.value);
+                    setSaveStatus('unsaved');
+                  }}
+                  placeholder="post-title-slug"
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    backgroundColor: isManualSlug
+                      ? 'var(--surface-container-lowest, #090E15)'
+                      : 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid var(--border-default, #243447)',
+                    color: 'var(--flow-cyan, #19D7FE)',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: '13px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: '11px',
+                    color: 'var(--text-muted, #66768D)',
+                    fontFamily: "'JetBrains Mono', monospace",
+                  }}
+                >
+                  Target: https://artxflow.dev/blog/{slug || 'article'}
+                </span>
+              </div>
+
+              {/* Excerpt / Meta Description */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: 'var(--text-secondary, #AAB5C4)',
+                  }}
+                >
+                  Excerpt / Meta Description
+                </label>
+                <textarea
+                  rows={3}
+                  value={excerpt}
+                  onChange={(e) => {
+                    setExcerpt(e.target.value);
+                    setSaveStatus('unsaved');
+                  }}
+                  placeholder="Brief summary for search engines and platform previews..."
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    backgroundColor: 'var(--surface-container-lowest, #090E15)',
+                    border: '1px solid var(--border-default, #243447)',
+                    color: 'var(--text-primary, #F5F7FA)',
+                    fontSize: '13px',
+                    outline: 'none',
+                    resize: 'vertical',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              {/* Publisher Readiness Score */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 14px',
+                  borderRadius: '6px',
+                  backgroundColor: 'var(--surface-container-lowest, #090E15)',
+                  border: '1px solid var(--border-default, #243447)',
+                }}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary, #AAB5C4)' }}>
+                    Platform Readiness
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted, #66768D)' }}>
+                    {publisherReadiness.devto.ready &&
+                    publisherReadiness.hashnode.ready &&
+                    publisherReadiness.medium.ready
+                      ? 'All requirements met for distribution.'
+                      : 'Review title, tags, and content for platform constraints.'}
+                  </span>
+                </div>
+                <Badge
+                  variant={
+                    publisherReadiness.devto.ready &&
+                    publisherReadiness.hashnode.ready &&
+                    publisherReadiness.medium.ready
+                      ? 'success'
+                      : 'warning'
+                  }
+                >
+                  {publisherReadiness.devto.ready &&
+                  publisherReadiness.hashnode.ready &&
+                  publisherReadiness.medium.ready
+                    ? '3/3 Ready'
+                    : `${
+                        [
+                          publisherReadiness.devto,
+                          publisherReadiness.hashnode,
+                          publisherReadiness.medium,
+                        ].filter((p) => p.ready).length
+                      }/3 Ready`}
+                </Badge>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
+              <Button variant="secondary" size="sm" onClick={() => setShowOverridesModal(false)}>
+                Close
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  setShowOverridesModal(false);
+                  setSaveStatus('unsaved');
+                  toast.success('Overrides applied to draft');
+                }}
+              >
+                Save & Apply
+              </Button>
+            </div>
           </div>
         </div>
       )}
 
-      {viewMode === 'preview' && (
+      {/* History Modal */}
+      {showHistoryModal && (
         <div
           style={{
-            flex: 1,
-            overflowY: 'auto',
-            minWidth: 0,
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '16px',
           }}
+          onClick={() => setShowHistoryModal(false)}
         >
-          <ArticlePreview
-            title={title}
-            subtitle={excerpt}
-            content={content}
-            coverImageUrl={coverUrl}
-            tags={tags}
-            canonicalUrl={slug ? `/blog/${slug}` : undefined}
-            publishedAt={initialArticle?.createdAt}
-            showModeSelector={true}
-          />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '480px',
+              backgroundColor: 'var(--surface-raised, #0D1420)',
+              border: '1px solid var(--border-default, #243447)',
+              borderRadius: '12px',
+              padding: '24px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div>
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: '18px',
+                    fontWeight: 700,
+                    color: 'var(--text-primary, #F5F7FA)',
+                  }}
+                >
+                  Version Ledger & History
+                </h3>
+                <p
+                  style={{
+                    margin: '4px 0 0 0',
+                    fontSize: '13px',
+                    color: 'var(--text-secondary, #AAB5C4)',
+                  }}
+                >
+                  ArtXFlow is the canonical source of truth. Every published version is an immutable snapshot.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowHistoryModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-secondary, #AAB5C4)',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  padding: '4px',
+                }}
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div
+              style={{
+                padding: '14px',
+                borderRadius: '8px',
+                backgroundColor: 'var(--surface-container-lowest, #090E15)',
+                border: '1px solid var(--border-subtle, #172333)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                fontSize: '13px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-secondary, #AAB5C4)' }}>Active Version</span>
+                <span
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontWeight: 700,
+                    color: 'var(--flow-cyan, #19D7FE)',
+                  }}
+                >
+                  v{activeVersionNumber}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-secondary, #AAB5C4)' }}>Article Mode</span>
+                <span style={{ fontWeight: 600, color: 'var(--text-primary, #F5F7FA)' }}>
+                  {mode === 'create' ? 'Draft (New Article)' : 'Canonical Article'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-secondary, #AAB5C4)' }}>Last Autosaved</span>
+                <span style={{ color: 'var(--text-muted, #66768D)', fontSize: '12px' }}>
+                  {lastSavedAt ? lastSavedAt.toLocaleTimeString() : 'Not yet saved'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-secondary, #AAB5C4)' }}>Content Length</span>
+                <span style={{ color: 'var(--text-secondary, #AAB5C4)', fontSize: '12px' }}>
+                  {readingStats.words} words · {readingStats.readingTimeMinutes} min read
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+              <Button variant="primary" size="sm" onClick={() => setShowHistoryModal(false)}>
+                Done
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
