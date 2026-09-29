@@ -1122,3 +1122,173 @@ textarea {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ==========================================================================
+   STITCH ARTICLE EDITOR & PREVIEW SYSTEM
+   ========================================================================== */
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: #090e15;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #243447;
+  border-radius: 4px;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: #3790ff;
+}
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #243447 #090e15;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.font-headline-sm {
+  font-size: 20px;
+  line-height: 26px;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
+.font-headline-lg-mobile {
+  font-size: 26px;
+  line-height: 32px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.font-title-md {
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+.font-title-sm {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.005em;
+  font-weight: 600;
+}
+
+.font-body-md {
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0em;
+  font-weight: 400;
+}
+
+.font-body-sm {
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0em;
+  font-weight: 400;
+}
+
+.font-label-md {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 16px;
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+
+.font-label-sm {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+.bg-surface-base {
+  background-color: var(--surface-base, #070b12);
+}
+
+.bg-surface-raised {
+  background-color: var(--surface-raised, #0d1420);
+}
+
+.bg-surface-overlay {
+  background-color: var(--surface-overlay, #111a28);
+}
+
+.bg-surface-dim {
+  background-color: var(--surface-dim, #0f141b);
+}
+
+.bg-surface-container-lowest {
+  background-color: var(--surface-container-lowest, #090e15);
+}
+
+.bg-surface-container-low {
+  background-color: var(--surface-container-low, #181c23);
+}
+
+.bg-surface-container {
+  background-color: var(--surface-container, #1c2027);
+}
+
+.bg-surface-container-high {
+  background-color: var(--surface-container-high, #252a32);
+}
+
+/* ArtXFlow Split-Pane Workspace */
+.editor-workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.editor-left-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  width: 50%;
+  min-width: 0;
+  border-right: 1px solid var(--border-subtle, #172333);
+  background-color: var(--surface-base, #070B12);
+  overflow-y: auto;
+}
+
+.editor-right-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  width: 50%;
+  min-width: 0;
+  background-color: var(--surface-container-lowest, #090E15);
+  overflow: hidden;
+}
+
+@media (max-width: 1023px) {
+  .editor-workspace {
+    flex-direction: column;
+  }
+  .editor-left-pane {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    border-right: none !important;
+  }
+  .editor-right-pane {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+  .editor-pane-hidden-mobile {
+    display: none !important;
+  }
+}
+
+

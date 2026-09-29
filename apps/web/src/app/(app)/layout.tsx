@@ -2,8 +2,7 @@ import React from 'react';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getSession, bootstrapPersonalOrganization } from '@artxflow/auth';
-import { AppHeader } from '../../components/app-header';
-import { EmailVerificationBanner } from '../../components/email-verification-banner';
+import { AppShell } from '../../components/app-shell';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,25 +27,13 @@ export default async function AppShellLayout({ children }: { children: React.Rea
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <AppHeader user={session.user} organization={organization} membership={membership} />
-
-      {!session.user.emailVerified && <EmailVerificationBanner email={session.user.email} />}
-
-      {/* Main App Content Area */}
-      <main
-        id="main-content"
-        tabIndex={-1}
-        className="app-main-content"
-        style={{
-          flex: 1,
-          width: '100%',
-          maxWidth: '1200px',
-          margin: '0 auto',
-        }}
-      >
-        {children}
-      </main>
-    </div>
+    <AppShell
+      user={session.user}
+      organization={organization}
+      membership={membership}
+      emailVerified={Boolean(session.user.emailVerified)}
+    >
+      {children}
+    </AppShell>
   );
 }
