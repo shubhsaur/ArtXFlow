@@ -72,7 +72,7 @@ export function AppShell({
         style={{
           flex: 1,
           width: '100%',
-          maxWidth: '1200px',
+          maxWidth: pathname === '/articles' ? '1600px' : '1200px',
           margin: '0 auto',
         }}
       >
