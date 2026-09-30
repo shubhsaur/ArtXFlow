@@ -1291,4 +1291,44 @@ textarea {
   }
 }
 
+/* Articles & Syndication Hub responsive utilities */
+.articles-desktop-view {
+  display: block;
+}
+
+.articles-mobile-view {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .articles-desktop-view {
+    display: none !important;
+  }
+  .articles-mobile-view {
+    display: block !important;
+  }
+}
+
+.articles-metrics-desktop {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.articles-metrics-mobile {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 1023px) {
+  .articles-metrics-desktop {
+    display: none !important;
+  }
+  .articles-metrics-mobile {
+    display: grid !important;
+  }
+}
+
+
 
