@@ -10,7 +10,7 @@ import { ProfileApiKeysCard } from './profile-api-keys-card';
 import { ProfileSecurityCard } from './profile-security-card';
 import { ProfileDeleteAccount } from './profile-delete-account';
 import { ProfileStickyBar } from './profile-sticky-bar';
-import { ConnectedPlatforms } from '../connected-platforms';
+import { PlatformConnectionsView } from './platform-connections-view';
 
 interface ProfileViewProps {
   initialProfile: ProfileFormData;
@@ -22,6 +22,7 @@ interface ProfileViewProps {
     role: string;
   };
   connectedPlatformCount: number;
+  initialTab?: SettingsTab;
   initialConnections?: Array<{
     id: string;
     organizationId: string;
@@ -59,11 +60,12 @@ export function ProfileView({
   telemetry,
   workspace,
   connectedPlatformCount,
+  initialTab,
   initialConnections,
   initialApiKeys,
 }: ProfileViewProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab || 'profile');
   const [initialData, setInitialData] = useState<ProfileFormData>(initialProfile);
   const [formData, setFormData] = useState<ProfileFormData>(initialProfile);
   const [isSaving, setIsSaving] = useState(false);
@@ -223,6 +225,182 @@ export function ProfileView({
       {/* Main Workspace Content Canvas */}
       <main className="profile-main-canvas">
         <div className="profile-content-container">
+          {/* Mobile Horizontal Category Pills (< 860px) */}
+          <div className="profile-mobile-nav-pills">
+            <button
+              type="button"
+              onClick={() => setActiveTab('profile')}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                fontSize: '12px',
+                fontWeight: activeTab === 'profile' ? 600 : 500,
+                backgroundColor:
+                  activeTab === 'profile'
+                    ? 'var(--surface-raised, #0D1420)'
+                    : 'transparent',
+                color:
+                  activeTab === 'profile'
+                    ? 'var(--flow-cyan, #19D7FE)'
+                    : 'var(--text-muted, #66768D)',
+                border:
+                  activeTab === 'profile'
+                    ? '1px solid rgba(25, 215, 254, 0.3)'
+                    : '1px solid transparent',
+                boxShadow:
+                  activeTab === 'profile'
+                    ? '0 0 12px rgba(25, 215, 254, 0.15)'
+                    : 'none',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              {activeTab === 'profile' && (
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--flow-cyan, #19D7FE)',
+                  }}
+                />
+              )}
+              Profile
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('workspace')}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                fontSize: '12px',
+                fontWeight: activeTab === 'workspace' ? 600 : 500,
+                backgroundColor:
+                  activeTab === 'workspace'
+                    ? 'var(--surface-raised, #0D1420)'
+                    : 'transparent',
+                color:
+                  activeTab === 'workspace'
+                    ? 'var(--flow-cyan, #19D7FE)'
+                    : 'var(--text-muted, #66768D)',
+                border:
+                  activeTab === 'workspace'
+                    ? '1px solid rgba(25, 215, 254, 0.3)'
+                    : '1px solid transparent',
+                boxShadow:
+                  activeTab === 'workspace'
+                    ? '0 0 12px rgba(25, 215, 254, 0.15)'
+                    : 'none',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              {activeTab === 'workspace' && (
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--flow-cyan, #19D7FE)',
+                  }}
+                />
+              )}
+              Workspace
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('platforms')}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                fontSize: '12px',
+                fontWeight: activeTab === 'platforms' ? 600 : 500,
+                backgroundColor:
+                  activeTab === 'platforms'
+                    ? 'var(--surface-raised, #0D1420)'
+                    : 'transparent',
+                color:
+                  activeTab === 'platforms'
+                    ? 'var(--flow-cyan, #19D7FE)'
+                    : 'var(--text-muted, #66768D)',
+                border:
+                  activeTab === 'platforms'
+                    ? '1px solid rgba(25, 215, 254, 0.3)'
+                    : '1px solid transparent',
+                boxShadow:
+                  activeTab === 'platforms'
+                    ? '0 0 12px rgba(25, 215, 254, 0.15)'
+                    : 'none',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              {activeTab === 'platforms' && (
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--flow-cyan, #19D7FE)',
+                  }}
+                />
+              )}
+              Connections
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('api-keys')}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                fontSize: '12px',
+                fontWeight: activeTab === 'api-keys' ? 600 : 500,
+                backgroundColor:
+                  activeTab === 'api-keys'
+                    ? 'var(--surface-raised, #0D1420)'
+                    : 'transparent',
+                color:
+                  activeTab === 'api-keys'
+                    ? 'var(--flow-cyan, #19D7FE)'
+                    : 'var(--text-muted, #66768D)',
+                border:
+                  activeTab === 'api-keys'
+                    ? '1px solid rgba(25, 215, 254, 0.3)'
+                    : '1px solid transparent',
+                boxShadow:
+                  activeTab === 'api-keys'
+                    ? '0 0 12px rgba(25, 215, 254, 0.15)'
+                    : 'none',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              {activeTab === 'api-keys' && (
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--flow-cyan, #19D7FE)',
+                  }}
+                />
+              )}
+              API Keys
+            </button>
+          </div>
+
           {activeTab === 'profile' && (
             <>
               {/* Header */}
@@ -260,32 +438,10 @@ export function ProfileView({
           )}
 
           {activeTab === 'platforms' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <div>
-                <h1
-                  style={{
-                    fontSize: '22px',
-                    fontWeight: 700,
-                    color: 'var(--text-primary, #F5F7FA)',
-                    letterSpacing: '-0.02em',
-                    margin: 0,
-                  }}
-                >
-                  Platform Connections
-                </h1>
-                <p
-                  style={{
-                    fontSize: '13px',
-                    color: 'var(--text-secondary, #AAB5C4)',
-                    marginTop: '4px',
-                    marginBottom: 0,
-                  }}
-                >
-                  Connect and configure publishing adapters for cross-platform syndication.
-                </p>
-              </div>
-              <ConnectedPlatforms initialConnections={initialConnections} />
-            </div>
+            <PlatformConnectionsView
+              initialConnections={initialConnections}
+              workspaceName={workspace.name}
+            />
           )}
 
           {activeTab === 'api-keys' && <ProfileApiKeysCard initialKeys={initialApiKeys} />}
