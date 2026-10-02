@@ -1330,5 +1330,120 @@ textarea {
   }
 }
 
+/* ==========================================================================
+   PLATFORM CONNECTIONS SETTINGS (Bento & Mobile Mesh)
+   ========================================================================== */
+.platform-connections-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.platform-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 1023px) {
+  .platform-bento-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.platform-telemetry-banner {
+  background-color: var(--surface-raised, #0D1420);
+  border: 1px solid var(--border-subtle, #172333);
+  border-radius: 12px;
+  padding: 16px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.platform-telemetry-glow {
+  position: absolute;
+  right: -32px;
+  bottom: -32px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(11, 135, 254, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.platform-adapter-card {
+  background-color: var(--surface-raised, #0D1420);
+  border: 1px solid var(--border-subtle, #172333);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.15s ease;
+}
+
+.platform-adapter-card:hover {
+  border-color: var(--border-default, #243447);
+}
+
+.platform-adapter-card.pending-auth {
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 16px -4px rgba(245, 158, 11, 0.12);
+}
+
+.platform-rate-bar-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: var(--surface-base, #070B12);
+  border: 1px solid var(--border-subtle, #172333);
+  overflow: hidden;
+}
+
+.platform-rate-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--flow-blue, #0B87FE) 0%, var(--flow-cyan, #19D7FE) 100%);
+  transition: width 0.3s ease;
+}
+
+.platform-mobile-nav-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0 12px 0;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.platform-mobile-nav-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.profile-mobile-nav-pills {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .profile-mobile-nav-pills {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border-subtle, #172333);
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .profile-mobile-nav-pills::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
+
 
 

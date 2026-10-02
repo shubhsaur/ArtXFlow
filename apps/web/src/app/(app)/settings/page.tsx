@@ -8,10 +8,22 @@ import {
 } from '@artxflow/database';
 import { ProfileView } from '../../../components/profile/profile-view';
 import type { ProfileFormData, SecurityTelemetry } from '../../../components/profile/profile-types';
+import type { SettingsTab } from '../../../components/profile/profile-nav-rail';
 
 export const dynamic = 'force-dynamic';
 
-export default async function SettingsPage() {
+interface SettingsPageProps {
+  searchParams?: Promise<{ tab?: string }>;
+}
+
+export default async function SettingsPage(props: SettingsPageProps) {
+  const searchParams = props.searchParams ? await props.searchParams : undefined;
+  const rawTab = searchParams?.tab;
+  const initialTab: SettingsTab =
+    rawTab === 'platforms' || rawTab === 'workspace' || rawTab === 'api-keys'
+      ? rawTab
+      : 'profile';
+
   const headersList = await headers();
   const user = await requireUser(headersList);
 
@@ -86,6 +98,7 @@ export default async function SettingsPage() {
           role: membership.role,
         }}
         connectedPlatformCount={connectionsWithAccounts.length}
+        initialTab={initialTab}
         initialConnections={serializedConnections}
         initialApiKeys={serializedApiKeys}
       />
