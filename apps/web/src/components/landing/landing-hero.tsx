@@ -1,17 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 
 export function LandingHero() {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText('git clone https://github.com/shubhsaur/ArtXFlow.git');
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <section
       style={{
@@ -194,44 +186,6 @@ export function LandingHero() {
         </a>
       </div>
 
-      {/* Quick Copy CLI Widget */}
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '12px',
-          padding: '8px 16px',
-          borderRadius: '6px',
-          backgroundColor: 'var(--surface-base, #070B12)',
-          border: '1px solid var(--border-subtle, #172333)',
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: '13px',
-          color: 'var(--text-secondary, #AAB5C4)',
-        }}
-      >
-        <span style={{ color: 'var(--status-info, #0B62F5)', fontWeight: 700 }}>$</span>
-        <span style={{ color: 'var(--text-primary, #F5F7FA)' }}>git clone https://github.com/shubhsaur/ArtXFlow.git</span>
-        <button
-          type="button"
-          onClick={handleCopy}
-          title="Copy command"
-          style={{
-            background: 'none',
-            border: 'none',
-            color: copied ? 'var(--status-success, #12B76A)' : 'var(--text-muted, #66768D)',
-            cursor: 'pointer',
-            padding: '2px 4px',
-            display: 'flex',
-            alignItems: 'center',
-            transition: 'color 0.15s ease',
-          }}
-          className="hover:text-text-primary"
-        >
-          {copied ? '✓' : '⧉'}
-        </button>
-      </div>
     </section>
   );
 }

@@ -163,20 +163,6 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
           >
             Compare
           </a>
-          <a
-            href="/#architecture"
-            onClick={(e) => handleNavClick(e, 'architecture')}
-            className="nav-link"
-            style={{
-              fontSize: '14px',
-              fontWeight: 500,
-              color: 'var(--text-secondary, #AAB5C4)',
-              textDecoration: 'none',
-              transition: 'color 0.15s ease',
-            }}
-          >
-            Architecture
-          </a>
         </nav>
 
         {/* Right Trailing Action Cluster */}
@@ -369,19 +355,6 @@ export function Navbar({ user, organizationName, role }: NavbarProps) {
             }}
           >
             Compare
-          </a>
-          <a
-            href="/#architecture"
-            onClick={(e) => handleNavClick(e, 'architecture')}
-            style={{
-              color: 'var(--text-secondary, #AAB5C4)',
-              textDecoration: 'none',
-              fontSize: '15px',
-              fontWeight: 500,
-              padding: '6px 0',
-            }}
-          >
-            Architecture
           </a>
           <div
             style={{

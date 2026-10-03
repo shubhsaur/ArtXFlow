@@ -17,7 +17,8 @@ describe('Navbar Component', () => {
     expect(html).toContain('Features');
     expect(html).toContain('Adapters');
     expect(html).toContain('Compare');
-    expect(html).toContain('Architecture');
+    expect(html).not.toContain('Architecture');
+    expect(html).not.toContain('/#architecture');
   });
 
   it('renders open source badge with header-open-source-badge class to hide on mobile', () => {
