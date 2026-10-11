@@ -123,6 +123,7 @@ export function ImportMarkdownModal({ isOpen, onClose }: ImportMarkdownModalProp
 
   return (
     <div
+      className="articles-modal-backdrop"
       style={{
         position: 'fixed',
         inset: 0,
@@ -136,6 +137,7 @@ export function ImportMarkdownModal({ isOpen, onClose }: ImportMarkdownModalProp
       }}
     >
       <div
+        className="articles-modal-box"
         style={{
           width: '100%',
           maxWidth: '520px',
@@ -171,6 +173,7 @@ export function ImportMarkdownModal({ isOpen, onClose }: ImportMarkdownModalProp
           <button
             type="button"
             onClick={onClose}
+            className="articles-modal-close-btn"
             style={{
               background: 'none',
               border: 'none',
@@ -207,6 +210,7 @@ export function ImportMarkdownModal({ isOpen, onClose }: ImportMarkdownModalProp
 
           {/* Upload Dropzone */}
           <label
+            className="articles-dropzone"
             style={{
               border: '2px dashed var(--border-default, #243447)',
               borderRadius: '12px',
@@ -311,6 +315,7 @@ export function ImportMarkdownModal({ isOpen, onClose }: ImportMarkdownModalProp
           <button
             type="button"
             onClick={onClose}
+            className="articles-btn-secondary"
             style={{
               padding: '7px 14px',
               borderRadius: '8px',
@@ -327,6 +332,7 @@ export function ImportMarkdownModal({ isOpen, onClose }: ImportMarkdownModalProp
             type="button"
             onClick={handleImport}
             disabled={!parsed || isSubmitting}
+            className="articles-btn-primary"
             style={{
               padding: '7px 16px',
               borderRadius: '8px',

@@ -78,6 +78,7 @@ export function ArticlesHubFilterBar({
           <button
             type="button"
             onClick={() => onTabChange('all')}
+            className={`articles-tab-btn ${activeTab === 'all' ? 'active' : ''}`}
             style={{
               paddingBottom: '10px',
               fontSize: '13px',
@@ -92,11 +93,11 @@ export function ArticlesHubFilterBar({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              transition: 'all 0.15s ease',
             }}
           >
             <span>All Articles</span>
             <span
+              className="articles-tab-badge"
               style={{
                 fontSize: '11px',
                 fontFamily: "'JetBrains Mono', monospace",
@@ -114,6 +115,7 @@ export function ArticlesHubFilterBar({
           <button
             type="button"
             onClick={() => onTabChange('published')}
+            className={`articles-tab-btn ${activeTab === 'published' ? 'active' : ''}`}
             style={{
               paddingBottom: '10px',
               fontSize: '13px',
@@ -128,11 +130,11 @@ export function ArticlesHubFilterBar({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              transition: 'all 0.15s ease',
             }}
           >
             <span>Published &amp; Synced</span>
             <span
+              className="articles-tab-badge"
               style={{
                 fontSize: '11px',
                 fontFamily: "'JetBrains Mono', monospace",
@@ -150,6 +152,7 @@ export function ArticlesHubFilterBar({
           <button
             type="button"
             onClick={() => onTabChange('drafts')}
+            className={`articles-tab-btn ${activeTab === 'drafts' ? 'active' : ''}`}
             style={{
               paddingBottom: '10px',
               fontSize: '13px',
@@ -164,11 +167,11 @@ export function ArticlesHubFilterBar({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              transition: 'all 0.15s ease',
             }}
           >
             <span>Drafts</span>
             <span
+              className="articles-tab-badge"
               style={{
                 fontSize: '11px',
                 fontFamily: "'JetBrains Mono', monospace",
@@ -186,6 +189,7 @@ export function ArticlesHubFilterBar({
           <button
             type="button"
             onClick={() => onTabChange('scheduled')}
+            className={`articles-tab-btn ${activeTab === 'scheduled' ? 'active' : ''}`}
             style={{
               paddingBottom: '10px',
               fontSize: '13px',
@@ -200,11 +204,11 @@ export function ArticlesHubFilterBar({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              transition: 'all 0.15s ease',
             }}
           >
             <span>Scheduled</span>
             <span
+              className="articles-tab-badge"
               style={{
                 fontSize: '11px',
                 fontFamily: "'JetBrains Mono', monospace",
@@ -222,6 +226,7 @@ export function ArticlesHubFilterBar({
           <button
             type="button"
             onClick={() => onTabChange('issues')}
+            className={`articles-tab-btn ${activeTab === 'issues' ? 'active' : ''}`}
             style={{
               paddingBottom: '10px',
               fontSize: '13px',
@@ -236,11 +241,11 @@ export function ArticlesHubFilterBar({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              transition: 'all 0.15s ease',
             }}
           >
             <span>Issues</span>
             <span
+              className="articles-tab-badge"
               style={{
                 fontSize: '11px',
                 fontFamily: "'JetBrains Mono', monospace",
@@ -273,6 +278,7 @@ export function ArticlesHubFilterBar({
             type="button"
             onClick={() => onViewModeChange('table')}
             title="Matrix Table View"
+            className={`articles-view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
             style={{
               padding: '4px 6px',
               borderRadius: '6px',
@@ -294,6 +300,7 @@ export function ArticlesHubFilterBar({
             type="button"
             onClick={() => onViewModeChange('grid')}
             title="Card Grid View"
+            className={`articles-view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
             style={{
               padding: '4px 6px',
               borderRadius: '6px',
@@ -354,6 +361,7 @@ export function ArticlesHubFilterBar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Filter by title, tag, or slug..."
+            className="articles-search-input"
             style={{
               width: '100%',
               backgroundColor: 'var(--surface-base, #070B12)',
@@ -370,6 +378,7 @@ export function ArticlesHubFilterBar({
               type="button"
               onClick={() => onSearchChange('')}
               title="Clear search"
+              className="articles-search-clear"
               style={{
                 position: 'absolute',
                 right: '8px',
@@ -415,6 +424,7 @@ export function ArticlesHubFilterBar({
           <select
             value={destinationFilter}
             onChange={(e) => onDestinationChange(e.target.value)}
+            className="articles-select"
             style={{
               width: '100%',
               backgroundColor: 'var(--surface-base, #070B12)',
@@ -441,6 +451,7 @@ export function ArticlesHubFilterBar({
           <select
             value={tagFilter}
             onChange={(e) => onTagChange(e.target.value)}
+            className="articles-select"
             style={{
               width: '100%',
               backgroundColor: 'var(--surface-base, #070B12)',
@@ -467,6 +478,7 @@ export function ArticlesHubFilterBar({
           <select
             value={sortField}
             onChange={(e) => onSortChange(e.target.value as ArticleSortField)}
+            className="articles-select"
             style={{
               width: '100%',
               backgroundColor: 'var(--surface-base, #070B12)',

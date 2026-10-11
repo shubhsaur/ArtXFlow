@@ -88,6 +88,7 @@ export function EditorActionStrip({
             type="button"
             onClick={onUploadImageClick}
             disabled={isUploadingImage}
+            className="editor-strip-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -100,7 +101,6 @@ export function EditorActionStrip({
               fontSize: '12px',
               fontWeight: 500,
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -114,6 +114,7 @@ export function EditorActionStrip({
           <button
             type="button"
             onClick={onOpenUnsplashModal}
+            className="editor-strip-btn-unsplash"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -127,7 +128,6 @@ export function EditorActionStrip({
               fontWeight: 600,
               cursor: 'pointer',
               boxShadow: '0 0 12px -3px rgba(25, 215, 254, 0.3)',
-              transition: 'all 0.15s ease',
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -152,6 +152,7 @@ export function EditorActionStrip({
           <button
             type="button"
             onClick={onOpenAiGenerate}
+            className="editor-strip-btn-ai"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -164,7 +165,6 @@ export function EditorActionStrip({
               fontSize: '12px',
               fontWeight: 500,
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--flow-purple, #7A5CFD)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -224,6 +224,7 @@ export function EditorActionStrip({
             <button
               type="button"
               onClick={onOpenCoverSelect}
+              className="editor-strip-btn-cover"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -235,7 +236,6 @@ export function EditorActionStrip({
                 color: 'var(--text-muted, #66768D)',
                 fontSize: '11px',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
               }}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -332,6 +332,7 @@ export function EditorActionStrip({
             type="button"
             onClick={() => onApplyInline('**', '**', 'bold text')}
             title="Bold (Ctrl+B)"
+            className="editor-format-btn"
             style={{
               width: '28px',
               height: '28px',
@@ -352,6 +353,7 @@ export function EditorActionStrip({
             type="button"
             onClick={() => onApplyInline('*', '*', 'italic text')}
             title="Italic (Ctrl+I)"
+            className="editor-format-btn"
             style={{
               width: '28px',
               height: '28px',
@@ -372,6 +374,7 @@ export function EditorActionStrip({
             type="button"
             onClick={() => onApplyInline('~~', '~~', 'strikethrough')}
             title="Strikethrough"
+            className="editor-format-btn"
             style={{
               width: '28px',
               height: '28px',
@@ -395,6 +398,7 @@ export function EditorActionStrip({
               type="button"
               onClick={() => setShowHeadingMenu((prev) => !prev)}
               title="Headings"
+              className="editor-format-btn"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -436,6 +440,7 @@ export function EditorActionStrip({
                 <button
                   type="button"
                   onClick={() => { onApplyHeading(1); setShowHeadingMenu(false); }}
+                  className="editor-heading-menu-item"
                   style={{ padding: '6px 10px', textAlign: 'left', background: 'none', border: 'none', color: 'var(--text-primary, #F5F7FA)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', borderRadius: '4px' }}
                 >
                   Heading 1
@@ -443,6 +448,7 @@ export function EditorActionStrip({
                 <button
                   type="button"
                   onClick={() => { onApplyHeading(2); setShowHeadingMenu(false); }}
+                  className="editor-heading-menu-item"
                   style={{ padding: '6px 10px', textAlign: 'left', background: 'none', border: 'none', color: 'var(--text-primary, #F5F7FA)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', borderRadius: '4px' }}
                 >
                   Heading 2
@@ -450,6 +456,7 @@ export function EditorActionStrip({
                 <button
                   type="button"
                   onClick={() => { onApplyHeading(3); setShowHeadingMenu(false); }}
+                  className="editor-heading-menu-item"
                   style={{ padding: '6px 10px', textAlign: 'left', background: 'none', border: 'none', color: 'var(--text-primary, #F5F7FA)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', borderRadius: '4px' }}
                 >
                   Heading 3
@@ -465,6 +472,7 @@ export function EditorActionStrip({
             type="button"
             onClick={onApplyBlockquote}
             title="Blockquote"
+            className="editor-format-btn"
             style={{
               width: '28px',
               height: '28px',
@@ -486,6 +494,7 @@ export function EditorActionStrip({
             type="button"
             onClick={() => onApplyInline('`', '`', 'code')}
             title="Inline Code"
+            className="editor-format-btn"
             style={{
               padding: '2px 6px',
               borderRadius: '4px',
@@ -505,6 +514,7 @@ export function EditorActionStrip({
             type="button"
             onClick={() => onApplyCodeBlock('typescript')}
             title="Code Block"
+            className="editor-format-btn"
             style={{
               padding: '2px 6px',
               borderRadius: '4px',
@@ -526,6 +536,7 @@ export function EditorActionStrip({
             type="button"
             onClick={onOpenLinkModal}
             title="Insert Link"
+            className="editor-format-btn"
             style={{
               width: '28px',
               height: '28px',
@@ -547,6 +558,7 @@ export function EditorActionStrip({
             type="button"
             onClick={() => onApplyList('bullet')}
             title="Bullet List"
+            className="editor-format-btn"
             style={{
               width: '28px',
               height: '28px',
@@ -568,6 +580,7 @@ export function EditorActionStrip({
             type="button"
             onClick={() => onApplyList('number')}
             title="Numbered List"
+            className="editor-format-btn"
             style={{
               width: '28px',
               height: '28px',
@@ -589,6 +602,7 @@ export function EditorActionStrip({
             type="button"
             onClick={onApplyTable}
             title="Table"
+            className="editor-format-btn"
             style={{
               width: '28px',
               height: '28px',
@@ -610,6 +624,7 @@ export function EditorActionStrip({
             type="button"
             onClick={onApplyCalloutTip}
             title="Architectural Callout Tip"
+            className="editor-format-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',

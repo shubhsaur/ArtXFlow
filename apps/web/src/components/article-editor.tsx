@@ -1566,6 +1566,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
       {/* Publish Selection Modal */}
       {showPublishModal && (
         <div
+          className="articles-modal-backdrop"
           style={{
             position: 'fixed',
             inset: 0,
@@ -1587,7 +1588,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
               maxHeight: '90vh',
               overflowY: 'auto',
             }}
-            className="custom-scroll"
+            className="custom-scroll articles-modal-box"
           >
             <Card
               style={{
@@ -1627,6 +1628,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
               <button
                 type="button"
                 onClick={() => setShowPublishModal(false)}
+                className="articles-modal-close-btn"
                 style={{
                   background: 'none',
                   border: 'none',
@@ -1708,6 +1710,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                     <button
                       type="button"
                       onClick={() => setSelectedPublishDestinations(destinations.map((d) => d.id))}
+                      className="editor-link-action-btn"
                       style={{
                         background: 'none',
                         border: 'none',
@@ -1723,6 +1726,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                     <button
                       type="button"
                       onClick={() => setSelectedPublishDestinations([])}
+                      className="editor-link-action-btn"
                       style={{
                         background: 'none',
                         border: 'none',
@@ -1838,6 +1842,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                     return (
                       <div
                         key={destination.id}
+                        className="editor-destination-select-card"
                         onClick={() => {
                           setSelectedPublishDestinations((prev) =>
                             prev.includes(destination.id)
@@ -1858,7 +1863,6 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                             isSelected ? 'rgba(11, 135, 254, 0.4)' : 'var(--border, #1C2A3A)'
                           }`,
                           cursor: 'pointer',
-                          transition: 'all 0.15s ease',
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -2220,6 +2224,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
       {/* Schedule Modal / Inline Panel */}
       {showScheduleModal && (
         <div
+          className="articles-modal-backdrop"
           style={{
             position: 'fixed',
             inset: 0,
@@ -2241,7 +2246,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
               maxHeight: '90vh',
               overflowY: 'auto',
             }}
-            className="custom-scroll"
+            className="custom-scroll articles-modal-box"
           >
             <Card
               style={{
@@ -2364,6 +2369,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
                     return (
                       <label
                         key={dest.id}
+                        className="editor-schedule-platform-item"
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -2492,6 +2498,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
           <button
             type="button"
             onClick={() => setPublishMessage(null)}
+            className="articles-modal-close-btn"
             style={{
               background: 'none',
               border: 'none',
@@ -2535,6 +2542,7 @@ export function ArticleEditor({ initialArticle, initialVersion, mode }: ArticleE
           <button
             type="button"
             onClick={() => handleCancelSchedule(activeSchedule.id)}
+            className="editor-link-action-btn"
             style={{
               background: 'none',
               border: 'none',
@@ -3231,6 +3239,7 @@ tags: [${tags.join(', ')}]
       {/* Overrides Modal */}
       {showOverridesModal && (
         <div
+          className="articles-modal-backdrop"
           style={{
             position: 'fixed',
             inset: 0,
@@ -3246,6 +3255,7 @@ tags: [${tags.join(', ')}]
         >
           <div
             onClick={(e) => e.stopPropagation()}
+            className="articles-modal-box"
             style={{
               width: '100%',
               maxWidth: '540px',
@@ -3284,6 +3294,7 @@ tags: [${tags.join(', ')}]
               <button
                 type="button"
                 onClick={() => setShowOverridesModal(false)}
+                className="articles-modal-close-btn"
                 style={{
                   background: 'none',
                   border: 'none',
@@ -3506,6 +3517,7 @@ tags: [${tags.join(', ')}]
       {/* History Modal */}
       {showHistoryModal && (
         <div
+          className="articles-modal-backdrop"
           style={{
             position: 'fixed',
             inset: 0,
@@ -3521,6 +3533,7 @@ tags: [${tags.join(', ')}]
         >
           <div
             onClick={(e) => e.stopPropagation()}
+            className="articles-modal-box"
             style={{
               width: '100%',
               maxWidth: '480px',
@@ -3559,6 +3572,7 @@ tags: [${tags.join(', ')}]
               <button
                 type="button"
                 onClick={() => setShowHistoryModal(false)}
+                className="articles-modal-close-btn"
                 style={{
                   background: 'none',
                   border: 'none',
@@ -3629,6 +3643,7 @@ tags: [${tags.join(', ')}]
       {/* Link Insertion Modal */}
       {showLinkModal && (
         <div
+          className="articles-modal-backdrop"
           style={{
             position: 'fixed',
             inset: 0,
@@ -3644,6 +3659,7 @@ tags: [${tags.join(', ')}]
         >
           <div
             onClick={(e) => e.stopPropagation()}
+            className="articles-modal-box"
             style={{
               width: '100%',
               maxWidth: '440px',

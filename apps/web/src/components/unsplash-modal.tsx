@@ -79,6 +79,7 @@ export function UnsplashModal({ isOpen, onClose, onSelectImage }: UnsplashModalP
       role="dialog"
       aria-modal="true"
       aria-labelledby="unsplash-modal-title"
+      className="articles-modal-backdrop"
       style={{
         position: 'fixed',
         top: 0,
@@ -98,6 +99,7 @@ export function UnsplashModal({ isOpen, onClose, onSelectImage }: UnsplashModalP
       }}
     >
       <div
+        className="articles-modal-box custom-scroll"
         style={{
           width: '100%',
           maxWidth: '840px',
@@ -146,6 +148,7 @@ export function UnsplashModal({ isOpen, onClose, onSelectImage }: UnsplashModalP
           <button
             onClick={onClose}
             aria-label="Close modal"
+            className="articles-modal-close-btn"
             style={{
               background: 'none',
               border: 'none',
@@ -250,23 +253,15 @@ export function UnsplashModal({ isOpen, onClose, onSelectImage }: UnsplashModalP
                 <div
                   key={photo.id}
                   onClick={() => handleSelect(photo)}
+                  className="unsplash-photo-card"
                   style={{
                     borderRadius: '8px',
                     overflow: 'hidden',
                     backgroundColor: 'var(--surface-sunken, #0A121E)',
                     border: '1px solid var(--border, #1C2A3A)',
                     cursor: 'pointer',
-                    transition: 'transform 0.15s ease, border-color 0.15s ease',
                     display: 'flex',
                     flexDirection: 'column',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--axf-blue, #0B87FE)';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--border, #1C2A3A)';
-                    e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
                   <div style={{ width: '100%', height: '140px', overflow: 'hidden', position: 'relative' }}>

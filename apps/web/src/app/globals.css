@@ -1331,6 +1331,1026 @@ textarea {
 }
 
 /* ==========================================================================
+   ARTICLES & SYNDICATION HUB ANIMATIONS & HOVER STATES
+   ========================================================================== */
+
+@keyframes axf-dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes axf-modal-zoom {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes axf-fade-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Primary CTA Button (+ New Article) */
+.articles-btn-primary {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    filter 0.2s ease !important;
+}
+
+.articles-btn-primary:hover {
+  background-color: #2679ff !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 6px 22px rgba(11, 98, 245, 0.65), 0 0 16px rgba(25, 215, 254, 0.4) !important;
+}
+
+.articles-btn-primary:active {
+  transform: translateY(0) scale(0.97) !important;
+}
+
+.articles-btn-primary svg {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.articles-btn-primary:hover svg {
+  transform: rotate(90deg) scale(1.2) !important;
+}
+
+/* Secondary Button (Import Markdown, Action Buttons) */
+.articles-btn-secondary {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+.articles-btn-secondary:not(:disabled):hover {
+  background-color: rgba(25, 215, 254, 0.08) !important;
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  color: #FFFFFF !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 14px rgba(25, 215, 254, 0.25) !important;
+}
+
+.articles-btn-secondary:not(:disabled):active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+.articles-btn-secondary svg {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.articles-btn-secondary:not(:disabled):hover svg {
+  transform: translateY(-2px) scale(1.1) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+}
+
+/* Batch Sync Button */
+.articles-btn-sync {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+.articles-btn-sync:not(:disabled):hover {
+  background-color: rgba(11, 135, 254, 0.2) !important;
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 0 18px rgba(11, 135, 254, 0.45) !important;
+}
+
+.articles-btn-sync:not(:disabled):active {
+  transform: translateY(0) scale(0.97) !important;
+}
+
+.articles-btn-sync svg {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.articles-btn-sync:not(:disabled):hover svg {
+  transform: rotate(180deg) scale(1.15) !important;
+}
+
+/* Metric Deck Cards & Icons */
+.articles-metric-card {
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease,
+    background-color 0.25s ease,
+    box-shadow 0.25s ease !important;
+}
+
+.articles-metric-card:hover {
+  transform: translateY(-4px) !important;
+  border-color: var(--flow-blue, #0B87FE) !important;
+  background-color: var(--surface-container, #141A22) !important;
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.45), 0 0 20px rgba(11, 135, 254, 0.22) !important;
+}
+
+.articles-metric-card-error:hover {
+  border-color: rgba(217, 45, 32, 0.65) !important;
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.45), 0 0 20px rgba(217, 45, 32, 0.25) !important;
+}
+
+.articles-metric-icon {
+  transition:
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.3s ease !important;
+}
+
+.articles-metric-card:hover .articles-metric-icon {
+  transform: scale(1.22) !important;
+  filter: drop-shadow(0 0 10px currentColor) !important;
+}
+
+/* Filter Bar Tabs */
+.articles-tab-btn {
+  transition:
+    color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease !important;
+}
+
+.articles-tab-btn:hover {
+  color: var(--text-primary, #F5F7FA) !important;
+  border-bottom-color: rgba(25, 215, 254, 0.4) !important;
+}
+
+.articles-tab-btn.active {
+  color: var(--flow-cyan, #19D7FE) !important;
+  border-bottom-color: var(--flow-cyan, #19D7FE) !important;
+}
+
+.articles-tab-badge {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease !important;
+}
+
+.articles-tab-btn:hover .articles-tab-badge {
+  background-color: var(--surface-container-high, #252A32) !important;
+  color: var(--text-primary, #F5F7FA) !important;
+  transform: scale(1.06);
+}
+
+/* View Mode Toggle Buttons */
+.articles-view-toggle-btn {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease !important;
+}
+
+.articles-view-toggle-btn:hover:not(.active) {
+  background-color: var(--surface-container-high, #252A32) !important;
+  color: var(--text-primary, #F5F7FA) !important;
+  transform: scale(1.08);
+}
+
+.articles-view-toggle-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.articles-view-toggle-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* Search input & Select dropdowns */
+.articles-search-input {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease !important;
+}
+
+.articles-search-input:hover {
+  border-color: rgba(25, 215, 254, 0.35) !important;
+}
+
+.articles-search-input:focus {
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  box-shadow: 0 0 0 3px rgba(25, 215, 254, 0.15) !important;
+}
+
+.articles-search-clear {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.2s ease,
+    background-color 0.2s ease !important;
+  border-radius: 4px;
+}
+
+.articles-search-clear:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary, #F5F7FA) !important;
+  transform: translateY(-50%) rotate(90deg) scale(1.15) !important;
+}
+
+.articles-select {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease !important;
+}
+
+.articles-select:hover {
+  border-color: rgba(25, 215, 254, 0.4) !important;
+  background-color: var(--surface-container-low, #181C23) !important;
+}
+
+.articles-select:focus {
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  box-shadow: 0 0 0 2px rgba(25, 215, 254, 0.2) !important;
+}
+
+/* Table Rows & Interactive Elements */
+.articles-table-row {
+  transition: background-color 0.18s ease !important;
+}
+
+.articles-table-row:hover {
+  background-color: rgba(255, 255, 255, 0.035) !important;
+}
+
+.articles-row-title-link {
+  transition: color 0.18s ease !important;
+}
+
+.articles-row-title-link:hover {
+  color: var(--flow-cyan, #19D7FE) !important;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.articles-ext-link-icon {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease !important;
+  display: inline-flex;
+}
+
+a:hover .articles-ext-link-icon,
+.articles-ext-link-icon:hover {
+  transform: translate(2px, -2px) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+}
+
+.articles-dest-pill {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease !important;
+}
+
+.articles-dest-pill:hover {
+  border-color: var(--border-default, #243447) !important;
+  background-color: var(--surface-container-low, #181C23) !important;
+  transform: translateY(-1px);
+}
+
+.articles-dest-pill a {
+  transition: color 0.15s ease, text-shadow 0.15s ease !important;
+}
+
+.articles-dest-pill a:hover {
+  color: var(--flow-cyan, #19D7FE) !important;
+  text-shadow: 0 0 8px rgba(25, 215, 254, 0.5);
+}
+
+.articles-tag-chip {
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease !important;
+}
+
+.articles-tag-chip:hover {
+  border-color: var(--border-default, #243447) !important;
+  background-color: var(--surface-container, #1B2027) !important;
+  color: var(--text-primary, #F5F7FA) !important;
+  transform: translateY(-1px);
+}
+
+.articles-bind-targets-link {
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease !important;
+}
+
+.articles-bind-targets-link:hover {
+  border-color: var(--flow-blue, #0B87FE) !important;
+  background-color: rgba(11, 135, 254, 0.08) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+  transform: translateY(-1px);
+}
+
+/* Action Buttons inside Matrix Table */
+.articles-row-btn-edit {
+  transition:
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease !important;
+}
+
+.articles-row-btn-edit:hover {
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  background-color: rgba(25, 215, 254, 0.12) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 10px rgba(25, 215, 254, 0.3) !important;
+}
+
+.articles-row-btn-edit:active {
+  transform: scale(0.96) !important;
+}
+
+.articles-row-btn-sync {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease,
+    color 0.2s ease !important;
+}
+
+.articles-row-btn-sync:not(:disabled):hover {
+  background-color: rgba(25, 215, 254, 0.18) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 0 12px rgba(25, 215, 254, 0.35) !important;
+}
+
+.articles-row-btn-sync svg {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.articles-row-btn-sync:not(:disabled):hover svg {
+  transform: rotate(180deg);
+}
+
+.articles-row-btn-sync:not(:disabled):active {
+  transform: scale(0.92) !important;
+}
+
+.articles-row-btn-more {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease,
+    color 0.2s ease !important;
+}
+
+.articles-row-btn-more:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+  transform: scale(1.15) !important;
+}
+
+.articles-row-btn-more:active {
+  transform: scale(0.92) !important;
+}
+
+/* Dropdown Menu & Menu items */
+.articles-menu-dropdown {
+  animation: axf-dropdown-enter 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.articles-menu-item {
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    padding-left 0.15s ease !important;
+}
+
+.articles-menu-item:hover {
+  background-color: var(--surface-container, #1B2027) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+  padding-left: 14px !important;
+}
+
+.articles-menu-item-danger:hover {
+  background-color: rgba(217, 45, 32, 0.15) !important;
+  color: #ff6b6b !important;
+  padding-left: 14px !important;
+}
+
+/* Card list / Mobile Cards */
+.articles-card-item {
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease !important;
+}
+
+.articles-card-item:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-highlight, rgba(11, 98, 245, 0.35)) !important;
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.4), 0 0 20px rgba(11, 135, 254, 0.15) !important;
+}
+
+/* Footer Pagination & Telemetry */
+.articles-page-btn {
+  transition:
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease !important;
+}
+
+.articles-page-btn:not(:disabled):hover {
+  background-color: var(--surface-container, #1B2027) !important;
+  border-color: var(--border-highlight, rgba(11, 98, 245, 0.35)) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+  transform: translateY(-1px);
+}
+
+.articles-page-btn-prev:not(:disabled):hover {
+  transform: translateX(-2px) !important;
+}
+
+.articles-page-btn-next:not(:disabled):hover {
+  transform: translateX(2px) !important;
+}
+
+.articles-page-btn:not(:disabled):active {
+  transform: scale(0.95) !important;
+}
+
+.articles-telemetry-card {
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease !important;
+}
+
+.articles-telemetry-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-highlight, rgba(11, 98, 245, 0.35)) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+.articles-telemetry-icon {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease !important;
+}
+
+.articles-telemetry-card:hover .articles-telemetry-icon {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* Modal Animations & Controls */
+.articles-modal-backdrop {
+  animation: axf-fade-enter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.articles-modal-box {
+  animation: axf-modal-zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.articles-modal-close-btn {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease,
+    color 0.2s ease !important;
+  border-radius: 6px;
+}
+
+.articles-modal-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-primary, #F5F7FA) !important;
+  transform: rotate(90deg);
+}
+
+.articles-dropzone {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+.articles-dropzone:hover {
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  background-color: rgba(25, 215, 254, 0.04) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.articles-dropzone svg {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.articles-dropzone:hover svg {
+  transform: translateY(-3px) scale(1.1);
+  color: var(--flow-cyan, #19D7FE) !important;
+}
+
+.articles-btn-danger {
+  transition:
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.18s ease,
+    box-shadow 0.18s ease !important;
+}
+
+.articles-btn-danger:not(:disabled):hover {
+  background-color: #B42318 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 0 18px rgba(217, 45, 32, 0.5) !important;
+}
+
+.articles-btn-danger:not(:disabled):active {
+  transform: scale(0.97) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .articles-btn-primary,
+  .articles-btn-secondary,
+  .articles-btn-sync,
+  .articles-metric-card,
+  .articles-metric-icon,
+  .articles-tab-btn,
+  .articles-tab-badge,
+  .articles-view-toggle-btn,
+  .articles-search-clear,
+  .articles-table-row,
+  .articles-dest-pill,
+  .articles-row-btn-edit,
+  .articles-row-btn-sync,
+  .articles-row-btn-more,
+  .articles-card-item,
+  .articles-page-btn,
+  .articles-telemetry-card,
+  .articles-telemetry-icon,
+  .articles-dropzone,
+  .articles-btn-danger,
+  .articles-modal-close-btn {
+    transition: none !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .articles-menu-dropdown,
+  .articles-modal-backdrop,
+  .articles-modal-box {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   ARTICLE EDITOR PAGE HOVER & ANIMATIONS (/articles/[articleId], /articles/new)
+   ========================================================================== */
+
+/* Editor Header Back Button */
+.editor-header-back-btn {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease,
+    color 0.2s ease !important;
+}
+
+.editor-header-back-btn:hover {
+  background-color: var(--surface-container, #1B2027) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+}
+
+.editor-header-back-btn svg {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editor-header-back-btn:hover svg {
+  transform: translateX(-3px);
+}
+
+/* Editor Header Brand Links */
+.editor-breadcrumb-link {
+  transition: color 0.15s ease !important;
+}
+
+.editor-breadcrumb-link:hover {
+  color: var(--flow-cyan, #19D7FE) !important;
+}
+
+/* Editor Primary CTA (Publish / Create Article) */
+.editor-btn-publish {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease !important;
+}
+
+.editor-btn-publish:not(:disabled):hover {
+  background-color: #2679ff !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 6px 22px rgba(11, 98, 245, 0.65), 0 0 16px rgba(25, 215, 254, 0.4) !important;
+}
+
+.editor-btn-publish:not(:disabled):active {
+  transform: translateY(0) scale(0.97) !important;
+}
+
+.editor-btn-publish svg {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editor-btn-publish:not(:disabled):hover svg {
+  transform: translate(2px, -2px) scale(1.15) !important;
+}
+
+/* Editor Header Secondary Action Buttons (Save Draft, History, Overrides) */
+.editor-header-btn {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+.editor-header-btn:not(:disabled):hover {
+  background-color: var(--surface-container, #1B2027) !important;
+  color: var(--text-primary, #F5F7FA) !important;
+  transform: translateY(-1px);
+}
+
+.editor-header-btn:not(:disabled):active {
+  transform: translateY(0) scale(0.96) !important;
+}
+
+.editor-header-btn svg {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.editor-header-btn:not(:disabled):hover svg {
+  color: var(--flow-cyan, #19D7FE) !important;
+}
+
+.editor-header-btn-save:not(:disabled):hover svg {
+  transform: scale(1.15);
+}
+
+.editor-header-btn-history:not(:disabled):hover svg {
+  transform: rotate(-30deg) scale(1.15);
+}
+
+.editor-header-btn-overrides:not(:disabled):hover svg {
+  transform: rotate(90deg) scale(1.15);
+}
+
+/* Update Live Button */
+.editor-btn-update-live {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+.editor-btn-update-live:hover {
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  background-color: rgba(25, 215, 254, 0.12) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 0 14px rgba(25, 215, 254, 0.3) !important;
+}
+
+/* Media Controls in Action Strip */
+.editor-strip-btn {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+.editor-strip-btn:not(:disabled):hover {
+  background-color: var(--surface-container, #1B2027) !important;
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  color: var(--text-primary, #F5F7FA) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.editor-strip-btn:not(:disabled):active {
+  transform: translateY(0) scale(0.97) !important;
+}
+
+.editor-strip-btn svg {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.editor-strip-btn:not(:disabled):hover svg {
+  transform: translateY(-2px);
+  color: var(--flow-cyan, #19D7FE) !important;
+}
+
+/* Unsplash Button in Action Strip */
+.editor-strip-btn-unsplash {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+.editor-strip-btn-unsplash:hover {
+  background-color: rgba(25, 215, 254, 0.12) !important;
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 0 16px rgba(25, 215, 254, 0.4) !important;
+}
+
+.editor-strip-btn-unsplash svg {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editor-strip-btn-unsplash:hover svg {
+  transform: scale(1.15) rotate(-5deg);
+}
+
+/* AI Generate Button in Action Strip */
+.editor-strip-btn-ai {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+.editor-strip-btn-ai:hover {
+  background-color: rgba(122, 92, 253, 0.14) !important;
+  border-color: var(--flow-purple, #7A5CFD) !important;
+  color: #FFFFFF !important;
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 0 16px rgba(122, 92, 253, 0.4) !important;
+}
+
+.editor-strip-btn-ai svg {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editor-strip-btn-ai:hover svg {
+  transform: rotate(20deg) scale(1.2);
+}
+
+/* Cover Button */
+.editor-strip-btn-cover {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease !important;
+}
+
+.editor-strip-btn-cover:hover {
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  background-color: rgba(25, 215, 254, 0.06) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+  transform: translateY(-1px);
+}
+
+.editor-strip-btn-cover svg {
+  transition: transform 0.2s ease;
+}
+
+.editor-strip-btn-cover:hover svg {
+  transform: scale(1.15);
+}
+
+/* Markdown Formatting Toolbar Buttons (B, I, S, H, quotes, code, list, table, tip) */
+.editor-format-btn {
+  transition:
+    transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.15s ease,
+    color 0.15s ease !important;
+}
+
+.editor-format-btn:hover {
+  background-color: var(--surface-container-high, #252A32) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+  transform: scale(1.12);
+}
+
+.editor-format-btn:active {
+  transform: scale(0.92) !important;
+}
+
+.editor-format-btn svg {
+  transition: transform 0.15s ease;
+}
+
+.editor-format-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* Heading Dropdown Menu Items */
+.editor-heading-menu-item {
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    padding-left 0.15s ease !important;
+}
+
+.editor-heading-menu-item:hover {
+  background-color: var(--surface-container, #1B2027) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+  padding-left: 14px !important;
+}
+
+/* Platform Preview Tabs (DEV.to, Hashnode, Medium) */
+.editor-preview-tab-btn {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease !important;
+}
+
+.editor-preview-tab-btn:hover:not(.active) {
+  background-color: var(--surface-container, #1B2027) !important;
+  border-color: rgba(11, 135, 254, 0.4) !important;
+  color: var(--text-primary, #F5F7FA) !important;
+  transform: translateY(-1px);
+}
+
+.editor-preview-tab-btn:active {
+  transform: scale(0.97) !important;
+}
+
+/* Mobile Dock Navigation Buttons */
+.editor-dock-btn {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease,
+    color 0.2s ease !important;
+}
+
+.editor-dock-btn:hover {
+  transform: translateY(-2px);
+  color: var(--flow-cyan, #19D7FE) !important;
+}
+
+.editor-dock-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.editor-dock-btn:hover svg {
+  transform: scale(1.15);
+}
+
+/* Editor Assistant Sidebar Controls */
+.editor-sidebar-toggle-btn {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.editor-sidebar-toggle-btn:hover {
+  background-color: var(--surface-container-high, #252A32) !important;
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  color: var(--flow-cyan, #19D7FE) !important;
+  transform: scale(1.08);
+}
+
+.editor-sidebar-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.editor-sidebar-tab-btn {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.editor-sidebar-tab-btn:hover:not(.active) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary, #F5F7FA) !important;
+  transform: translateY(-1px);
+}
+
+.editor-sidebar-tab-btn.active {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.editor-sidebar-card {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.editor-sidebar-card:hover {
+  border-color: var(--border-default, #243447) !important;
+  background-color: var(--surface-container-lowest, #090E15) !important;
+  transform: translateY(-1px);
+}
+
+/* Tag Input Chips & Remove Buttons */
+.editor-tag-chip {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.editor-tag-chip:hover {
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  background-color: rgba(25, 215, 254, 0.16) !important;
+  box-shadow: 0 0 12px rgba(25, 215, 254, 0.2) !important;
+}
+
+.editor-tag-remove-btn {
+  transition: all 0.15s ease !important;
+}
+
+.editor-tag-remove-btn:hover {
+  color: #EF4444 !important;
+  transform: scale(1.25);
+}
+
+.editor-tag-remove-btn:active {
+  transform: scale(0.9);
+}
+
+/* Slash Menu Items */
+.editor-slash-item {
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.editor-slash-item:hover {
+  background-color: rgba(11, 135, 254, 0.14) !important;
+  border-color: rgba(11, 135, 254, 0.35) !important;
+  transform: translateX(2px);
+}
+
+/* Publish Modal Destination Cards */
+.editor-destination-select-card {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.editor-destination-select-card:hover {
+  border-color: var(--flow-blue, #0B87FE) !important;
+  background-color: rgba(11, 135, 254, 0.12) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(11, 135, 254, 0.15);
+}
+
+.editor-destination-select-card:active {
+  transform: scale(0.99);
+}
+
+/* Schedule Platform Item */
+.editor-schedule-platform-item {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.editor-schedule-platform-item:hover {
+  border-color: var(--flow-blue, #0B87FE) !important;
+  background-color: rgba(11, 135, 254, 0.08) !important;
+  transform: translateX(2px);
+}
+
+/* Unsplash Photo Card */
+.unsplash-photo-card {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.unsplash-photo-card:hover {
+  border-color: var(--flow-cyan, #19D7FE) !important;
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(25, 215, 254, 0.2) !important;
+}
+
+.unsplash-photo-card img {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.unsplash-photo-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Text / Inline Action Buttons */
+.editor-link-action-btn {
+  transition: all 0.15s ease !important;
+}
+
+.editor-link-action-btn:hover {
+  color: #FFFFFF !important;
+  text-shadow: 0 0 8px rgba(25, 215, 254, 0.5);
+  transform: scale(1.05);
+}
+
+/* ==========================================================================
    PLATFORM CONNECTIONS SETTINGS (Bento & Mobile Mesh)
    ========================================================================== */
 .platform-connections-shell {

@@ -30,6 +30,7 @@ export function EditorSidebar({
           type="button"
           onClick={onToggleCollapse}
           title="Expand helper sidebar"
+          className="editor-sidebar-toggle-btn"
           style={{
             padding: '8px 10px',
             borderRadius: '8px',
@@ -80,6 +81,7 @@ export function EditorSidebar({
             type="button"
             onClick={onToggleCollapse}
             title="Collapse sidebar"
+            className="editor-sidebar-toggle-btn"
             style={{
               background: 'none',
               border: 'none',
@@ -107,6 +109,7 @@ export function EditorSidebar({
         <button
           type="button"
           onClick={() => setActiveTab('readiness')}
+          className={`editor-sidebar-tab-btn ${activeTab === 'readiness' ? 'active' : ''}`}
           style={{
             flex: 1,
             padding: '6px',
@@ -125,6 +128,7 @@ export function EditorSidebar({
         <button
           type="button"
           onClick={() => setActiveTab('stats')}
+          className={`editor-sidebar-tab-btn ${activeTab === 'stats' ? 'active' : ''}`}
           style={{
             flex: 1,
             padding: '6px',
@@ -143,6 +147,7 @@ export function EditorSidebar({
         <button
           type="button"
           onClick={() => setActiveTab('shortcuts')}
+          className={`editor-sidebar-tab-btn ${activeTab === 'shortcuts' ? 'active' : ''}`}
           style={{
             flex: 1,
             padding: '6px',
@@ -177,6 +182,7 @@ export function EditorSidebar({
 
             {/* DEV.to */}
             <div
+              className="editor-sidebar-card"
               style={{
                 padding: '10px',
                 borderRadius: '8px',
@@ -216,6 +222,7 @@ export function EditorSidebar({
 
             {/* Medium */}
             <div
+              className="editor-sidebar-card"
               style={{
                 padding: '10px',
                 borderRadius: '8px',
@@ -255,6 +262,7 @@ export function EditorSidebar({
 
             {/* Hashnode */}
             <div
+              className="editor-sidebar-card"
               style={{
                 padding: '10px',
                 borderRadius: '8px',
@@ -304,6 +312,7 @@ export function EditorSidebar({
             style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
           >
             <div
+              className="editor-sidebar-card"
               style={{
                 padding: '12px',
                 borderRadius: '8px',
@@ -320,6 +329,7 @@ export function EditorSidebar({
             </div>
 
             <div
+              className="editor-sidebar-card"
               style={{
                 padding: '12px',
                 borderRadius: '8px',
@@ -336,6 +346,7 @@ export function EditorSidebar({
             </div>
 
             <div
+              className="editor-sidebar-card"
               style={{
                 padding: '12px',
                 borderRadius: '8px',

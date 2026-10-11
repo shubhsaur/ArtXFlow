@@ -97,13 +97,7 @@ export function ArticlesHubMatrixTable({
                   checked={allSelected}
                   onChange={onToggleSelectAll}
                   aria-label="Select all articles"
-                  style={{
-                    borderRadius: '4px',
-                    backgroundColor: 'var(--surface-raised, #0D1420)',
-                    borderColor: 'var(--border-default, #243447)',
-                    accentColor: 'var(--flow-blue, #0B87FE)',
-                    cursor: 'pointer',
-                  }}
+                  className="axf-checkbox"
                 />
               </th>
               <th style={{ minWidth: '340px', padding: '12px 16px' }}>CANONICAL ARTICLE &amp; METADATA</th>
@@ -126,6 +120,7 @@ export function ArticlesHubMatrixTable({
               return (
                 <tr
                   key={article.id}
+                  className="articles-table-row"
                   style={{
                     borderBottom: '1px solid var(--border-subtle, #172333)',
                     backgroundColor: isSelected
@@ -133,7 +128,6 @@ export function ArticlesHubMatrixTable({
                       : hasIssues
                         ? 'rgba(217, 45, 32, 0.04)'
                         : 'transparent',
-                    transition: 'background-color 0.15s ease',
                   }}
                 >
                   {/* Checkbox */}
@@ -143,14 +137,7 @@ export function ArticlesHubMatrixTable({
                       checked={isSelected}
                       onChange={() => onToggleSelect(article.id)}
                       aria-label={`Select ${article.title}`}
-                      style={{
-                        marginTop: '2px',
-                        borderRadius: '4px',
-                        backgroundColor: 'var(--surface-raised, #0D1420)',
-                        borderColor: 'var(--border-default, #243447)',
-                        accentColor: 'var(--flow-blue, #0B87FE)',
-                        cursor: 'pointer',
-                      }}
+                      className="axf-checkbox"
                     />
                   </td>
 
@@ -160,6 +147,7 @@ export function ArticlesHubMatrixTable({
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                         <Link
                           href={`/articles/${article.id}`}
+                          className="articles-row-title-link"
                           style={{
                             fontSize: '14px',
                             fontWeight: 600,
@@ -167,8 +155,6 @@ export function ArticlesHubMatrixTable({
                             color: 'var(--text-primary, #F5F7FA)',
                             textDecoration: 'none',
                           }}
-                          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--flow-cyan, #19D7FE)')}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-primary, #F5F7FA)')}
                         >
                           {article.title}
                         </Link>
@@ -218,6 +204,7 @@ export function ArticlesHubMatrixTable({
                           {article.tags.slice(0, 4).map((tag) => (
                             <span
                               key={tag}
+                              className="articles-tag-chip"
                               style={{
                                 padding: '2px 7px',
                                 borderRadius: '4px',
@@ -239,6 +226,7 @@ export function ArticlesHubMatrixTable({
                   {/* Primary Target */}
                   <td style={{ padding: '16px', verticalAlign: 'top' }}>
                     <div
+                      className="articles-dest-pill"
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -267,7 +255,7 @@ export function ArticlesHubMatrixTable({
                           title="Open canonical source"
                           style={{ color: 'var(--text-muted, #66768D)', display: 'inline-flex', alignItems: 'center' }}
                         >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg className="articles-ext-link-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                             <polyline points="15 3 21 3 21 9" />
                             <line x1="10" y1="14" x2="21" y2="3" />
@@ -285,6 +273,7 @@ export function ArticlesHubMatrixTable({
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px' }}>
                       {/* DEV.to */}
                       <div
+                        className="articles-dest-pill"
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -317,9 +306,11 @@ export function ArticlesHubMatrixTable({
                             href={devPub.externalUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ color: 'var(--status-success, #12B76A)', textDecoration: 'none', fontSize: '10px' }}
+                            className="articles-dest-pill-live"
+                            style={{ color: 'var(--status-success, #12B76A)', textDecoration: 'none', fontSize: '10px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}
                           >
-                            Live ↗
+                            <span>Live</span>
+                            <span className="articles-ext-link-icon">↗</span>
                           </a>
                         ) : devPub?.status === 'FAILED' ? (
                           <span style={{ color: 'var(--status-error, #D92D20)', fontSize: '10px' }}>Failed</span>
@@ -330,6 +321,7 @@ export function ArticlesHubMatrixTable({
 
                       {/* Hashnode */}
                       <div
+                        className="articles-dest-pill"
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -362,9 +354,11 @@ export function ArticlesHubMatrixTable({
                             href={hashPub.externalUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ color: 'var(--status-success, #12B76A)', textDecoration: 'none', fontSize: '10px' }}
+                            className="articles-dest-pill-live"
+                            style={{ color: 'var(--status-success, #12B76A)', textDecoration: 'none', fontSize: '10px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}
                           >
-                            Live ↗
+                            <span>Live</span>
+                            <span className="articles-ext-link-icon">↗</span>
                           </a>
                         ) : hashPub?.status === 'FAILED' ? (
                           <span style={{ color: 'var(--status-error, #D92D20)', fontSize: '10px' }}>Failed</span>
@@ -375,6 +369,7 @@ export function ArticlesHubMatrixTable({
 
                       {/* Medium */}
                       <div
+                        className="articles-dest-pill"
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -407,9 +402,11 @@ export function ArticlesHubMatrixTable({
                             href={medPub.externalUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ color: 'var(--status-success, #12B76A)', textDecoration: 'none', fontSize: '10px' }}
+                            className="articles-dest-pill-live"
+                            style={{ color: 'var(--status-success, #12B76A)', textDecoration: 'none', fontSize: '10px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}
                           >
-                            Live ↗
+                            <span>Live</span>
+                            <span className="articles-ext-link-icon">↗</span>
                           </a>
                         ) : medPub?.status === 'FAILED' ? (
                           <span style={{ color: 'var(--status-error, #D92D20)', fontSize: '10px' }}>Alert</span>
@@ -444,6 +441,7 @@ export function ArticlesHubMatrixTable({
                       ) : (
                         <Link
                           href={`/articles/${article.id}`}
+                          className="articles-bind-targets-link"
                           style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -455,14 +453,6 @@ export function ArticlesHubMatrixTable({
                             fontFamily: "'JetBrains Mono', monospace",
                             color: 'var(--text-muted, #66768D)',
                             textDecoration: 'none',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.color = 'var(--flow-cyan, #19D7FE)';
-                            e.currentTarget.style.borderColor = 'var(--flow-blue, #0B87FE)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.color = 'var(--text-muted, #66768D)';
-                            e.currentTarget.style.borderColor = 'var(--border-subtle, #172333)';
                           }}
                         >
                           + Bind Targets
@@ -476,6 +466,7 @@ export function ArticlesHubMatrixTable({
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                       <Link
                         href={`/articles/${article.id}`}
+                        className="articles-row-btn-edit"
                         style={{
                           padding: '5px 12px',
                           borderRadius: '6px',
@@ -496,6 +487,7 @@ export function ArticlesHubMatrixTable({
                         onClick={() => onSyncArticle(article.id)}
                         disabled={isSyncing}
                         title="Sync article to destinations"
+                        className="articles-row-btn-sync"
                         style={{
                           padding: '6px',
                           borderRadius: '6px',
@@ -528,6 +520,7 @@ export function ArticlesHubMatrixTable({
                         type="button"
                         onClick={() => setActiveMenuId(activeMenuId === article.id ? null : article.id)}
                         title="More options"
+                        className="articles-row-btn-more"
                         style={{
                           padding: '6px',
                           borderRadius: '6px',
@@ -550,6 +543,7 @@ export function ArticlesHubMatrixTable({
                       {/* Dropdown Menu */}
                       {activeMenuId === article.id && (
                         <div
+                          className="articles-menu-dropdown"
                           style={{
                             position: 'absolute',
                             right: '16px',
@@ -570,6 +564,7 @@ export function ArticlesHubMatrixTable({
                               navigator.clipboard.writeText(`/${article.slug}`);
                               setActiveMenuId(null);
                             }}
+                            className="articles-menu-item"
                             style={{
                               width: '100%',
                               padding: '8px 10px',
@@ -591,6 +586,7 @@ export function ArticlesHubMatrixTable({
                                 navigator.clipboard.writeText(article.canonicalUrl!);
                                 setActiveMenuId(null);
                               }}
+                              className="articles-menu-item"
                               style={{
                                 width: '100%',
                                 padding: '8px 10px',
@@ -613,6 +609,7 @@ export function ArticlesHubMatrixTable({
                               setActiveMenuId(null);
                               onDeleteArticle(article);
                             }}
+                            className="articles-menu-item articles-menu-item-danger"
                             style={{
                               width: '100%',
                               padding: '8px 10px',
