@@ -74,7 +74,7 @@ export function EditorHeader({
         {/* Mobile Back Button */}
         <Link
           href="/articles"
-          className="header-mobile-toggle"
+          className="header-mobile-toggle editor-header-back-btn"
           aria-label="Back to Articles"
           style={{
             display: 'flex',
@@ -87,6 +87,7 @@ export function EditorHeader({
             textDecoration: 'none',
             backgroundColor: 'transparent',
             flexShrink: 0,
+            cursor: 'pointer',
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -143,10 +144,12 @@ export function EditorHeader({
         >
           <Link
             href="/articles"
+            className="editor-breadcrumb-link"
             style={{
               color: 'var(--text-secondary, #AAB5C4)',
               textDecoration: 'none',
               flexShrink: 0,
+              cursor: 'pointer',
             }}
           >
             Articles
@@ -278,6 +281,7 @@ export function EditorHeader({
             onClick={onSaveDraft}
             disabled={isSaving}
             title="Save Draft (Ctrl+S / Cmd+S)"
+            className="editor-header-btn editor-header-btn-save"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -290,7 +294,6 @@ export function EditorHeader({
               fontSize: '12px',
               fontWeight: 500,
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -305,6 +308,7 @@ export function EditorHeader({
             type="button"
             onClick={onOpenHistory}
             title="Version History"
+            className="editor-header-btn editor-header-btn-history"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -317,7 +321,6 @@ export function EditorHeader({
               fontSize: '12px',
               fontWeight: 500,
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -331,6 +334,7 @@ export function EditorHeader({
             type="button"
             onClick={onOpenOverrides}
             title="Platform Overrides & Settings"
+            className="editor-header-btn editor-header-btn-overrides"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -343,7 +347,6 @@ export function EditorHeader({
               fontSize: '12px',
               fontWeight: 500,
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -366,6 +369,7 @@ export function EditorHeader({
           <button
             type="button"
             onClick={onUpdatePublishedCopies}
+            className="editor-btn-update-live"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -378,7 +382,6 @@ export function EditorHeader({
               fontSize: '12px',
               fontWeight: 600,
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
             }}
           >
             <span>↻ Update Live</span>
@@ -392,6 +395,7 @@ export function EditorHeader({
           type="button"
           onClick={onPublishClick}
           disabled={isPublishing}
+          className="editor-btn-publish"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -403,9 +407,8 @@ export function EditorHeader({
             padding: '7px 14px',
             borderRadius: '6px',
             border: 'none',
-            cursor: 'pointer',
+            cursor: isPublishing ? 'not-allowed' : 'pointer',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 16px -2px rgba(11, 98, 245, 0.4)',
-            transition: 'all 0.15s ease',
           }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

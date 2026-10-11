@@ -106,6 +106,7 @@ export function EditorPlatformPreview({
             <button
               type="button"
               onClick={() => onSelectPlatform('devto')}
+              className={`editor-preview-tab-btn ${selectedPlatform === 'devto' ? 'active' : ''}`}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -118,7 +119,6 @@ export function EditorPlatformPreview({
                 color: selectedPlatform === 'devto' ? '#FFFFFF' : 'var(--text-secondary, #AAB5C4)',
                 border: selectedPlatform === 'devto' ? '1px solid var(--flow-blue, #0B87FE)' : '1px solid transparent',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
               }}
             >
               <span
@@ -142,6 +142,7 @@ export function EditorPlatformPreview({
             <button
               type="button"
               onClick={() => onSelectPlatform('hashnode')}
+              className={`editor-preview-tab-btn ${selectedPlatform === 'hashnode' ? 'active' : ''}`}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -154,7 +155,6 @@ export function EditorPlatformPreview({
                 color: selectedPlatform === 'hashnode' ? '#FFFFFF' : 'var(--text-secondary, #AAB5C4)',
                 border: selectedPlatform === 'hashnode' ? '1px solid var(--flow-blue, #0B87FE)' : '1px solid transparent',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
               }}
             >
               <span
@@ -178,6 +178,7 @@ export function EditorPlatformPreview({
             <button
               type="button"
               onClick={() => onSelectPlatform('medium')}
+              className={`editor-preview-tab-btn ${selectedPlatform === 'medium' ? 'active' : ''}`}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -190,7 +191,6 @@ export function EditorPlatformPreview({
                 color: selectedPlatform === 'medium' ? '#FFFFFF' : 'var(--text-secondary, #AAB5C4)',
                 border: selectedPlatform === 'medium' ? '1px solid var(--flow-blue, #0B87FE)' : '1px solid transparent',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
               }}
             >
               <span

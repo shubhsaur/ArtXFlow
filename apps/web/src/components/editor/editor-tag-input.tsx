@@ -56,6 +56,7 @@ export function EditorTagInput({ tags, onChange, maxTags = 4 }: EditorTagInputPr
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.15 }}
+            className="editor-tag-chip"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -74,6 +75,7 @@ export function EditorTagInput({ tags, onChange, maxTags = 4 }: EditorTagInputPr
               type="button"
               onClick={() => removeTag(tag)}
               aria-label={`Remove tag ${tag}`}
+              className="editor-tag-remove-btn"
               style={{
                 background: 'none',
                 border: 'none',

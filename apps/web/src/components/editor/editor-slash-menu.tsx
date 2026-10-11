@@ -139,6 +139,7 @@ export function EditorSlashMenu({
               key={item.id}
               onClick={() => onSelect(item.id)}
               onMouseEnter={() => setSelectedIndex(idx)}
+              className="editor-slash-item"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -148,7 +149,6 @@ export function EditorSlashMenu({
                 backgroundColor: isSelected ? 'rgba(11, 135, 254, 0.12)' : 'transparent',
                 border: isSelected ? '1px solid rgba(11, 135, 254, 0.3)' : '1px solid transparent',
                 cursor: 'pointer',
-                transition: 'all 0.1s ease',
               }}
             >
               <div

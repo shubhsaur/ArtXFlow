@@ -325,6 +325,7 @@ export function ArticlesHubClient({
                   setDestinationFilter('all');
                   setTagFilter('all');
                 }}
+                className="articles-btn-secondary"
                 style={{
                   padding: '7px 14px',
                   borderRadius: '8px',
@@ -343,6 +344,7 @@ export function ArticlesHubClient({
                 <button
                   type="button"
                   onClick={() => setIsImportOpen(true)}
+                  className="articles-btn-secondary"
                   style={{
                     padding: '8px 14px',
                     borderRadius: '8px',
@@ -357,6 +359,7 @@ export function ArticlesHubClient({
                 </button>
                 <Link
                   href="/articles/new"
+                  className="articles-btn-primary"
                   style={{
                     padding: '8px 16px',
                     borderRadius: '8px',
@@ -426,6 +429,7 @@ export function ArticlesHubClient({
       {/* 7. Delete Confirmation Modal */}
       {deletingArticle && (
         <div
+          className="articles-modal-backdrop"
           style={{
             position: 'fixed',
             inset: 0,
@@ -439,6 +443,7 @@ export function ArticlesHubClient({
           }}
         >
           <div
+            className="articles-modal-box"
             style={{
               width: '100%',
               maxWidth: '440px',
@@ -488,6 +493,7 @@ export function ArticlesHubClient({
               <button
                 type="button"
                 onClick={() => setDeletingArticle(null)}
+                className="articles-btn-secondary"
                 style={{
                   padding: '8px 14px',
                   borderRadius: '8px',
@@ -504,6 +510,7 @@ export function ArticlesHubClient({
                 type="button"
                 onClick={handleConfirmDelete}
                 disabled={isDeleting}
+                className="articles-btn-danger"
                 style={{
                   padding: '8px 16px',
                   borderRadius: '8px',

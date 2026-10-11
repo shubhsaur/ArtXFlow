@@ -49,6 +49,7 @@ export function ArticlesHubCardList({
         return (
           <article
             key={article.id}
+            className="articles-card-item"
             style={{
               backgroundColor: 'var(--surface-raised, #0D1420)',
               border: hasIssues
@@ -155,6 +156,7 @@ export function ArticlesHubCardList({
                 <h2 style={{ fontSize: '15px', fontWeight: 600, lineHeight: '21px', color: 'var(--text-primary, #F5F7FA)', margin: '4px 0 0' }}>
                   <Link
                     href={`/articles/${article.id}`}
+                    className="articles-row-title-link"
                     style={{ color: 'inherit', textDecoration: 'none' }}
                   >
                     {article.title}
@@ -168,6 +170,7 @@ export function ArticlesHubCardList({
                   type="button"
                   onClick={() => setActiveMenuId(activeMenuId === article.id ? null : article.id)}
                   aria-label="Article actions"
+                  className="articles-row-btn-more"
                   style={{
                     padding: '6px',
                     borderRadius: '6px',
@@ -186,6 +189,7 @@ export function ArticlesHubCardList({
 
                 {activeMenuId === article.id && (
                   <div
+                    className="articles-menu-dropdown"
                     style={{
                       position: 'absolute',
                       right: 0,
@@ -206,6 +210,7 @@ export function ArticlesHubCardList({
                         navigator.clipboard.writeText(`/${article.slug}`);
                         setActiveMenuId(null);
                       }}
+                      className="articles-menu-item"
                       style={{
                         width: '100%',
                         padding: '8px 10px',
@@ -227,6 +232,7 @@ export function ArticlesHubCardList({
                         setActiveMenuId(null);
                         onDeleteArticle(article);
                       }}
+                      className="articles-menu-item articles-menu-item-danger"
                       style={{
                         width: '100%',
                         padding: '8px 10px',
@@ -280,6 +286,7 @@ export function ArticlesHubCardList({
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                 {/* DEV.to */}
                 <div
+                  className="articles-dest-pill"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -310,6 +317,7 @@ export function ArticlesHubCardList({
 
                 {/* Hashnode */}
                 <div
+                  className="articles-dest-pill"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -340,6 +348,7 @@ export function ArticlesHubCardList({
 
                 {/* Medium */}
                 <div
+                  className="articles-dest-pill"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -383,6 +392,7 @@ export function ArticlesHubCardList({
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Link
                   href={`/articles/${article.id}`}
+                  className="articles-row-btn-edit"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -409,6 +419,7 @@ export function ArticlesHubCardList({
                   type="button"
                   onClick={() => onSyncArticle(article.id)}
                   disabled={isSyncing}
+                  className="articles-row-btn-sync"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',

@@ -85,6 +85,7 @@ export function ArticlesHubHeader({
           onClick={onBatchSync}
           disabled={selectedCount === 0 || isSyncingBatch}
           title={selectedCount === 0 ? 'Select articles to batch sync' : `Sync ${selectedCount} selected articles`}
+          className="articles-btn-sync"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -99,7 +100,6 @@ export function ArticlesHubHeader({
             fontWeight: 500,
             cursor: selectedCount === 0 || isSyncingBatch ? 'not-allowed' : 'pointer',
             opacity: selectedCount === 0 ? 0.6 : 1,
-            transition: 'all 0.15s ease',
           }}
         >
           <svg
@@ -122,6 +122,7 @@ export function ArticlesHubHeader({
         <button
           type="button"
           onClick={onOpenImport}
+          className="articles-btn-secondary"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -135,7 +136,6 @@ export function ArticlesHubHeader({
             fontFamily: "'JetBrains Mono', monospace",
             fontWeight: 500,
             cursor: 'pointer',
-            transition: 'all 0.15s ease',
           }}
         >
           <svg
@@ -159,6 +159,7 @@ export function ArticlesHubHeader({
         {/* Primary CTA: + New Article */}
         <Link
           href="/articles/new"
+          className="articles-btn-primary"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -173,7 +174,7 @@ export function ArticlesHubHeader({
             fontWeight: 600,
             textDecoration: 'none',
             letterSpacing: '0.01em',
-            transition: 'all 0.15s ease',
+            cursor: 'pointer',
           }}
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

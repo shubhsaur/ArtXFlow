@@ -92,6 +92,7 @@ export function ArticlesHubFooter({
               disabled={currentPage <= 1}
               onClick={() => onPageChange(currentPage - 1)}
               aria-label="Previous page"
+              className="articles-page-btn articles-page-btn-prev"
               style={{
                 padding: '4px 8px',
                 borderRadius: '6px',
@@ -116,6 +117,7 @@ export function ArticlesHubFooter({
                   key={p}
                   type="button"
                   onClick={() => onPageChange(p)}
+                  className={`articles-page-btn ${isActive ? 'active' : ''}`}
                   style={{
                     padding: '3px 8px',
                     borderRadius: '6px',
@@ -136,6 +138,7 @@ export function ArticlesHubFooter({
               disabled={currentPage >= totalPages}
               onClick={() => onPageChange(currentPage + 1)}
               aria-label="Next page"
+              className="articles-page-btn articles-page-btn-next"
               style={{
                 padding: '4px 8px',
                 borderRadius: '6px',
@@ -163,6 +166,7 @@ export function ArticlesHubFooter({
       >
         {/* Rate Limit Budget */}
         <div
+          className="articles-telemetry-card"
           style={{
             backgroundColor: 'var(--surface-raised, #0D1420)',
             border: '1px solid var(--border-subtle, #172333)',
@@ -176,6 +180,7 @@ export function ArticlesHubFooter({
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div
+              className="articles-telemetry-icon"
               style={{
                 width: '36px',
                 height: '36px',
@@ -219,6 +224,7 @@ export function ArticlesHubFooter({
 
         {/* Staged Dispatches */}
         <div
+          className="articles-telemetry-card"
           style={{
             backgroundColor: 'var(--surface-raised, #0D1420)',
             border: '1px solid var(--border-subtle, #172333)',
@@ -232,6 +238,7 @@ export function ArticlesHubFooter({
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div
+              className="articles-telemetry-icon"
               style={{
                 width: '36px',
                 height: '36px',
@@ -280,6 +287,7 @@ export function ArticlesHubFooter({
 
         {/* Canonical Engine */}
         <div
+          className="articles-telemetry-card"
           style={{
             backgroundColor: 'var(--surface-raised, #0D1420)',
             border: '1px solid var(--border-subtle, #172333)',
@@ -293,6 +301,7 @@ export function ArticlesHubFooter({
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div
+              className="articles-telemetry-icon"
               style={{
                 width: '36px',
                 height: '36px',

@@ -80,6 +80,7 @@ export function EditorMobileDock({
         <button
           type="button"
           onClick={() => onSelectTab('write')}
+          className="editor-dock-btn"
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -92,7 +93,6 @@ export function EditorMobileDock({
             padding: '4px 14px',
             color: activeTab === 'write' ? 'var(--flow-cyan, #19D7FE)' : 'var(--text-muted, #66768D)',
             cursor: 'pointer',
-            transition: 'all 0.15s ease',
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -106,6 +106,7 @@ export function EditorMobileDock({
         <button
           type="button"
           onClick={() => onSelectTab('preview')}
+          className="editor-dock-btn"
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -118,7 +119,6 @@ export function EditorMobileDock({
             padding: '4px 14px',
             color: activeTab === 'preview' ? 'var(--flow-cyan, #19D7FE)' : 'var(--text-muted, #66768D)',
             cursor: 'pointer',
-            transition: 'all 0.15s ease',
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -132,6 +132,7 @@ export function EditorMobileDock({
         <button
           type="button"
           onClick={() => onSelectTab('media')}
+          className="editor-dock-btn"
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -144,7 +145,6 @@ export function EditorMobileDock({
             padding: '4px 14px',
             color: activeTab === 'media' ? 'var(--flow-cyan, #19D7FE)' : 'var(--text-muted, #66768D)',
             cursor: 'pointer',
-            transition: 'all 0.15s ease',
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -159,6 +159,7 @@ export function EditorMobileDock({
         <button
           type="button"
           onClick={() => onSelectTab('inspect')}
+          className="editor-dock-btn"
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -171,7 +172,6 @@ export function EditorMobileDock({
             padding: '4px 14px',
             color: activeTab === 'inspect' ? 'var(--flow-cyan, #19D7FE)' : 'var(--text-muted, #66768D)',
             cursor: 'pointer',
-            transition: 'all 0.15s ease',
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
